@@ -5,7 +5,7 @@ export const site = {
   description: 'A quiet editorial blog theme for Astro and Tailwind CSS.',
   locale: 'zh-CN',
   /** 作者名，用于 byline */
-  author: 'Example',
+  author: 'Example Author',
   /** 首页顶部的一段自我介绍 */
   intro: {
     eyebrow: 'Blog',
