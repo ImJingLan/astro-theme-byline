@@ -2,22 +2,21 @@ import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
 import type { APIContext } from 'astro';
 import { site } from '../lib/site';
+import { sortPosts, postHref } from '../lib/posts';
 
 export async function GET(context: APIContext) {
-  const articles = (await getCollection('articles', ({ data }) => !data.draft)).sort(
-    (a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime()
-  );
+  const posts = sortPosts(await getCollection('posts', ({ data }) => !data.draft));
 
   return rss({
     title: site.title,
     description: site.description,
     site: context.site ?? 'https://example.com',
-    items: articles.map((article) => ({
-      title: article.data.title,
-      description: article.data.description,
-      pubDate: article.data.publishedAt,
-      link: `/news/${article.id}/`,
-      categories: [article.data.category],
+    items: posts.map((post) => ({
+      title: post.data.title,
+      description: post.data.summary,
+      pubDate: post.data.date,
+      link: postHref(post),
+      categories: [...post.data.categories, ...post.data.tags],
     })),
     customData: `<language>${site.locale}</language>`,
   });
