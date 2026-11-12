@@ -80,6 +80,12 @@ const stats = [
 </script>
 
 <style>
+  /*
+    表格宽度跟随 hero-grid 的列数走，断点与它保持一致（1280px）：
+      单列区间（<1280px）  撑满整行
+      两列区间（≥1280px）  固定 400px，作为右栏
+    手机端（<735px）额外限制 600px，避免 2×2 的格子被拉得过宽。
+  */
   .stats-ledger {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -91,23 +97,23 @@ const stats = [
     border: 1px solid var(--color-hairline);
     border-radius: 16px;
     overflow: hidden;
-    max-width: 600px;
-    flex-shrink: 0;
     width: 100%;
+    max-width: 600px;
   }
 
-  /* 宽屏作为右栏时固定宽度，不参与伸缩 */
-  @media (min-width: 1069px) {
+  /* 平板及以上：单列布局，撑满整行，并排成一行四格 */
+  @media (min-width: 735px) {
     .stats-ledger {
-      width: 400px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       max-width: none;
-      flex: 0 0 400px;
     }
   }
 
-  @media (min-width: 735px) and (max-width: 1068px) {
+  /* 宽屏：并排右栏，固定 400px，回到 2×2 */
+  @media (min-width: 1280px) {
     .stats-ledger {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      width: 400px;
       max-width: none;
     }
   }
