@@ -33,10 +33,12 @@ export const site = {
 } as const;
 
 /**
- * In the Loop 画廊的行为开关。
- * 改这里就能决定是否显示左右翻页箭头 / 底部圆点导航，无需改动组件。
+ * 画廊的行为开关。
+ * 改这里就能决定是否显示整个区块 / 左右翻页箭头 / 底部圆点导航，无需改动组件。
  */
 export const gallery = {
+  /** 是否显示整个画廊区块；设为 false 则整块不渲染 */
+  enable: true,
   /** 左右翻页箭头 */
   showArrows: true,
   /** 底部圆点导航 */

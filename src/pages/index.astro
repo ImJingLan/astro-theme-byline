@@ -79,9 +79,9 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
     </div>
   </section>
 
-  <!-- 画廊 -->
+  <!-- 画廊：gallery.enable 为 false 时整块不渲染 -->
   {
-    galleryPosts.length >= 2 ? (
+    galleryConfig.enable && galleryPosts.length >= 2 ? (
       <section class="bg-fog pb-20">
         <div class="shell">
           <Gallery posts={galleryPosts} viewAllHref="/archive/" />
