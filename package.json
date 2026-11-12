@@ -1,11 +1,14 @@
 {
-  "name": "newsroom-astro-theme",
+  "name": "newsroom-blog-theme",
   "type": "module",
   "version": "1.0.0",
   "private": true,
-  "description": "An editorial blog theme inspired by Apple Newsroom's layout language — built with Astro + Tailwind CSS.",
+  "description": "A quiet editorial blog theme for Astro + Tailwind CSS, with a newsroom-style layout. Drop-in compatible with Hexo/Hugo posts.",
   "scripts": {
+    "assets": "node scripts/sync-assets.mjs",
+    "predev": "node scripts/sync-assets.mjs",
     "dev": "astro dev",
+    "prebuild": "node scripts/sync-assets.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
