@@ -25,6 +25,23 @@ export const site = {
   ],
 } as const;
 
+/**
+ * In the Loop 画廊的行为开关。
+ * 改这里就能决定是否显示左右翻页箭头 / 底部圆点导航，无需改动组件。
+ */
+export const gallery = {
+  /** 左右翻页箭头 */
+  showArrows: true,
+  /** 底部圆点导航 */
+  showDots: true,
+  /**
+   * 箭头位置：
+   * - 'head'    与区块标题同一行，靠右（默认，最贴近编辑式排版）
+   * - 'overlay' 悬浮在卡片两侧，鼠标悬停时显现
+   */
+  arrowPlacement: 'head' as 'head' | 'overlay',
+} as const;
+
 export const categories = [
   { slug: 'products', label: 'Products', description: 'New releases, updates, and availability.' },
   { slug: 'design', label: 'Design', description: 'How we think about craft, typography, and interaction.' },

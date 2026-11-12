@@ -1,11 +1,21 @@
 ---
 /**
- * Gallery —— 横向吸附滚动画廊。
- * 圆点导航与滚动位置双向联动：点击圆点滚动到对应卡片，滚动时高亮当前卡片。
- * 没有 JS 时仍然可以正常横向滚动，圆点只是装饰。
+ * Gallery —— 横向吸附滚动画廊（In the Loop）。
+ *
+ * 交互：
+ * - 左右箭头翻页（可通过 site.ts 的 gallery.showArrows 关闭）
+ * - 底部圆点导航（可通过 gallery.showDots 关闭）
+ * - 滚动位置与圆点、箭头的禁用态双向联动
+ *
+ * 箭头位置由 gallery.arrowPlacement 决定：
+ * - 'head'    与标题同一行靠右
+ * - 'overlay' 悬浮在卡片两侧
+ *
+ * 无 JS 时仍可正常横向滚动，箭头与圆点只是渐进增强。
  */
 import CoverArt from './CoverArt.astro';
 import { formatRelative } from '../lib/format';
+import { gallery as galleryConfig } from '../lib/site';
 
 interface Props {
   items: {
@@ -17,117 +27,253 @@ interface Props {
       publishedAt: Date;
     };
   }[];
+  /** 区块标题；传空字符串则不渲染标题行 */
+  title?: string;
+  /** 右侧 “View All” 链接；不传则不渲染 */
+  viewAllHref?: string;
+  showArrows?: boolean;
+  showDots?: boolean;
+  arrowPlacement?: 'head' | 'overlay';
 }
 
-const { items } = Astro.props;
+const {
+  items,
+  title = 'In the Loop',
+  viewAllHref,
+  showArrows = galleryConfig.showArrows,
+  showDots = galleryConfig.showDots,
+  arrowPlacement = galleryConfig.arrowPlacement,
+} = Astro.props;
+
+const arrowClass =
+  'grid size-9 flex-none place-items-center rounded-full bg-chip text-ink transition duration-300 hover:bg-chip-hover disabled:pointer-events-none disabled:opacity-30';
+const overlayArrowClass =
+  'pointer-events-auto grid size-11 place-items-center rounded-full bg-canvas/90 text-ink shadow-[0_2px_16px_-4px_rgb(0_0_0/0.28)] backdrop-blur transition duration-300 hover:bg-canvas disabled:pointer-events-none disabled:opacity-0';
 ---
 
-<div class="gallery" data-gallery>
-  <div
-    class="no-scrollbar -mx-[22px] flex snap-x snap-mandatory gap-6 overflow-x-auto px-[22px] pb-2 sm:mx-0 sm:px-0"
-    data-gallery-track
-    role="group"
-    aria-label="In the Loop gallery"
-  >
-    {
-      items.map((article, index) => (
-        <div class="w-[300px] flex-none snap-start sm:w-[420px]">
-          <a
-            href={`/news/${article.id}/`}
-            class="tile group flex h-full flex-col rounded-[24px]"
-            data-gallery-item
-            data-index={index}
-          >
-            <div class="tile__media aspect-[16/9]">
-              <CoverArt
-                seed={article.id}
-                tone={article.data.category as any}
-                scale="wide"
-                glyph={article.data.title.charAt(0)}
-                alt=""
-                class="size-full object-cover"
-              />
+<div
+  class="gallery"
+  data-gallery
+  data-arrow-placement={arrowPlacement}
+  data-show-arrows={showArrows ? 'true' : 'false'}
+  data-show-dots={showDots ? 'true' : 'false'}
+>
+  {
+    title ? (
+      <div class="mb-6 flex items-end justify-between gap-6">
+        <h2 class="section-head">{title}</h2>
+        <div class="flex items-center gap-2">
+          {showArrows && arrowPlacement === 'head' ? (
+            <div class="flex items-center gap-2" data-gallery-arrows>
+              <button type="button" class={arrowClass} data-gallery-arrow data-dir="-1" aria-label="Previous articles">
+                <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
+              <button type="button" class={arrowClass} data-gallery-arrow data-dir="1" aria-label="Next articles">
+                <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+                  <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
+                </svg>
+              </button>
             </div>
-            <div class="flex flex-1 flex-col justify-between gap-4 bg-canvas p-5">
-              <div>
-                <p class="eyebrow">{article.data.eyebrow}</p>
-                <h3 class="tile-headline mt-2.5 text-[21px] leading-[1.1905] tracking-[0.011em]">
-                  {article.data.title}
-                </h3>
-              </div>
-              <p class="tile-timestamp text-[14px]">{formatRelative(article.data.publishedAt)}</p>
-            </div>
-          </a>
+          ) : null}
+          {viewAllHref ? (
+            <a href={viewAllHref} class="cta-pill hidden sm:inline-flex">
+              View All
+            </a>
+          ) : null}
         </div>
-      ))
+      </div>
+    ) : null
+  }
+
+  <div class="relative">
+    <div
+      class="no-scrollbar -mx-[22px] flex snap-x snap-mandatory gap-6 overflow-x-auto px-[22px] pb-2 sm:mx-0 sm:px-0"
+      data-gallery-track
+      role="group"
+      aria-label={title || 'Gallery'}
+    >
+      {
+        items.map((article, index) => (
+          <div class="w-[300px] flex-none snap-start sm:w-[420px]">
+            <a
+              href={`/news/${article.id}/`}
+              class="tile group flex h-full flex-col rounded-[24px]"
+              data-gallery-item
+              data-index={index}
+            >
+              <div class="tile__media aspect-[16/9]">
+                <CoverArt
+                  seed={article.id}
+                  tone={article.data.category as any}
+                  scale="wide"
+                  glyph={article.data.title.charAt(0)}
+                  alt=""
+                  class="size-full object-cover"
+                />
+              </div>
+              <div class="flex flex-1 flex-col justify-between gap-4 bg-canvas p-5">
+                <div>
+                  <p class="eyebrow">{article.data.eyebrow}</p>
+                  <h3 class="tile-headline mt-2.5 text-[21px] leading-[1.1905] tracking-[0.011em]">
+                    {article.data.title}
+                  </h3>
+                </div>
+                <p class="tile-timestamp text-[14px]">{formatRelative(article.data.publishedAt)}</p>
+              </div>
+            </a>
+          </div>
+        ))
+      }
+    </div>
+
+    {
+      showArrows && arrowPlacement === 'overlay' ? (
+        <div class="pointer-events-none absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2" data-gallery-arrows>
+          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="-1" aria-label="Previous articles">
+            <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="1" aria-label="Next articles">
+            <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
+              <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
+            </svg>
+          </button>
+        </div>
+      ) : null
     }
   </div>
 
-  <div class="mt-6 flex items-center justify-center gap-2" data-gallery-dots>
-    {
-      items.map((article, index) => (
-        <button
-          type="button"
-          class="h-2 rounded-full transition-all duration-300"
-          class:list={[index === 0 ? 'w-6 bg-ink/80' : 'w-2 bg-ink/20 hover:bg-ink/40']}
-          data-gallery-dot
-          data-index={index}
-          aria-label={`Go to slide ${index + 1}: ${article.data.title}`}
-        />
-      ))
-    }
-  </div>
+  {
+    showDots ? (
+      <div class="mt-6 flex items-center justify-center gap-2" data-gallery-dots>
+        {items.map((article, index) => (
+          <button
+            type="button"
+            class="h-2 rounded-full transition-all duration-300"
+            class:list={[index === 0 ? 'w-6 bg-ink/80' : 'w-2 bg-ink/20 hover:bg-ink/40']}
+            data-gallery-dot
+            data-index={index}
+            aria-label={`Go to slide ${index + 1}: ${article.data.title}`}
+          />
+        ))}
+      </div>
+    ) : null
+  }
 </div>
 
 <script>
-  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
-    const track = root.querySelector<HTMLElement>('[data-gallery-track]');
-    const dots = [...root.querySelectorAll<HTMLButtonElement>('[data-gallery-dot]')];
-    if (!track || dots.length === 0) return;
+  type GalleryRoot = HTMLElement;
 
+  const initGallery = (root: GalleryRoot) => {
+    const track = root.querySelector<HTMLElement>('[data-gallery-track]');
+    if (!track) return;
+
+    const dots = [...root.querySelectorAll<HTMLButtonElement>('[data-gallery-dot]')];
+    const arrows = [...root.querySelectorAll<HTMLButtonElement>('[data-gallery-arrow]')];
+    const arrowGroup = root.querySelector<HTMLElement>('[data-gallery-arrows]');
     const cards = () => [...track.querySelectorAll<HTMLElement>('[data-gallery-item]')];
 
-    const setActive = (index: number) => {
-      dots.forEach((dot, i) => {
-        dot.classList.toggle('w-6', i === index);
-        dot.classList.toggle('bg-ink/80', i === index);
-        dot.classList.toggle('w-2', i !== index);
-        dot.classList.toggle('bg-ink/20', i !== index);
-        dot.classList.toggle('hover:bg-ink/40', i !== index);
-        dot.setAttribute('aria-current', i === index ? 'true' : 'false');
+    /** 卡片相对滚动容器左边缘的偏移，兼容内边距与负外边距 */
+    const offsetOf = (card: HTMLElement) =>
+      card.getBoundingClientRect().left - track.getBoundingClientRect().left + track.scrollLeft;
+
+    /** 当前最靠左的可见卡片索引 */
+    const currentIndex = () => {
+      const items = cards();
+      const left = track.scrollLeft;
+      let closest = 0;
+      let min = Infinity;
+      items.forEach((card, i) => {
+        const distance = Math.abs(offsetOf(card) - left);
+        if (distance < min) {
+          min = distance;
+          closest = i;
+        }
       });
+      return closest;
+    };
+
+    const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
+    const canScroll = () => maxScroll() > 1;
+
+    /**
+     * 起始位置不是 0：轨道带 -mx/px 内边距时，scroll-snap 会把首卡对齐到 padding 边缘。
+     * 用首卡的实际偏移作为“最左”基准，箭头禁用判断才在手机上也准确。
+     */
+    const startPos = () => {
+      const items = cards();
+      return items.length ? offsetOf(items[0]) : 0;
+    };
+
+    const scrollToIndex = (index: number) => {
+      const items = cards();
+      const clamped = Math.min(Math.max(index, 0), items.length - 1);
+      const card = items[clamped];
+      if (!card) return;
+      track.scrollTo({ left: offsetOf(card), behavior: 'smooth' });
+    };
+
+    const syncUi = () => {
+      const index = currentIndex();
+
+      dots.forEach((dot, i) => {
+        const active = i === index;
+        dot.classList.toggle('w-6', active);
+        dot.classList.toggle('bg-ink/80', active);
+        dot.classList.toggle('w-2', !active);
+        dot.classList.toggle('bg-ink/20', !active);
+        dot.classList.toggle('hover:bg-ink/40', !active);
+        dot.setAttribute('aria-current', active ? 'true' : 'false');
+      });
+
+      const scrollable = canScroll();
+      if (arrowGroup) {
+        // 没有溢出时整组箭头无意义，直接隐藏
+        arrowGroup.style.display = scrollable ? '' : 'none';
+      }
+      if (scrollable) {
+        const atStart = track.scrollLeft <= startPos() + 1;
+        const atEnd = track.scrollLeft >= maxScroll() - 1;
+        arrows.forEach((arrow) => {
+          const dir = Number(arrow.dataset.dir ?? '1');
+          arrow.disabled = dir < 0 ? atStart : atEnd;
+        });
+      }
     };
 
     dots.forEach((dot, index) => {
-      dot.addEventListener('click', () => {
-        const card = cards()[index];
-        if (!card) return;
-        track.scrollTo({ left: card.offsetLeft - track.offsetLeft, behavior: 'smooth' });
-        setActive(index);
+      dot.addEventListener('click', () => scrollToIndex(index));
+    });
+
+    arrows.forEach((arrow) => {
+      arrow.addEventListener('click', () => {
+        scrollToIndex(currentIndex() + Number(arrow.dataset.dir ?? '1'));
       });
     });
 
+    // 键盘：聚焦画廊后用左右方向键翻页
+    track.addEventListener('keydown', (event) => {
+      if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+      event.preventDefault();
+      scrollToIndex(currentIndex() + (event.key === 'ArrowRight' ? 1 : -1));
+    });
+
     let frame = 0;
-    track.addEventListener(
-      'scroll',
-      () => {
-        cancelAnimationFrame(frame);
-        frame = requestAnimationFrame(() => {
-          const items = cards();
-          const left = track.scrollLeft;
-          let closest = 0;
-          let min = Infinity;
-          items.forEach((card, i) => {
-            const distance = Math.abs(card.offsetLeft - track.offsetLeft - left);
-            if (distance < min) {
-              min = distance;
-              closest = i;
-            }
-          });
-          setActive(closest);
-        });
-      },
-      { passive: true }
-    );
-  });
+    const onScroll = () => {
+      cancelAnimationFrame(frame);
+      frame = requestAnimationFrame(syncUi);
+    };
+
+    track.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', onScroll, { passive: true });
+
+    // 字体加载完成会改变卡片宽度，需要重新同步
+    document.fonts?.ready.then(syncUi);
+    syncUi();
+  };
+
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach(initGallery);
 </script>

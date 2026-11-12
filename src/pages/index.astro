@@ -61,15 +61,10 @@ const more = all.slice(0, 6);
     </div>
   </section>
 
-  <!-- In the Loop：横向画廊 + 圆点导航 -->
+  <!-- In the Loop：横向画廊，箭头与圆点由 site.ts 的 gallery 配置控制 -->
   <section class="bg-fog pb-20">
     <div class="shell">
-      <div class="mb-6 flex items-end justify-between gap-6">
-        <h2 class="section-head">In the Loop</h2>
-        <a href="/news/" class="cta-pill hidden sm:inline-flex">View All</a>
-      </div>
-
-      <Gallery items={gallery} />
+      <Gallery items={gallery} title="In the Loop" viewAllHref="/news/" />
     </div>
   </section>
 
