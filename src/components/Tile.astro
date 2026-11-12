@@ -1,6 +1,6 @@
 ---
 import CoverArt from './CoverArt.astro';
-import { formatRelative } from '../lib/format';
+import { formatCardDate, formatCardDateISO } from '../lib/format';
 import { postHref, type Post } from '../lib/posts';
 import { postCover } from '../lib/covers';
 
@@ -71,7 +71,9 @@ const pad = variant === 'hero' ? 'p-6 sm:p-8' : 'p-5 sm:p-6';
     </div>
 
     <div class="flex items-end justify-between gap-4">
-      <p class="tile-timestamp">{formatRelative(data.date)}</p>
+      <time class="tile-timestamp" datetime={formatCardDateISO(data.date)}>
+        {formatCardDate(data.date)}
+      </time>
       {
         data.tags.length ? (
           <span class="truncate text-[12px] tracking-[0.01em] text-slate">{data.tags[0]}</span>

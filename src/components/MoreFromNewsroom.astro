@@ -6,7 +6,7 @@
  * 配图优先使用文章自带 cover，否则用 CoverArt 程序化生成。
  */
 import CoverArt from './CoverArt.astro';
-import { formatDate } from '../lib/format';
+import { formatCardDate, formatCardDateISO } from '../lib/format';
 import { postHref, type Post } from '../lib/posts';
 import { postCover } from '../lib/covers';
 
@@ -67,7 +67,9 @@ const {
                   <p class="eyebrow mfr-category">{post.data.categories[0] ?? '文章'}</p>
                   <h3 class="mfr-headline">{post.data.title}</h3>
                 </div>
-                <p class="mfr-timestamp">{formatDate(post.data.date)}</p>
+                <time class="mfr-timestamp" datetime={formatCardDateISO(post.data.date)}>
+                  {formatCardDate(post.data.date)}
+                </time>
               </div>
             </a>
           </li>

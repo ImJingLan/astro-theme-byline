@@ -10,7 +10,7 @@
  * 无 JS 时仍可正常横向滚动。
  */
 import CoverArt from './CoverArt.astro';
-import { formatRelative } from '../lib/format';
+import { formatCardDate, formatCardDateISO } from '../lib/format';
 import { postHref, type Post } from '../lib/posts';
 import { postCover } from '../lib/covers';
 import { gallery as galleryConfig } from '../lib/site';
@@ -117,7 +117,9 @@ const overlayArrowClass =
                     {post.data.title}
                   </h3>
                 </div>
-                <p class="tile-timestamp text-[14px]">{formatRelative(post.data.date)}</p>
+                <time class="tile-timestamp" datetime={formatCardDateISO(post.data.date)}>
+                  {formatCardDate(post.data.date)}
+                </time>
               </div>
             </a>
           </div>

@@ -14,6 +14,20 @@ export const formatShortDate = (date: Date) =>
 export const formatMonth = (date: Date) =>
   new Intl.DateTimeFormat(LOCALE, { year: 'numeric', month: 'long' }).format(date);
 
+/**
+ * 磁贴时间戳：完整年月日，形如 `2026 年 11 月 2 日`。
+ * 博客跨年内容多，卡片上必须能看出年份，所以不用相对时间。
+ */
+export function formatCardDate(date: Date): string {
+  return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
+}
+
+/** 磁贴用的机器可读时间（datetime 属性） */
+export const formatCardDateISO = (date: Date) => {
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+};
+
 /** 磁贴上用的相对时间 */
 export function formatRelative(date: Date, now = new Date()) {
   const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
