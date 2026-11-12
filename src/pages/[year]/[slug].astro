@@ -2,7 +2,6 @@
 import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import LocalNav from '../../components/LocalNav.astro';
 import Tile from '../../components/Tile.astro';
 import { site, categoryHref, tagHref } from '../../lib/site';
 import { formatDate, readingTime } from '../../lib/format';
@@ -45,8 +44,6 @@ const primaryCategory = data.categories[0];
 ---
 
 <BaseLayout title={data.title} description={data.summary || site.description}>
-  <LocalNav title={site.name} active="/" />
-
   <article>
     <header class:list={['shell pt-12 sm:pt-16', cover ? 'pb-10' : 'pb-6']}>
       <div class="mx-auto max-w-[700px]">

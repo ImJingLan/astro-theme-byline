@@ -17,7 +17,6 @@
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import LocalNav from '../../components/LocalNav.astro';
 import CoverArt from '../../components/CoverArt.astro';
 import { site } from '../../lib/site';
 import { sortPosts, groupByMonth, postHref } from '../../lib/posts';
@@ -82,8 +81,6 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
   title={pageNumber === 1 ? '归档' : `归档 · 第 ${pageNumber} 页`}
   description={`${site.title} 的全部文章，按时间排列。`}
 >
-  <LocalNav title={site.name} active="/archive/" />
-
   <section class="shell pt-14 pb-10 sm:pt-16">
     <p class="eyebrow">Archive</p>
     <h1

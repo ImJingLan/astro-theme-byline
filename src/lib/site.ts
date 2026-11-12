@@ -12,18 +12,12 @@ export const site = {
     heading: 'Stories worth keeping.',
     lead: 'A demo blog built with this theme.',
   },
-  // 主站导航（对应 Apple 的 globalnav：44px 高、深色、12px 链接）
+  // 全站唯一的导航栏（浅色吸顶）
   globalNav: [
     { label: '首页', href: '/' },
     { label: '归档', href: '/archive/' },
     { label: '分类', href: '/categories/' },
     { label: '标签', href: '/tags/' },
-    { label: '关于', href: '/about/' },
-  ],
-  // 博客子导航（对应 Apple 的 localnav）
-  localNav: [
-    { label: '最新', href: '/' },
-    { label: '归档', href: '/archive/' },
     { label: '关于', href: '/about/' },
   ],
   social: [

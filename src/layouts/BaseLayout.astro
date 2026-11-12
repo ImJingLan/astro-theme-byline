@@ -22,7 +22,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -30,7 +30,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <meta name="theme-color" content="#161617" />
+    <meta name="theme-color" content="#ffffff" />
 
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
@@ -49,7 +49,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
       Skip to content
     </a>
 
-    <GlobalNav path={Astro.url.pathname} />
+    <GlobalNav active={Astro.url.pathname} />
 
     <main id="main">
       <slot />

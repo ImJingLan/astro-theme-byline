@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import LocalNav from '../../components/LocalNav.astro';
 import Tile from '../../components/Tile.astro';
 import { categoryHref, categoryDescriptions } from '../../lib/site';
 import { getAllPosts, collectCategories } from '../../lib/posts';
@@ -11,8 +10,6 @@ const categories = collectCategories(posts);
 ---
 
 <BaseLayout title="分类" description="按分类浏览全部文章。">
-  <LocalNav title=" " active="/" />
-
   <section class="shell pt-14 pb-12 sm:pt-20">
     <p class="eyebrow">Categories</p>
     <h1

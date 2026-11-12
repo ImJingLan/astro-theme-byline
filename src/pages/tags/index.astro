@@ -1,7 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import LocalNav from '../../components/LocalNav.astro';
 import { tagHref } from '../../lib/site';
 import { getAllPosts, collectTags } from '../../lib/posts';
 
@@ -10,8 +9,6 @@ const tags = collectTags(posts);
 ---
 
 <BaseLayout title="标签" description="按标签浏览全部文章。">
-  <LocalNav title=" " active="/" />
-
   <section class="shell pt-14 pb-12 sm:pt-20">
     <p class="eyebrow">Tags</p>
     <h1

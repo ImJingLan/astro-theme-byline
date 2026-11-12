@@ -11,7 +11,6 @@
 import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
-import LocalNav from '../components/LocalNav.astro';
 import { site } from '../lib/site';
 import { formatDate } from '../lib/format';
 import { getFriends } from '../lib/friends';
@@ -46,8 +45,6 @@ const isRoot = !data.path || data.path === '/';
 ---
 
 <BaseLayout title={data.title} description={data.description ?? `${site.title} · ${data.title}`}>
-  <LocalNav title={site.name} active={data.path ?? Astro.url.pathname} />
-
   <section class="shell pt-14 pb-16 sm:pt-20">
     <div class="mx-auto max-w-[700px]">
     <p class="eyebrow">{isRoot ? 'About' : 'Page'}</p>

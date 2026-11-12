@@ -2,7 +2,6 @@
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import LocalNav from '../../components/LocalNav.astro';
 import Tile from '../../components/Tile.astro';
 import { categoryDescriptions, site } from '../../lib/site';
 import { sortPosts } from '../../lib/posts';
@@ -26,8 +25,6 @@ const posts = sortPosts(
 ---
 
 <BaseLayout title={`分类：${name}`} description={categoryDescriptions[name] ?? `${site.title} 中分类为 ${name} 的文章。`}>
-  <LocalNav title={site.name} active="/" />
-
   <section class="shell pt-14 pb-12 sm:pt-20">
     <nav class="mb-6 flex items-center gap-2 text-[13px] text-slate" aria-label="面包屑">
       <a href="/" class="transition-colors hover:text-link">首页</a>
