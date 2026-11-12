@@ -8,11 +8,13 @@
  *   - dev：注册中间件，命中路径就直接读文件返回
  *   - build：在 generateBundle 阶段用 emitFile 把文件写进产物
  *
- * 映射规则（与页面路由一致）：
- *   src/content/pages/<dir>/<file>      → /<dir>/<file>
- *   src/content/posts/<year>/<slug>/<f> → /<year>/<slug>/<f>
+ * 关键区别：
+ *   pages 目录的文件是「独立资源」，全部发布。
+ *   posts 目录的图片会被 Markdown 引用，Astro 已经把它们优化并输出到
+ *   /assets/ 下了；这里只发布**正文没有引用**的附属文件（比如
+ *   site.webmanifest、icon_raw.tar.gz），否则同一张图会存三份。
  *
- * `.md` 自身不发布（由页面路由渲染），其余文件原样发布。
+ * `.md` 自身不发布（由页面路由渲染）。
  */
 import fs from 'node:fs';
 import path from 'node:path';
@@ -46,7 +48,7 @@ const MIME = {
 const contentTypeOf = (file) => MIME[path.extname(file).toLowerCase()] || 'application/octet-stream';
 
 /**
- * 递归收集可发布的静态文件。
+ * 收集目录下的静态文件。
  * @param {string} dir 当前目录
  * @param {string} urlPrefix 对应的 URL 前缀
  * @param {Map<string, string>} out 结果表
@@ -72,22 +74,99 @@ function collect(dir, urlPrefix, out, depth) {
   }
 }
 
+/**
+ * 从 frontmatter 里取出封面字段（cover / banner / image / thumbnail）。
+ * 这些图由 lib/covers.ts 通过 import.meta.glob 交给 Astro 处理，
+ * 因此不需要再原样发布。
+ */
+function coverFiles(markdown) {
+  const names = new Set();
+  const m = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---/);
+  if (!m) return names;
+
+  for (const line of m[1].split(/\r?\n/)) {
+    const field = line.match(/^\s*(cover|banner|image|thumbnail):\s*(.*)$/);
+    if (!field) continue;
+
+    const value = field[2].trim().replace(/^['"]+|['"]+$/g, '').trim();
+    if (!value || /^[a-z]+:\/\//i.test(value)) continue;
+
+    const name = value.replace(/\\/g, '/').split('/').pop();
+    if (name) names.add(name.toLowerCase());
+  }
+
+  return names;
+}
+
+/**
+ * 找出文章正文里引用到的图片文件名。
+ * 同时覆盖 Markdown 与 HTML 两种写法。
+ */
+function referencedFiles(body) {
+  const names = new Set();
+
+  const patterns = [
+    /!\[[^\]]*\]\(([^)\s]+)\)/g, // ![alt](path)
+    /<img\b[^>]*?\bsrc=["']([^"']+)["']/gi, // <img src="path">
+  ];
+
+  for (const re of patterns) {
+    let match;
+    while ((match = re.exec(body)) !== null) {
+      const raw = match[1];
+      if (!raw || /^[a-z]+:\/\//i.test(raw) || raw.startsWith('data:')) continue;
+
+      // 去掉查询串与锚点，取最后一段文件名
+      const clean = raw.split(/[?#]/)[0];
+      const name = clean.replace(/\\/g, '/').split('/').pop();
+      if (name) names.add(name.toLowerCase());
+    }
+  }
+
+  return names;
+}
+
 /** 建立 URL → 文件绝对路径的映射表 */
 function buildMap(root) {
   const map = new Map();
 
-  // 独立页面：pages/<...> → /<...>
+  // 独立页面：pages/<...> → /<...>，全部发布
   collect(path.join(root, CONTENT_ROOT, 'pages'), '', map, 0);
 
-  // 文章目录：posts/<year>/<slug>/... → /<year>/<slug>/...
+  // 文章目录：只发布正文没引用的附属文件
   const postsDir = path.join(root, CONTENT_ROOT, 'posts');
-  if (fs.existsSync(postsDir)) {
-    for (const year of fs.readdirSync(postsDir, { withFileTypes: true })) {
-      if (!year.isDirectory() || year.name.startsWith('_') || year.name.startsWith('.')) continue;
-      const yearDir = path.join(postsDir, year.name);
-      for (const slug of fs.readdirSync(yearDir, { withFileTypes: true })) {
-        if (!slug.isDirectory() || slug.name.startsWith('_') || slug.name.startsWith('.')) continue;
-        collect(path.join(yearDir, slug.name), '/' + year.name + '/' + slug.name, map, 0);
+  if (!fs.existsSync(postsDir)) return map;
+
+  for (const year of fs.readdirSync(postsDir, { withFileTypes: true })) {
+    if (!year.isDirectory() || year.name.startsWith('_') || year.name.startsWith('.')) continue;
+    const yearDir = path.join(postsDir, year.name);
+
+    for (const slug of fs.readdirSync(yearDir, { withFileTypes: true })) {
+      if (!slug.isDirectory() || slug.name.startsWith('_') || slug.name.startsWith('.')) continue;
+
+      const postDir = path.join(yearDir, slug.name);
+      const mdFile = path.join(postDir, 'index.md');
+
+      // 读文章，收集已被 Astro 处理的图片（正文引用 + frontmatter 封面）
+      let used = new Set();
+      try {
+        if (fs.existsSync(mdFile)) {
+          const markdown = fs.readFileSync(mdFile, 'utf-8');
+          used = new Set([...referencedFiles(markdown), ...coverFiles(markdown)]);
+        }
+      } catch {
+        used = new Set();
+      }
+
+      // 单独收集，再按引用过滤
+      const assets = new Map();
+      collect(postDir, '/' + year.name + '/' + slug.name, assets, 0);
+
+      for (const [url, file] of assets) {
+        const name = path.basename(file).toLowerCase();
+        // 正文引用的图已由 Astro 优化输出到 /assets/，这里跳过避免重复
+        if (used.has(name)) continue;
+        map.set(url, file);
       }
     }
   }
