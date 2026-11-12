@@ -1,35 +1,22 @@
 ---
 /**
- * Gallery —— 横向吸附滚动画廊（In the Loop）。
+ * Gallery —— 横向吸附滚动画廊。
  *
  * 交互：
- * - 左右箭头翻页（可通过 site.ts 的 gallery.showArrows 关闭）
- * - 底部圆点导航（可通过 gallery.showDots 关闭）
- * - 滚动位置与圆点、箭头的禁用态双向联动
+ * - 左右箭头翻页（site.ts 的 gallery.showArrows 控制）
+ * - 底部圆点导航（gallery.showDots 控制）
+ * - 圆点在运行时按「可达的滚动停靠点」生成，页数随视口变化
  *
- * 箭头位置由 gallery.arrowPlacement 决定：
- * - 'head'    与标题同一行靠右
- * - 'overlay' 悬浮在卡片两侧
- *
- * 无 JS 时仍可正常横向滚动，箭头与圆点只是渐进增强。
+ * 无 JS 时仍可正常横向滚动。
  */
 import CoverArt from './CoverArt.astro';
 import { formatRelative } from '../lib/format';
+import { postHref, type Post } from '../lib/posts';
 import { gallery as galleryConfig } from '../lib/site';
 
 interface Props {
-  items: {
-    id: string;
-    data: {
-      title: string;
-      eyebrow: string;
-      category: string;
-      publishedAt: Date;
-    };
-  }[];
-  /** 区块标题；传空字符串则不渲染标题行 */
+  posts: Post[];
   title?: string;
-  /** 右侧 “View All” 链接；不传则不渲染 */
   viewAllHref?: string;
   showArrows?: boolean;
   showDots?: boolean;
@@ -37,8 +24,8 @@ interface Props {
 }
 
 const {
-  items,
-  title = 'In the Loop',
+  posts,
+  title = galleryConfig.title,
   viewAllHref,
   showArrows = galleryConfig.showArrows,
   showDots = galleryConfig.showDots,
@@ -65,23 +52,19 @@ const overlayArrowClass =
         <div class="flex items-center gap-2">
           {showArrows && arrowPlacement === 'head' ? (
             <div class="flex items-center gap-2" data-gallery-arrows>
-              <button type="button" class={arrowClass} data-gallery-arrow data-dir="-1" aria-label="Previous articles">
+              <button type="button" class={arrowClass} data-gallery-arrow data-dir="-1" aria-label="上一组">
                 <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                   <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </button>
-              <button type="button" class={arrowClass} data-gallery-arrow data-dir="1" aria-label="Next articles">
+              <button type="button" class={arrowClass} data-gallery-arrow data-dir="1" aria-label="下一组">
                 <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                   <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </button>
             </div>
           ) : null}
-          {viewAllHref ? (
-            <a href={viewAllHref} class="cta-pill hidden sm:inline-flex">
-              View All
-            </a>
-          ) : null}
+          {viewAllHref ? <a href={viewAllHref} class="cta-pill hidden sm:inline-flex">全部文章</a> : null}
         </div>
       </div>
     ) : null
@@ -92,35 +75,44 @@ const overlayArrowClass =
       class="no-scrollbar -mx-[22px] flex snap-x snap-mandatory gap-6 overflow-x-auto px-[22px] pb-2 sm:mx-0 sm:px-0"
       data-gallery-track
       role="group"
-      aria-label={title || 'Gallery'}
+      aria-label={title || '文章画廊'}
     >
       {
-        items.map((article, index) => (
+        posts.map((post, index) => (
           <div class="w-[300px] flex-none snap-start sm:w-[420px]">
             <a
-              href={`/news/${article.id}/`}
+              href={postHref(post)}
               class="tile group flex h-full flex-col rounded-[24px]"
               data-gallery-item
               data-index={index}
             >
               <div class="tile__media aspect-[16/9]">
-                <CoverArt
-                  seed={article.id}
-                  tone={article.data.category as any}
-                  scale="wide"
-                  glyph={article.data.title.charAt(0)}
-                  alt=""
-                  class="size-full object-cover"
-                />
+                {post.data.cover ? (
+                  <img
+                    src={post.data.cover}
+                    alt={post.data.title}
+                    loading="lazy"
+                    class="size-full object-cover"
+                  />
+                ) : (
+                  <CoverArt
+                    seed={post.id}
+                    tone={post.data.categories[0]}
+                    scale="wide"
+                    glyph={post.data.title}
+                    alt=""
+                    class="size-full object-cover"
+                  />
+                )}
               </div>
               <div class="flex flex-1 flex-col justify-between gap-4 bg-canvas p-5">
                 <div>
-                  <p class="eyebrow">{article.data.eyebrow}</p>
-                  <h3 class="tile-headline mt-2.5 text-[21px] leading-[1.1905] tracking-[0.011em]">
-                    {article.data.title}
+                  <p class="eyebrow">{post.data.categories[0] ?? '文章'}</p>
+                  <h3 class="tile-headline mt-2.5 line-clamp-2 text-[21px] leading-[1.35] tracking-[0.011em]">
+                    {post.data.title}
                   </h3>
                 </div>
-                <p class="tile-timestamp text-[14px]">{formatRelative(article.data.publishedAt)}</p>
+                <p class="tile-timestamp text-[14px]">{formatRelative(post.data.date)}</p>
               </div>
             </a>
           </div>
@@ -130,13 +122,13 @@ const overlayArrowClass =
 
     {
       showArrows && arrowPlacement === 'overlay' ? (
-        <div class="pointer-events-none absolute inset-y-0 left-0 right-0 flex items-center justify-between px-2" data-gallery-arrows>
-          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="-1" aria-label="Previous articles">
+        <div class="pointer-events-none absolute inset-x-0 inset-y-0 flex items-center justify-between px-2" data-gallery-arrows>
+          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="-1" aria-label="上一组">
             <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
               <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
-          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="1" aria-label="Next articles">
+          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="1" aria-label="下一组">
             <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
               <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
@@ -149,9 +141,8 @@ const overlayArrowClass =
   {
     showDots ? (
       /*
-        指示器由 JS 在运行时按“可达的滚动停靠点”生成。
-        页数取决于视口宽度（桌面 5 页 / 手机 6 页），构建时无法预知，
-        所以这里只输出容器，内容交给脚本。
+        指示器由 JS 在运行时按「可达的滚动停靠点」生成。
+        页数取决于视口宽度，构建时无法预知，所以这里只输出容器。
       */
       <div class="mt-6 flex items-center justify-center gap-2" data-gallery-dots />
     ) : null
@@ -170,50 +161,39 @@ const overlayArrowClass =
     const arrowGroup = root.querySelector<HTMLElement>('[data-gallery-arrows]');
     const cards = () => [...track.querySelectorAll<HTMLElement>('[data-gallery-item]')];
 
-    /** 卡片相对滚动容器左边缘的偏移，兼容内边距与负外边距 */
     const offsetOf = (card: HTMLElement) =>
       card.getBoundingClientRect().left - track.getBoundingClientRect().left + track.scrollLeft;
 
     const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
 
-    /**
-     * 起始位置不是 0：轨道带 -mx/px 内边距时，scroll-snap 会把首卡对齐到 padding 边缘。
-     * 用首卡的实际偏移作为“最左”基准。
-     */
+    /** 手机端轨道有内边距，最左位置不是 0，用首卡偏移作为基准 */
     const startPos = () => {
       const items = cards();
       return items.length ? offsetOf(items[0]) : 0;
     };
 
     /**
-     * 计算所有「可达的滚动停靠点」。
-     *
-     * 关键点：最后几张卡的左偏移可能超过 maxScroll，永远无法对齐到轨道左边缘
-     * （轨道到底后它们只是“部分可见”）。旧实现按文章数生成指示器，导致末尾
-     * 几个点永远无法激活。这里只把真正能停住的位置作为一页。
+     * 可达的滚动停靠点：末尾几张卡的偏移可能超过 maxScroll，永远无法对齐左边缘，
+     * 因此只把真正能停住的位置作为一页，避免出现永远点不亮的指示器。
      */
     const stops = () => {
       const items = cards();
       const limit = maxScroll();
       const out: { index: number; left: number }[] = [];
-      // 用 null 而不是 -1 作哨兵：首个停靠点常常就是 0，不能因“与 -1 相距 1”被跳过
       let last: number | null = null;
 
       items.forEach((card, index) => {
         const left = Math.min(offsetOf(card), limit);
-        // 同一位置只保留第一次出现（末尾若干卡会塌缩到 limit）
         if (last === null || left > last + 1) {
           out.push({ index, left });
           last = left;
         }
       });
 
-      // 兜底：至少要有一个停靠点
       if (out.length === 0) out.push({ index: 0, left: 0 });
       return out;
     };
 
-    /** 当前所处的停靠点序号 */
     const currentStop = () => {
       const list = stops();
       const left = track.scrollLeft;
@@ -232,7 +212,6 @@ const overlayArrowClass =
     const renderDots = (count: number) => {
       if (!dotContainer) return;
       if (dotContainer.children.length === count) return;
-
       dotContainer.replaceChildren();
       for (let i = 0; i < count; i++) {
         const dot = document.createElement('button');
@@ -240,7 +219,7 @@ const overlayArrowClass =
         dot.className = 'h-2 rounded-full transition-all duration-300 w-2 bg-ink/20 hover:bg-ink/40';
         dot.dataset.galleryDot = '';
         dot.dataset.index = String(i);
-        dot.setAttribute('aria-label', `Go to page ${i + 1} of ${count}`);
+        dot.setAttribute('aria-label', `第 ${i + 1} 页，共 ${count} 页`);
         dot.addEventListener('click', () => scrollToStop(i));
         dotContainer.append(dot);
       }
@@ -286,7 +265,6 @@ const overlayArrowClass =
       });
     });
 
-    // 键盘：聚焦画廊后用左右方向键翻页
     track.addEventListener('keydown', (event) => {
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
       event.preventDefault();
@@ -301,8 +279,6 @@ const overlayArrowClass =
 
     track.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
-
-    // 字体加载完成会改变卡片宽度，停靠点需要重算
     document.fonts?.ready.then(syncUi);
     syncUi();
   };

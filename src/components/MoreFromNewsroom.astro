@@ -1,66 +1,64 @@
 ---
 /**
- * MoreFromNewsroom —— 列表式“更多新闻”区块。
+ * MoreFromNewsroom —— 列表式「更多文章」区块。
  *
- * 布局参考企业新闻编辑室的常见做法：方形缩略图 + 右侧文字、双列排布、
- * 每条下方一条分隔线、底部居中的归档按钮。
- * 全部使用自有令牌与开源字体，配图由 CoverArt 程序化生成。
+ * 方形缩略图 + 右侧文字、桌面双列、每条下方分隔线、底部居中按钮。
+ * 配图优先使用文章自带 cover，否则用 CoverArt 程序化生成。
  */
 import CoverArt from './CoverArt.astro';
 import { formatDate } from '../lib/format';
-import { categoryLabel } from '../lib/site';
+import { postHref, type Post } from '../lib/posts';
 
 interface Props {
-  items: {
-    id: string;
-    data: {
-      title: string;
-      eyebrow: string;
-      category: string;
-      publishedAt: Date;
-    };
-  }[];
+  posts: Post[];
   title?: string;
   archiveHref?: string;
   archiveLabel?: string;
 }
 
 const {
-  items,
-  title = 'More from Newsroom',
-  archiveHref = '/news/',
-  archiveLabel = 'Read the archive',
+  posts,
+  title = '更多文章',
+  archiveHref = '/archive/',
+  archiveLabel = '查看全部归档',
 } = Astro.props;
 ---
 
 <section class="bg-fog py-10 sm:py-16 lg:py-20">
   <div class="shell">
-    <div class="mb-6 sm:mb-11 lg:mb-16">
-      <h2 class="section-head !mb-0 text-[24px] sm:text-[28px] lg:text-[32px]">{title}</h2>
-    </div>
+    {
+      title ? (
+        <div class="mb-6 sm:mb-11 lg:mb-16">
+          <h2 class="section-head !mb-0 text-[24px] sm:text-[28px] lg:text-[32px]">{title}</h2>
+        </div>
+      ) : null
+    }
 
     <ul role="list" class="mfr-list">
       {
-        items.map((article) => (
+        posts.map((post) => (
           <li class="mfr-item">
-            <a href={`/news/${article.id}/`} class="mfr-tile group">
+            <a href={postHref(post)} class="mfr-tile group">
               <div class="mfr-media">
-                <CoverArt
-                  seed={article.id}
-                  tone={article.data.category as any}
-                  scale="square"
-                  glyph={article.data.title.charAt(0)}
-                  alt=""
-                  class="size-full object-cover"
-                />
+                {post.data.cover ? (
+                  <img src={post.data.cover} alt={post.data.title} loading="lazy" />
+                ) : (
+                  <CoverArt
+                    seed={post.id}
+                    tone={post.data.categories[0]}
+                    scale="square"
+                    glyph={post.data.title}
+                    alt=""
+                  />
+                )}
               </div>
 
               <div class="mfr-desc">
                 <div>
-                  <p class="eyebrow mfr-category">{categoryLabel(article.data.category)}</p>
-                  <h3 class="mfr-headline">{article.data.title}</h3>
+                  <p class="eyebrow mfr-category">{post.data.categories[0] ?? '文章'}</p>
+                  <h3 class="mfr-headline">{post.data.title}</h3>
                 </div>
-                <p class="tile-timestamp mfr-timestamp">{formatDate(article.data.publishedAt)}</p>
+                <p class="mfr-timestamp">{formatDate(post.data.date)}</p>
               </div>
             </a>
           </li>
@@ -68,18 +66,23 @@ const {
       }
     </ul>
 
-    <div class="mt-9 flex justify-center sm:mt-16">
-      <a href={archiveHref} class="cta-pill">{archiveLabel}</a>
-    </div>
+    {
+      archiveHref ? (
+        <div class="mt-9 flex justify-center sm:mt-16">
+          <a href={archiveHref} class="cta-pill">
+            {archiveLabel}
+          </a>
+        </div>
+      ) : null
+    }
   </div>
 </section>
 
 <style>
   /*
-    列表网格。
-    桌面端双列：列表右移出容器 56px（980 → 1036），每条自身带 56px 右外边距，
-    于是列宽 462px、列间空白 56px，且左列分隔线能向右延伸与右列连成一条横线。
-    平板及以下退化为单列，取消负外边距，避免溢出容器。
+    桌面端双列：列表右移出容器 56px（980 → 1036），每条自带 56px 右外边距，
+    列宽约 462px，左列分隔线向右延伸一个列间距与右列连成一条横线。
+    平板及以下退化为单列，取消负外边距避免溢出。
   */
   .mfr-list {
     display: grid;
@@ -116,7 +119,6 @@ const {
     }
   }
 
-  /* 分隔线 */
   .mfr-item::after {
     content: '';
     display: block;
@@ -138,13 +140,11 @@ const {
       margin-top: 44px;
     }
 
-    /* 左列分隔线延伸一个列间距，与右列接成连续横线 */
     .mfr-item:nth-child(odd)::after {
       width: calc(100% + 56px);
     }
   }
 
-  /* 最后一项不显示分隔线 */
   .mfr-item:last-child {
     margin-bottom: 0;
   }
@@ -153,7 +153,6 @@ const {
     display: none;
   }
 
-  /* 桌面端：倒数第二项在左列时也不显示分隔线（其右侧就是最后一项） */
   @media (min-width: 1069px) {
     .mfr-item:nth-last-child(2):nth-child(odd) {
       margin-bottom: 0;
@@ -164,7 +163,6 @@ const {
     }
   }
 
-  /* 行内布局：方形缩略图 + 右侧文字 */
   .mfr-tile {
     display: flex;
     align-items: center;
@@ -232,12 +230,11 @@ const {
   .mfr-headline {
     font-family: var(--font-display);
     font-size: 19px;
-    line-height: 1.2106;
+    line-height: 1.4;
     font-weight: 700;
     letter-spacing: 0.012em;
     color: var(--color-ink);
     transition: color 0.2s ease;
-    /* 最多三行，超出省略 */
     display: -webkit-box;
     -webkit-line-clamp: 3;
     -webkit-box-orient: vertical;
@@ -247,7 +244,7 @@ const {
   @media (min-width: 1069px) {
     .mfr-headline {
       font-size: 21px;
-      line-height: 1.1905;
+      line-height: 1.4;
       letter-spacing: 0.011em;
     }
   }
@@ -259,6 +256,8 @@ const {
   .mfr-timestamp {
     margin-top: 12px;
     font-size: 14px;
+    color: var(--color-graphite);
+    letter-spacing: 0.01em;
   }
 
   @media (min-width: 1069px) {

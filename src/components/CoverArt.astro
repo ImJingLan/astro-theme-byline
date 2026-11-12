@@ -3,17 +3,18 @@
  * CoverArt —— 用代码生成的抽象封面图。
  *
  * 完全原创的几何构图（渐变 + 模糊光斑 + 细弧线 + 大号字形），
- * 不包含任何 Apple 的图片、图标或品牌资产，可安全用于商业项目。
+ * 不包含任何第三方图片、图标或品牌资产。
  *
  * 同一个 seed 永远得到同一张图，所以列表页和详情页视觉一致。
  */
 interface Props {
   seed: string;
   /** 视觉主题，决定配色倾向 */
-  tone?: 'products' | 'design' | 'engineering' | 'culture' | 'neutral';
+  /** 分类名（中文亦可），用于稳定映射配色 */
+  tone?: string;
   /** 构图密度：hero 更适合大留白，thumb 更适合紧凑，square 用于 1:1 缩略图 */
   scale?: 'hero' | 'wide' | 'thumb' | 'square';
-  /** 装饰用的大号字形（一般取标题首字母） */
+  /** 装饰用的大号字形（一般取标题首字符） */
   glyph?: string;
   class?: string;
   /** 图片替代文本 */
@@ -46,15 +47,18 @@ function rng(seedValue: number) {
 const rand = rng(hash(seed));
 
 // 每个主题一套低饱和配色（原创，与任何品牌色板无关）
-const palettes = {
-  products: ['#eef2f8', '#dbe4f0', '#b9cbe4', '#7f9cc4', '#3f5a7d'],
-  design: ['#f7f3ee', '#efe7dc', '#e2d3c1', '#c2a98c', '#8a7357'],
-  engineering: ['#eef4f3', '#dbe8e6', '#b7d0cc', '#7ba7a1', '#3f6a66'],
-  culture: ['#f9f0ee', '#f0ddd8', '#e4c2b9', '#c98f7f', '#8a5a4c'],
-  neutral: ['#f2f2f4', '#e4e4e9', '#cfcfd6', '#a4a4ad', '#6e6e73'],
-} as const;
+const palettes = [
+  ['#eef2f8', '#dbe4f0', '#b9cbe4', '#7f9cc4', '#3f5a7d'],
+  ['#f7f3ee', '#efe7dc', '#e2d3c1', '#c2a98c', '#8a7357'],
+  ['#eef4f3', '#dbe8e6', '#b7d0cc', '#7ba7a1', '#3f6a66'],
+  ['#f9f0ee', '#f0ddd8', '#e4c2b9', '#c98f7f', '#8a5a4c'],
+  ['#f0f0f5', '#e2e2ea', '#c9c9d6', '#9c9cb0', '#5f5f75'],
+  ['#f5f2f8', '#e9e2f0', '#d4c8e3', '#a894c2', '#6b5686'],
+];
 
-const [c0, c1, c2, c3, c4] = palettes[tone] ?? palettes.neutral;
+// 分类名先哈希再取模，中文分类也能稳定映射到同一套配色
+const paletteIndex = tone && tone !== 'neutral' ? hash(tone) % palettes.length : 4;
+const [c0, c1, c2, c3, c4] = palettes[paletteIndex];
 
 const dims = {
   hero: { w: 1200, h: 675 },
@@ -95,7 +99,8 @@ const plate = {
 };
 
 const id = `art-${hash(seed).toString(36)}-${scale}`;
-const letter = (glyph ?? seed.replace(/[^a-z0-9]/gi, '').charAt(0) ?? 'L').toUpperCase();
+const cleaned = (glyph ?? seed).replace(/[[\]「」『』《》【】()（）：:、，,./\s]/g, '');
+const letter = (cleaned.charAt(0) || 'Y').toUpperCase();
 const fontSize = Math.round(h * (scale === 'hero' ? 0.62 : 0.56));
 ---
 
@@ -151,7 +156,7 @@ const fontSize = Math.round(h * (scale === 'hero' ? 0.62 : 0.56));
     y={h * 0.5}
     text-anchor="middle"
     dominant-baseline="central"
-    font-family="Inter Tight Variable, Inter Variable, Helvetica, Arial, sans-serif"
+    font-family="Inter Tight Variable, Inter Variable, 'PingFang SC', 'Microsoft YaHei', Helvetica, Arial, sans-serif"
     font-size={fontSize}
     font-weight="700"
     letter-spacing={-fontSize * 0.03}
