@@ -1,0 +1,51 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import LocalNav from '../components/LocalNav.astro';
+import { site } from '../lib/site';
+---
+
+<BaseLayout title="About" description={`About ${site.title}.`}>
+  <LocalNav title="Newsroom" active="/about/" />
+
+  <section class="shell pt-14 pb-16 sm:pt-20">
+    <p class="eyebrow text-link">About</p>
+    <h1
+      class="mt-3 max-w-[820px] font-display text-[40px] leading-[1.08] font-bold tracking-[-0.015em] text-ink sm:text-[56px] sm:leading-[1.05]"
+    >
+      {site.title}
+    </h1>
+
+    <div class="prose-newsroom mt-10 max-w-[680px]">
+      <p>
+        This is a demonstration blog theme. It is an original design exercise built with Astro and
+        Tailwind CSS, and it takes its layout cues from the editorial patterns common to modern
+        corporate newsrooms: a narrow measure, oversized headlines, generous whitespace, and a
+        single accent color reserved for links.
+      </p>
+      <p>
+        All typography uses open-source typefaces distributed under the SIL Open Font License. All
+        imagery is generated procedurally in SVG at build time. No third-party photography, logos,
+        or brand assets are bundled with this theme.
+      </p>
+      <h2>Structure</h2>
+      <ul>
+        <li><strong>Home</strong> — lead tile, secondary grid, a horizontal gallery, and a link list.</li>
+        <li><strong>Archive</strong> — every article grouped by month.</li>
+        <li><strong>Category</strong> — one page per category, generated from a single route.</li>
+        <li><strong>Article</strong> — narrow single column with a wide hero image above it.</li>
+      </ul>
+      <h2>Editing</h2>
+      <p>
+        Articles are Markdown files in <code>src/content/articles</code>. Frontmatter controls the
+        eyebrow label, category, author, publish date, and whether the piece is featured.
+      </p>
+      <blockquote>
+        <p>Calm is a feature, and it is usually the first thing a design system loses.</p>
+      </blockquote>
+      <p>
+        To make this theme yours, edit <code>src/lib/site.ts</code> for navigation and metadata, and
+        the tokens in <code>src/styles/global.css</code> for color, type, and spacing.
+      </p>
+    </div>
+  </section>
+</BaseLayout>
