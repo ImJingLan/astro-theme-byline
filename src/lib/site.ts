@@ -31,6 +31,7 @@ export const site = {
     { label: '分类', href: '/categories/' },
     { label: '标签', href: '/tags/' },
     { label: '关于', href: '/about/' },
+    { label: '开往', href: '/archive/' },
   ],
   social: [
     { label: 'GitHub', href: 'https://github.com/example' },
