@@ -71,6 +71,25 @@ export const home = {
 } as const;
 
 /**
+ * 默认封面。
+ *
+ * 文章没写 cover、正文里也没有图片时，从下面的列表里挑一张。
+ *
+ * 图片放这里：src/assets/covers/
+ * 只写文件名即可，例如 '01.webp'，不需要写路径。
+ * 目录为空或不配置时，回退到程序生成的抽象封面（CoverArt）。
+ *
+ * 选择规则：用文章 id 的哈希取模，所以同一篇文章每次构建都拿到同一张图，
+ * 不会出现「刷新一次换一张」的情况。
+ */
+export const defaultCovers = {
+  /** 是否启用 */
+  enable: true,
+  /** 图片文件名列表（相对 src/assets/covers/） */
+  images: [] as string[],
+} as const;
+
+/**
  * 分类直接来自文章 frontmatter，这里只放展示顺序与可选描述。
  * 未列出的分类会按文章数量自动排在后面。
  */

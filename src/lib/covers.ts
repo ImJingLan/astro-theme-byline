@@ -8,9 +8,11 @@
  * 查找顺序：
  *   1. frontmatter 的 cover / banner / image / thumbnail
  *   2. 正文里的第一张图
- *   3. 都没有 → 由组件生成抽象封面
+ *   3. 默认封面列表（src/assets/covers/，按文章 id 哈希取一张）
+ *   4. 都没有 → 由组件生成抽象封面
  */
 import type { Post } from './posts';
+import { defaultCovers } from './site';
 
 type ImageModule = {
   default: { src: string; width: number; height: number };
@@ -25,6 +27,20 @@ const images = import.meta.glob<ImageModule>('/src/content/posts/**/*.{webp,jpg,
   eager: true,
   import: 'default',
 });
+
+/**
+ * 默认封面池。图片放 src/assets/covers/，构建期同样被优化。
+ * 键形如 '/src/assets/covers/01.webp'。
+ */
+const defaultPool = import.meta.glob<ImageModule>(
+  '/src/assets/covers/*.{webp,jpg,jpeg,png,avif,gif,svg}',
+  { eager: true, import: 'default' }
+);
+
+/** 把 glob 结果整理成按文件名排序的数组，保证每次构建顺序一致 */
+const defaultList = Object.keys(defaultPool)
+  .sort()
+  .map((key) => ({ key, name: key.split('/').pop() ?? key, meta: defaultPool[key] }));
 
 export interface CoverInfo {
   src: string;
@@ -99,5 +115,46 @@ export function postCover(post: Post, fallbackToBody = true): CoverInfo | undefi
     }
   }
 
+  // 都没有 → 从默认封面池里稳定地挑一张
+  const fallback = pickDefaultCover(post.id);
+  if (fallback) return fallback;
+
   return undefined;
+}
+
+/** 简单的字符串哈希，用于稳定地选一张默认封面 */
+function hashId(str: string): number {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+
+/**
+ * 从默认封面池里挑一张。
+ *
+ * 优先用 site.ts 里 defaultCovers.images 指定的文件名（可只列一部分），
+ * 没配置则用目录里全部图片。用文章 id 哈希取模，保证同一篇文章结果稳定。
+ */
+function pickDefaultCover(id: string): CoverInfo | undefined {
+  if (!defaultCovers.enable || defaultList.length === 0) return undefined;
+
+  // 配置里指定了文件名时，按配置过滤并保持配置顺序
+  const configured = defaultCovers.images.filter(Boolean);
+  const pool =
+    configured.length > 0
+      ? configured
+          .map((name) => defaultList.find((item) => item.name === name))
+          .filter((item): item is (typeof defaultList)[number] => Boolean(item))
+      : defaultList;
+
+  if (pool.length === 0) return undefined;
+
+  const item = pool[hashId(id) % pool.length];
+  const meta = item.meta;
+  if (!meta?.src) return undefined;
+
+  return { src: meta.src, width: meta.width, height: meta.height };
 }
