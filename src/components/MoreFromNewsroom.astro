@@ -116,6 +116,8 @@ const {
     flex-direction: column;
     margin-bottom: 28px;
     min-width: 0;
+    /* 同一网格行内的条目等高，分隔线才会对齐 */
+    height: 100%;
   }
 
   @media (min-width: 735px) {
@@ -222,6 +224,11 @@ const {
     padding-left: 16px;
   }
 
+  /* 文字块整体撑满缩略图高度，两列的分隔线才会落在同一水平线上 */
+  .mfr-tile {
+    height: 100%;
+  }
+
   @media (min-width: 1069px) {
     .mfr-desc {
       padding-left: 28px;
@@ -239,6 +246,10 @@ const {
     }
   }
 
+  /*
+    标题固定最多两行。行数不一致会让同一行的两个条目高度不同，
+    进而把 ::after 画出的分隔线推到不同位置。
+  */
   .mfr-headline {
     font-family: var(--font-display);
     font-size: 19px;
@@ -248,9 +259,12 @@ const {
     color: var(--color-ink);
     transition: color 0.2s ease;
     display: -webkit-box;
-    -webkit-line-clamp: 3;
+    -webkit-line-clamp: 2;
+    line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    /* 无论标题是一行还是两行，都占两行高度，保证条目等高 */
+    min-height: calc(2 * 1.4em);
   }
 
   @media (min-width: 1069px) {
