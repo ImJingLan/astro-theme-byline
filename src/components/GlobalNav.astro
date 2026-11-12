@@ -2,22 +2,21 @@
 /**
  * 全局导航栏。
  *
- * 浅色、细线、吸顶：左侧站点名，右侧站内导航。
- * 不再分「深色主站导航 + 浅色子导航」两层，只保留这一条。
+ * 浅色、细线、吸顶：左侧站点图标 + 名称，右侧站内导航。
  */
 import { site } from '../lib/site';
 
 interface Props {
-  /** 左侧标题；传空字符串则只显示 site.title */
-  title?: string;
   /** 当前路径，用于高亮 */
   active?: string;
 }
 
-const { title = site.name, active = '/' } = Astro.props;
+const { active = '/' } = Astro.props;
 
 const isActive = (href: string) =>
   href === '/' ? active === '/' : active.startsWith(href);
+
+const logo = site.logo?.trim() ?? '';
 ---
 
 <header class="sticky top-0 z-50 border-b border-black/8 bg-canvas/85 backdrop-blur-xl">
@@ -26,10 +25,23 @@ const isActive = (href: string) =>
       href="/"
       class="flex min-w-0 items-center gap-2.5 text-ink transition-opacity hover:opacity-70"
     >
-      <span aria-hidden="true" class="grid size-[22px] flex-none place-items-center rounded-[6px] bg-night">
-        <span class="block size-[8px] rounded-[2px] bg-canvas"></span>
-      </span>
-      <span class="truncate text-[17px] font-semibold tracking-[0.01em]">{title || site.title}</span>
+      {
+        logo ? (
+          <img
+            src={logo}
+            alt=""
+            width="24"
+            height="24"
+            class="size-[24px] flex-none rounded-[6px] object-cover"
+            loading="eager"
+          />
+        ) : (
+          <span aria-hidden="true" class="grid size-[22px] flex-none place-items-center rounded-[6px] bg-night">
+            <span class="block size-[8px] rounded-[2px] bg-canvas" />
+          </span>
+        )
+      }
+      <span class="truncate text-[17px] font-semibold tracking-[0.01em]">{site.name}</span>
     </a>
 
     <nav aria-label="站内导航">

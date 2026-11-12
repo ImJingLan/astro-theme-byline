@@ -1,11 +1,23 @@
 // 站点级配置：改这里就能换成你自己的品牌
 export const site = {
-  name: 'Example',
+  name: 'Example Blog',
   title: 'Example Blog',
   description: 'A quiet editorial blog theme for Astro and Tailwind CSS.',
   locale: 'zh-CN',
   /** 作者名，用于 byline */
   author: 'Example Author',
+  /**
+   * 站点图标（导航栏左侧）。
+   * - 留空则显示内置的方块占位图标
+   * - 写 /favicon/v2/icon@256px.png 这类站点路径，或完整外链
+   */
+  logo: '',
+  /**
+   * 站点 favicon（浏览器标签页图标）。
+   * 留空则不输出 <link rel="icon">，由浏览器请求 /favicon.ico。
+   * 例：'/favicon/v2/favicon-32x32.png'
+   */
+  favicon: '',
   /** 首页顶部的一段自我介绍 */
   intro: {
     eyebrow: 'Byline',
@@ -21,7 +33,6 @@ export const site = {
     { label: '关于', href: '/about/' },
   ],
   social: [
-    { label: 'RSS', href: '/rss.xml' },
     { label: 'GitHub', href: 'https://github.com/example' },
   ],
 } as const;
