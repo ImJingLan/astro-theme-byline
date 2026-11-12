@@ -7,3 +7,6 @@ dist
 # 个人博客内容：不从本仓库提交
 src/content/posts/
 src/content/pages/
+
+# 迁移前的原始 Hexo 目录（_posts/YYYY/MM/slug.md + 同名图片目录）
+src/content/_posts/
