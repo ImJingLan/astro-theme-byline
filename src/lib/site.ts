@@ -8,7 +8,7 @@ export const site = {
   author: 'Example Author',
   /** 首页顶部的一段自我介绍 */
   intro: {
-    eyebrow: 'Blog',
+    eyebrow: 'Byline',
     heading: 'Stories worth keeping.',
     lead: 'A demo blog built with this theme.',
   },

@@ -19,7 +19,7 @@ interface Props {
   thanks?: string;
 }
 
-const { postCount, tagCount, wordsLabel, latest, uptime, thanks = 'Example' } = Astro.props;
+const { postCount, tagCount, wordsLabel, latest, uptime } = Astro.props;
 
 const stats = [
   ['文章', String(postCount)],
@@ -42,11 +42,6 @@ const stats = [
   <div class="stats-cell stats-cell--wide">
     <dt class="stats-label">运行时间</dt>
     <dd id="site-uptime" class="stats-value">{uptime}</dd>
-  </div>
-
-  <div class="stats-cell stats-cell--wide">
-    <dt class="stats-label">特别感谢</dt>
-    <dd class="stats-value">{thanks}</dd>
   </div>
 </dl>
 
