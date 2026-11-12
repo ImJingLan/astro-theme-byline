@@ -148,18 +148,12 @@ const overlayArrowClass =
 
   {
     showDots ? (
-      <div class="mt-6 flex items-center justify-center gap-2" data-gallery-dots>
-        {items.map((article, index) => (
-          <button
-            type="button"
-            class="h-2 rounded-full transition-all duration-300"
-            class:list={[index === 0 ? 'w-6 bg-ink/80' : 'w-2 bg-ink/20 hover:bg-ink/40']}
-            data-gallery-dot
-            data-index={index}
-            aria-label={`Go to slide ${index + 1}: ${article.data.title}`}
-          />
-        ))}
-      </div>
+      /*
+        指示器由 JS 在运行时按“可达的滚动停靠点”生成。
+        页数取决于视口宽度（桌面 5 页 / 手机 6 页），构建时无法预知，
+        所以这里只输出容器，内容交给脚本。
+      */
+      <div class="mt-6 flex items-center justify-center gap-2" data-gallery-dots />
     ) : null
   }
 </div>
@@ -169,9 +163,9 @@ const overlayArrowClass =
 
   const initGallery = (root: GalleryRoot) => {
     const track = root.querySelector<HTMLElement>('[data-gallery-track]');
+    const dotContainer = root.querySelector<HTMLElement>('[data-gallery-dots]');
     if (!track) return;
 
-    const dots = [...root.querySelectorAll<HTMLButtonElement>('[data-gallery-dot]')];
     const arrows = [...root.querySelectorAll<HTMLButtonElement>('[data-gallery-arrow]')];
     const arrowGroup = root.querySelector<HTMLElement>('[data-gallery-arrows]');
     const cards = () => [...track.querySelectorAll<HTMLElement>('[data-gallery-item]')];
@@ -180,14 +174,53 @@ const overlayArrowClass =
     const offsetOf = (card: HTMLElement) =>
       card.getBoundingClientRect().left - track.getBoundingClientRect().left + track.scrollLeft;
 
-    /** 当前最靠左的可见卡片索引 */
-    const currentIndex = () => {
+    const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
+
+    /**
+     * 起始位置不是 0：轨道带 -mx/px 内边距时，scroll-snap 会把首卡对齐到 padding 边缘。
+     * 用首卡的实际偏移作为“最左”基准。
+     */
+    const startPos = () => {
       const items = cards();
+      return items.length ? offsetOf(items[0]) : 0;
+    };
+
+    /**
+     * 计算所有「可达的滚动停靠点」。
+     *
+     * 关键点：最后几张卡的左偏移可能超过 maxScroll，永远无法对齐到轨道左边缘
+     * （轨道到底后它们只是“部分可见”）。旧实现按文章数生成指示器，导致末尾
+     * 几个点永远无法激活。这里只把真正能停住的位置作为一页。
+     */
+    const stops = () => {
+      const items = cards();
+      const limit = maxScroll();
+      const out: { index: number; left: number }[] = [];
+      // 用 null 而不是 -1 作哨兵：首个停靠点常常就是 0，不能因“与 -1 相距 1”被跳过
+      let last: number | null = null;
+
+      items.forEach((card, index) => {
+        const left = Math.min(offsetOf(card), limit);
+        // 同一位置只保留第一次出现（末尾若干卡会塌缩到 limit）
+        if (last === null || left > last + 1) {
+          out.push({ index, left });
+          last = left;
+        }
+      });
+
+      // 兜底：至少要有一个停靠点
+      if (out.length === 0) out.push({ index: 0, left: 0 });
+      return out;
+    };
+
+    /** 当前所处的停靠点序号 */
+    const currentStop = () => {
+      const list = stops();
       const left = track.scrollLeft;
       let closest = 0;
       let min = Infinity;
-      items.forEach((card, i) => {
-        const distance = Math.abs(offsetOf(card) - left);
+      list.forEach((stop, i) => {
+        const distance = Math.abs(stop.left - left);
         if (distance < min) {
           min = distance;
           closest = i;
@@ -196,44 +229,47 @@ const overlayArrowClass =
       return closest;
     };
 
-    const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
-    const canScroll = () => maxScroll() > 1;
+    const renderDots = (count: number) => {
+      if (!dotContainer) return;
+      if (dotContainer.children.length === count) return;
 
-    /**
-     * 起始位置不是 0：轨道带 -mx/px 内边距时，scroll-snap 会把首卡对齐到 padding 边缘。
-     * 用首卡的实际偏移作为“最左”基准，箭头禁用判断才在手机上也准确。
-     */
-    const startPos = () => {
-      const items = cards();
-      return items.length ? offsetOf(items[0]) : 0;
+      dotContainer.replaceChildren();
+      for (let i = 0; i < count; i++) {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.className = 'h-2 rounded-full transition-all duration-300 w-2 bg-ink/20 hover:bg-ink/40';
+        dot.dataset.galleryDot = '';
+        dot.dataset.index = String(i);
+        dot.setAttribute('aria-label', `Go to page ${i + 1} of ${count}`);
+        dot.addEventListener('click', () => scrollToStop(i));
+        dotContainer.append(dot);
+      }
     };
 
-    const scrollToIndex = (index: number) => {
-      const items = cards();
-      const clamped = Math.min(Math.max(index, 0), items.length - 1);
-      const card = items[clamped];
-      if (!card) return;
-      track.scrollTo({ left: offsetOf(card), behavior: 'smooth' });
+    const scrollToStop = (stopIndex: number) => {
+      const list = stops();
+      const clamped = Math.min(Math.max(stopIndex, 0), list.length - 1);
+      track.scrollTo({ left: list[clamped].left, behavior: 'smooth' });
     };
 
     const syncUi = () => {
-      const index = currentIndex();
+      const list = stops();
+      renderDots(list.length);
 
-      dots.forEach((dot, i) => {
-        const active = i === index;
-        dot.classList.toggle('w-6', active);
-        dot.classList.toggle('bg-ink/80', active);
-        dot.classList.toggle('w-2', !active);
-        dot.classList.toggle('bg-ink/20', !active);
-        dot.classList.toggle('hover:bg-ink/40', !active);
-        dot.setAttribute('aria-current', active ? 'true' : 'false');
+      const active = currentStop();
+      [...(dotContainer?.children ?? [])].forEach((node, i) => {
+        const dot = node as HTMLButtonElement;
+        const on = i === active;
+        dot.classList.toggle('w-6', on);
+        dot.classList.toggle('bg-ink/80', on);
+        dot.classList.toggle('w-2', !on);
+        dot.classList.toggle('bg-ink/20', !on);
+        dot.classList.toggle('hover:bg-ink/40', !on);
+        dot.setAttribute('aria-current', on ? 'true' : 'false');
       });
 
-      const scrollable = canScroll();
-      if (arrowGroup) {
-        // 没有溢出时整组箭头无意义，直接隐藏
-        arrowGroup.style.display = scrollable ? '' : 'none';
-      }
+      const scrollable = maxScroll() > 1;
+      if (arrowGroup) arrowGroup.style.display = scrollable ? '' : 'none';
       if (scrollable) {
         const atStart = track.scrollLeft <= startPos() + 1;
         const atEnd = track.scrollLeft >= maxScroll() - 1;
@@ -244,13 +280,9 @@ const overlayArrowClass =
       }
     };
 
-    dots.forEach((dot, index) => {
-      dot.addEventListener('click', () => scrollToIndex(index));
-    });
-
     arrows.forEach((arrow) => {
       arrow.addEventListener('click', () => {
-        scrollToIndex(currentIndex() + Number(arrow.dataset.dir ?? '1'));
+        scrollToStop(currentStop() + Number(arrow.dataset.dir ?? '1'));
       });
     });
 
@@ -258,7 +290,7 @@ const overlayArrowClass =
     track.addEventListener('keydown', (event) => {
       if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
       event.preventDefault();
-      scrollToIndex(currentIndex() + (event.key === 'ArrowRight' ? 1 : -1));
+      scrollToStop(currentStop() + (event.key === 'ArrowRight' ? 1 : -1));
     });
 
     let frame = 0;
@@ -270,7 +302,7 @@ const overlayArrowClass =
     track.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener('resize', onScroll, { passive: true });
 
-    // 字体加载完成会改变卡片宽度，需要重新同步
+    // 字体加载完成会改变卡片宽度，停靠点需要重算
     document.fonts?.ready.then(syncUi);
     syncUi();
   };
