@@ -11,13 +11,13 @@ export const site = {
    * - 留空则显示内置的方块占位图标
    * - 写 /favicon/v2/icon@256px.png 这类站点路径，或完整外链
    */
-  logo: '',
+  logo: '/favicon/v2/android-chrome-512x512.png',
   /**
    * 站点 favicon（浏览器标签页图标）。
    * 留空则不输出 <link rel="icon">，由浏览器请求 /favicon.ico。
    * 例：'/favicon/v2/favicon-32x32.png'
    */
-  favicon: '',
+  favicon: '/favicon/v2/favicon.ico',
   /** 首页顶部的一段自我介绍 */
   intro: {
     eyebrow: 'Byline',
@@ -28,8 +28,8 @@ export const site = {
   globalNav: [
     { label: '首页', href: '/' },
     { label: '归档', href: '/archive/' },
-    { label: '分类', href: '/categories/' },
     { label: '标签', href: '/tags/' },
+    { label: '友链', href: '/friends/' },
     { label: '关于', href: '/about/' },
     { label: '开往', href: '/archive/' },
   ],

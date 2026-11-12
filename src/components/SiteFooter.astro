@@ -6,13 +6,13 @@ const year = new Date().getFullYear();
 
 <footer class="bg-fog text-ink">
   <div class="shell py-10">
-    <div class="hairline pt-6">
+    <!--<div class="hairline pt-6">
       <p class="max-w-[620px] text-[12px] leading-[1.3334] tracking-[-0.01em] text-slate">
         {site.title} is an independent publication. All imagery on this site is generated artwork
         created for demonstration purposes. This theme is an original design exercise and is not
         affiliated with, endorsed by, or sponsored by any company whose layout patterns inspired it.
       </p>
-    </div>
+    </div>-->
 
     <nav class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3" aria-label="Footer">
       {
@@ -35,10 +35,10 @@ const year = new Date().getFullYear();
 
     <div class="mt-6 flex flex-col gap-2 border-t border-hairline pt-4 sm:flex-row sm:items-center sm:justify-between">
       <p class="text-[12px] tracking-[-0.01em] text-slate">
-        Copyright © {year} {site.name}. All rights reserved.
+        Copyright © {year} {site.name}. All rights reserved. <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">ICP备00000000号</a>
       </p>
       <p class="text-[12px] tracking-[-0.01em] text-slate">
-        Built with Astro &amp; Tailwind CSS
+        Built with Astro
       </p>
     </div>
   </div>
