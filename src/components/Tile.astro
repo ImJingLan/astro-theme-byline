@@ -1,0 +1,124 @@
+---
+import CoverArt from './CoverArt.astro';
+import { formatRelative } from '../lib/format';
+import { categoryLabel } from '../lib/site';
+
+export interface TileArticle {
+  id: string;
+  data: {
+    title: string;
+    eyebrow: string;
+    description: string;
+    publishedAt: Date;
+    category: string;
+    cover?: { src: string; width: number; height: number };
+    coverAlt?: string;
+  };
+}
+
+interface Props {
+  article: TileArticle;
+  /** hero：大图横排；2up：两列竖排；3up：三列紧凑；list：纯文本行 */
+  variant?: 'hero' | '2up' | '3up' | 'list';
+}
+
+const { article, variant = '2up' } = Astro.props;
+const { data } = article;
+const href = `/news/${article.id}/`;
+
+const headlineSize = {
+  hero: 'text-[32px] leading-[1.125] tracking-[0.004em] sm:text-[32px]',
+  '2up': 'text-[24px] leading-[1.1667] tracking-[0.009em]',
+  '3up': 'text-[19px] leading-[1.2106] tracking-[0.012em]',
+  list: 'text-[19px] leading-[1.2106] tracking-[0.012em]',
+}[variant];
+
+const pad = variant === 'hero' ? 'p-6 sm:p-8' : 'p-5 sm:p-6';
+---
+
+{
+  variant === 'list' ? (
+    <a
+      href={href}
+      class="group flex items-start justify-between gap-6 border-t border-hairline py-5 first:border-t-0 first:pt-0"
+    >
+      <div class="min-w-0">
+        <p class="eyebrow">{data.eyebrow}</p>
+        <h3 class:list={['tile-headline mt-1.5', headlineSize]}>{data.title}</h3>
+        <p class="tile-timestamp mt-2">{formatRelative(data.publishedAt)}</p>
+      </div>
+      <span
+        aria-hidden="true"
+        class="mt-1 grid size-8 flex-none place-items-center rounded-full bg-chip text-ink transition-colors group-hover:bg-chip-hover"
+      >
+        <svg viewBox="0 0 16 16" class="size-3.5" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
+        </svg>
+      </span>
+    </a>
+  ) : (
+    <a
+      href={href}
+      class:list={[
+        'tile group h-full',
+        variant === 'hero'
+          ? 'grid grid-cols-1 md:grid-cols-[1.9fr_1fr] rounded-[32px]'
+          : 'flex flex-col rounded-[24px]',
+      ]}
+    >
+      <div
+        class:list={[
+          'tile__media',
+          variant === 'hero'
+            ? 'aspect-[16/10] md:aspect-auto md:min-h-[362px] md:rounded-l-[32px]'
+            : variant === '2up'
+              ? 'aspect-[16/9]'
+              : 'aspect-[4/3]',
+        ]}
+      >
+        {data.cover ? (
+          <img
+            src={data.cover.src}
+            width={data.cover.width}
+            height={data.cover.height}
+            alt={data.coverAlt ?? ''}
+            loading={variant === 'hero' ? 'eager' : 'lazy'}
+            class="size-full object-cover"
+          />
+        ) : (
+          <CoverArt
+            seed={article.id}
+            tone={data.category as any}
+            scale={variant === 'hero' ? 'hero' : 'wide'}
+            glyph={data.title.charAt(0)}
+            alt=""
+            class="size-full object-cover"
+          />
+        )}
+      </div>
+
+      <div
+        class:list={[
+          'flex flex-1 flex-col justify-between gap-4 bg-canvas',
+          pad,
+          variant === 'hero' ? 'md:rounded-r-[32px]' : '',
+        ]}
+      >
+        <div>
+          <p class="eyebrow">{data.eyebrow}</p>
+          <h3 class:list={['tile-headline mt-3', headlineSize]}>{data.title}</h3>
+          {variant === '3up' ? (
+            <p class="mt-2 line-clamp-2 text-[14px] leading-[1.4286] tracking-[-0.016em] text-graphite">
+              {data.description}
+            </p>
+          ) : null}
+        </div>
+
+        <div class="flex items-end justify-between gap-4">
+          <p class="tile-timestamp">{formatRelative(data.publishedAt)}</p>
+          <span class="text-[12px] tracking-[-0.01em] text-slate">{categoryLabel(data.category)}</span>
+        </div>
+      </div>
+    </a>
+  )
+}

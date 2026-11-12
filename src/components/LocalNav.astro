@@ -1,0 +1,44 @@
+---
+import { site } from '../lib/site';
+
+interface Props {
+  title?: string;
+  active?: string;
+}
+const { title = 'Newsroom', active = '/' } = Astro.props;
+---
+
+<!-- 新闻编辑室子导航：浅色细线、21px 标题、17px 链接 -->
+<div class="border-b border-black/8 bg-canvas/85 backdrop-blur-xl">
+  <div class="shell flex h-[52px] items-center justify-between gap-6">
+    <a
+      href="/"
+      class="text-[21px] font-semibold tracking-[-0.012em] text-ink transition-opacity hover:opacity-70"
+    >
+      {title}
+    </a>
+
+    <nav aria-label="Newsroom">
+      <ul class="flex items-center gap-6 sm:gap-7">
+        {
+          site.localNav.map((item) => (
+            <li>
+              <a
+                href={item.href}
+                class:list={[
+                  'text-[14px] tracking-[-0.016em] transition-colors',
+                  active === item.href
+                    ? 'font-semibold text-ink'
+                    : 'font-normal text-graphite hover:text-ink',
+                ]}
+                aria-current={active === item.href ? 'page' : undefined}
+              >
+                {item.label}
+              </a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</div>
