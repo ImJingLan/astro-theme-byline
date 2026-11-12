@@ -115,6 +115,38 @@ track has no overflow, the arrow group hides itself entirely.
 `<Gallery />` also accepts per-instance overrides (`showArrows`, `showDots`, `arrowPlacement`,
 `title`, `viewAllHref`) if you need a second carousel with different behavior.
 
+## More from Newsroom
+
+`src/components/MoreFromNewsroom.astro` renders a two-column list: a square thumbnail beside the
+category, headline, and date, one hairline per row, and a centered archive button underneath.
+
+How the grid works:
+
+- The list is set **56px wider than the container** (`margin-right: -56px`), and every row carries
+  a `56px` right margin. On a 980px column that yields two **462px** rows with a 56px gutter.
+- Left-column separators use `width: calc(100% + 56px)` so they meet the right column's separator
+  and read as one continuous rule.
+- The last row's separator is always hidden; on desktop, if the second-to-last row sits in the
+  left column, its separator is hidden too — otherwise a lone line would sit under the final card.
+- Below 1069px the list collapses to a single column with no negative margin, which keeps
+  `document.scrollWidth` clean at tablet widths.
+
+Breakpoints:
+
+| Property      | ≥1069px  | 735–1068px | ≤734px |
+| ------------- | -------- | ---------- | ------ |
+| Section pad   | 80px     | 64px       | 40px   |
+| Heading       | 32px     | 28px       | 24px   |
+| Thumbnail     | 132px    | 105px      | 105px  |
+| Thumb radius  | 20px     | 16px       | 16px   |
+| Row gap       | 44px     | 32px       | 28px   |
+| Headline      | 21px     | 19px       | 19px   |
+| Category      | 14px     | 12px       | 12px   |
+| Timestamp     | 17px     | 14px       | 14px   |
+
+Thumbnails use `CoverArt` with `scale="square"` (a 600×600 viewBox), so the generated artwork is
+composed for a 1:1 frame instead of being cropped from a 4:3 one.
+
 ## Routes
 
 | Route                  | Page                                                  |
