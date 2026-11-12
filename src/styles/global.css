@@ -241,7 +241,11 @@
     margin-top: 1.15em;
   }
 
-  .prose-newsroom > p:first-child {
+  /*
+    正文第一个元素不留上边距。
+    只处理 p 的话，正文以引用块或标题开头时仍会空出一大块。
+  */
+  .prose-newsroom > :first-child {
     margin-top: 0;
   }
 

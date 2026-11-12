@@ -48,7 +48,7 @@ const primaryCategory = data.categories[0];
   <LocalNav title={site.name} active="/" />
 
   <article>
-    <header class="shell pt-12 pb-10 sm:pt-16">
+    <header class:list={['shell pt-12 sm:pt-16', cover ? 'pb-10' : 'pb-6']}>
       <div class="mx-auto max-w-[700px]">
       <nav class="mb-6 flex flex-wrap items-center gap-2 text-[13px] text-slate" aria-label="面包屑">
         <a href="/" class="transition-colors hover:text-link">首页</a>
@@ -118,7 +118,7 @@ const primaryCategory = data.categories[0];
     }
 
     <!-- 正文 -->
-    <div class="shell py-12 sm:py-16">
+    <div class:list={['shell pb-12 sm:pb-16', cover ? 'pt-12 sm:pt-16' : 'pt-6 sm:pt-8']}>
       <div class="mx-auto max-w-[700px]">
         <div class="prose-newsroom"><Content /></div>
 
