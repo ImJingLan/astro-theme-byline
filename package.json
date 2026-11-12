@@ -5,10 +5,7 @@
   "private": true,
   "description": "A quiet editorial blog theme for Astro + Tailwind CSS, with a newsroom-style layout. Drop-in compatible with Hexo/Hugo posts.",
   "scripts": {
-    "assets": "node scripts/sync-assets.mjs",
-    "predev": "node scripts/sync-assets.mjs",
     "dev": "astro dev",
-    "prebuild": "node scripts/sync-assets.mjs",
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro"
