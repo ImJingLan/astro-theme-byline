@@ -1,0 +1,345 @@
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/inter-tight';
+@import 'tailwindcss';
+
+/*
+  设计令牌
+  —— 视觉语言参考 Apple Newsroom 的编辑式排版：
+     大圆角白色磁贴 / 冷灰分区背景 / 单一蓝色链接 / 极克制的层级对比。
+     字体全部使用开源 Google Fonts（Inter / Inter Tight），不使用任何商业字体。
+*/
+@theme {
+  --font-text: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+  --font-display: 'Inter Tight Variable', 'Inter Variable', ui-sans-serif, system-ui,
+    'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+
+  /* 文本层级 */
+  --color-ink: #1d1d1f;
+  --color-ink-88: rgb(0 0 0 / 0.88);
+  --color-ink-72: rgb(0 0 0 / 0.72);
+  --color-ink-56: rgb(0 0 0 / 0.56);
+  --color-graphite: #6e6e73;
+  --color-slate: #86868b;
+
+  /* 表面 */
+  --color-canvas: #ffffff;
+  --color-fog: #f5f5f7;
+  --color-chip: #e8e8ed;
+  --color-chip-hover: #dcdce1;
+  --color-hairline: #d2d2d7;
+  --color-night: #161617;
+
+  /* 强调色（全站唯一链接色） */
+  --color-link: #0066cc;
+  --color-link-hover: #0071e3;
+
+  --radius-tile: 32px;
+  --radius-tile-sm: 24px;
+
+  /* 内容宽度：Newsroom 主栏 980px */
+  --container-editorial: 980px;
+  --container-prose: 680px;
+
+  --ease-out-soft: cubic-bezier(0.28, 0.11, 0.32, 1);
+}
+
+@layer base {
+  html {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: var(--color-canvas);
+    color: var(--color-ink);
+    font-family: var(--font-text);
+    font-size: 17px;
+    line-height: 1.47059;
+    letter-spacing: -0.022em;
+  }
+
+  ::selection {
+    background-color: rgb(0 102 204 / 0.16);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-link-hover);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* 主内容容器 */
+  .shell {
+    width: 100%;
+    max-width: var(--container-editorial);
+    margin-inline: auto;
+    padding-inline: 22px;
+  }
+
+  @media (min-width: 1069px) {
+    .shell {
+      padding-inline: 0;
+    }
+  }
+
+  /* 区块标题：32px / 700 / 轻微正字距 */
+  .section-head {
+    font-family: var(--font-display);
+    font-size: 32px;
+    line-height: 1.125;
+    font-weight: 700;
+    letter-spacing: 0.004em;
+    color: var(--color-ink);
+  }
+
+  /* 磁贴上的眉标（UPDATE / PRODUCT 之类） */
+  .eyebrow {
+    font-family: var(--font-text);
+    font-size: 14px;
+    line-height: 1.2858;
+    font-weight: 700;
+    letter-spacing: -0.016em;
+    color: var(--color-graphite);
+    text-transform: uppercase;
+  }
+
+  /* 磁贴标题 */
+  .tile-headline {
+    font-family: var(--font-display);
+    font-weight: 700;
+    color: var(--color-ink);
+    letter-spacing: 0.004em;
+  }
+
+  /* 磁贴时间戳，带一个小圆点标记 */
+  .tile-timestamp {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-text);
+    font-size: 17px;
+    line-height: 1.2353;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+    color: var(--color-graphite);
+  }
+
+  .tile-timestamp::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 999px;
+    background-color: currentColor;
+    opacity: 0.55;
+    flex: none;
+  }
+
+  /* 药丸型次级按钮 */
+  .cta-pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 30px;
+    background-color: var(--color-chip);
+    color: var(--color-ink);
+    font-size: 17px;
+    line-height: 1.2353;
+    font-weight: 600;
+    letter-spacing: -0.022em;
+    padding: 11px 23px 12px;
+    transition:
+      background-color 0.25s var(--ease-out-soft),
+      transform 0.25s var(--ease-out-soft);
+  }
+
+  .cta-pill:hover {
+    background-color: var(--color-chip-hover);
+  }
+
+  .cta-pill:active {
+    transform: scale(0.97);
+  }
+
+  .cta-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    color: var(--color-link);
+    font-weight: 400;
+    transition: color 0.2s ease;
+  }
+
+  .cta-link:hover {
+    color: var(--color-link-hover);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+  }
+
+  /* 正文排版 */
+  .prose-newsroom {
+    font-size: 17px;
+    line-height: 1.47059;
+    letter-spacing: -0.022em;
+    color: var(--color-ink);
+  }
+
+  .prose-newsroom > p {
+    margin-top: 1.05em;
+  }
+
+  .prose-newsroom > p:first-child {
+    margin-top: 0;
+  }
+
+  .prose-newsroom h2 {
+    font-family: var(--font-display);
+    font-size: 24px;
+    line-height: 1.1667;
+    font-weight: 700;
+    letter-spacing: 0.009em;
+    margin-top: 2.1em;
+    margin-bottom: 0.55em;
+  }
+
+  .prose-newsroom h3 {
+    font-family: var(--font-display);
+    font-size: 19px;
+    line-height: 1.2106;
+    font-weight: 700;
+    letter-spacing: 0.012em;
+    margin-top: 1.9em;
+    margin-bottom: 0.45em;
+  }
+
+  .prose-newsroom a {
+    color: var(--color-link);
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    text-decoration-thickness: 1px;
+  }
+
+  .prose-newsroom a:hover {
+    color: var(--color-link-hover);
+  }
+
+  .prose-newsroom ul,
+  .prose-newsroom ol {
+    margin-top: 1.05em;
+    padding-left: 1.35em;
+  }
+
+  .prose-newsroom ul {
+    list-style: disc;
+  }
+
+  .prose-newsroom ol {
+    list-style: decimal;
+  }
+
+  .prose-newsroom li {
+    margin-top: 0.4em;
+  }
+
+  .prose-newsroom li::marker {
+    color: var(--color-slate);
+  }
+
+  .prose-newsroom blockquote {
+    margin: 2em 0;
+    padding-left: 22px;
+    border-left: 3px solid var(--color-hairline);
+    font-family: var(--font-display);
+    font-size: 24px;
+    line-height: 1.25;
+    font-weight: 500;
+    letter-spacing: 0.002em;
+    color: var(--color-ink);
+  }
+
+  .prose-newsroom blockquote p {
+    margin: 0;
+  }
+
+  .prose-newsroom figure {
+    margin: 2.4em 0;
+  }
+
+  .prose-newsroom figcaption {
+    margin-top: 12px;
+    font-size: 12px;
+    line-height: 1.3334;
+    letter-spacing: -0.01em;
+    color: var(--color-slate);
+  }
+
+  .prose-newsroom hr {
+    margin: 3em 0;
+    border: 0;
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  .prose-newsroom strong {
+    font-weight: 600;
+  }
+
+  .prose-newsroom code {
+    font-size: 0.88em;
+    background-color: var(--color-fog);
+    border-radius: 6px;
+    padding: 0.15em 0.4em;
+  }
+
+  /* 磁贴整体的悬浮反馈 */
+  .tile {
+    position: relative;
+    display: block;
+    overflow: hidden;
+    border-radius: var(--radius-tile);
+    background-color: var(--color-canvas);
+    isolation: isolate;
+    transition:
+      transform 0.4s var(--ease-out-soft),
+      box-shadow 0.4s var(--ease-out-soft);
+  }
+
+  .tile:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 44px -24px rgb(0 0 0 / 0.28);
+  }
+
+  .tile__media {
+    position: relative;
+    overflow: hidden;
+    background-color: var(--color-fog);
+  }
+
+  .tile__media > * {
+    transition: transform 0.6s var(--ease-out-soft);
+  }
+
+  .tile:hover .tile__media > * {
+    transform: scale(1.025);
+  }
+
+  /* 细线分隔 */
+  .hairline {
+    border-top: 1px solid var(--color-hairline);
+  }
+}
