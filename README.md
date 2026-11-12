@@ -1,172 +1,169 @@
-# Lumen Newsroom — an editorial blog theme
+# 博客主题 · Astro + Tailwind CSS
 
-An Astro + Tailwind CSS blog theme that borrows the **layout language** of a modern
-corporate newsroom: a 980px editorial column, a 12-column tile grid, oversized headlines,
-generous whitespace, and exactly one accent color reserved for links.
+一套编辑式排版的个人博客主题：980px 编辑主栏、12 列磁贴网格、
+克制的留白与层级、全站唯一一个蓝色留给链接。
 
-**Nothing is copied from any existing site.** No proprietary fonts, no photography, no logos,
-no brand assets. All imagery is generated procedurally in SVG at build time, and both typefaces
-are open source.
+**内容直接兼容 Hexo / Hugo**：把 Markdown 丢进 `src/content/posts/` 就能用，
+不用改一行 frontmatter。
+
+字体使用开源 Inter / Inter Tight 搭配系统中文字体，配图可由主题程序化生成，
+不包含任何第三方图片、图标或品牌资产。
 
 ---
 
-## Stack
+## 技术栈
 
-| Piece      | Choice                                        |
-| ---------- | --------------------------------------------- |
-| Framework  | Astro 7 (static output, Rust compiler)        |
-| Styling    | Tailwind CSS 4 via `@tailwindcss/vite`        |
-| Type       | Inter Variable + Inter Tight Variable (OFL)   |
-| Package mgr| Bun, with the npmmirror registry              |
-| Content    | Markdown content collection (`astro:content`) |
+| 部分   | 选择                                         |
+| ------ | -------------------------------------------- |
+| 框架   | Astro 7（静态输出）                          |
+| 样式   | Tailwind CSS 4（`@tailwindcss/vite`）        |
+| 字体   | Inter Variable + Inter Tight Variable（OFL） |
+| 包管理 | Bun，使用 npmmirror 镜像                     |
+| 内容   | `astro:content` + Markdown                   |
 
-## Getting started
+## 开始使用
 
 ```bash
 bun install --registry=https://registry.npmmirror.com
 bun run dev        # http://localhost:4321
-bun run build      # static output in dist/
+bun run build      # 输出到 dist/
 bun run preview
 ```
 
-## Design tokens
+`dev` / `build` 前会自动执行 `scripts/sync-assets.mjs`，把博文配图同步到 `public/content/`。
 
-Everything visual lives in `src/styles/global.css` under `@theme`. The palette is deliberately
-small — eleven greys and one blue:
+## 放入你的博客
 
-| Token            | Value     | Job                              |
-| ---------------- | --------- | -------------------------------- |
-| `--color-ink`    | `#1d1d1f` | Body copy and headlines          |
-| `--color-graphite` | `#5f5f66` | Timestamps, eyebrows, secondary text (AA on white and on fog) |
-| `--color-slate`  | `#6e6e73` | Captions and legal text          |
-| `--color-fog`    | `#f5f5f7` | Section backgrounds              |
-| `--color-chip`   | `#e8e8ed` | Pill buttons                     |
-| `--color-hairline` | `#d2d2d7` | Dividers                        |
-| `--color-link`   | `#0066cc` | Links, and nothing else          |
-
-Type scale: `17px / 1.47` body, `32px / 1.125` section heads, `48px` article titles,
-`24px` in-article `h2`, `12px` captions.
-
-## The tile grid
-
-The home page uses a 12-column grid with position-based placement, so editors never have to
-think about spans — they just add articles:
+把文章按原来的目录结构放到 `src/content/posts/`：
 
 ```
-item 1  →  columns 1 / -1   (full-width hero)
-item 2  →  columns 1 / span 6
-item 3  →  columns 7 / span 6
-item 4  →  columns 1 / span 4
-item 5  →  columns 5 / span 4
-item 6  →  columns 9 / span 4
-item 7+ →  span 4 (continues the three-up rhythm)
+src/content/posts/
+├── 2026/
+│   └── rp2350-passkey/
+│       ├── index.md          ← 文章
+│       ├── rp2350-passkey-1.webp
+│       └── tutorial/
+│           └── passkey-1.webp
+└── 2022/
+    └── hello-world/
+        └── index.md
 ```
 
-Breakpoints:
+- 文章 URL 保留目录结构：`/posts/2026/rp2350-passkey/`
+- 文章内的相对图片路径（`![](rp2350-passkey-1.webp)`、`![](tutorial/passkey-1.webp)`）
+  会被自动解析并交给 Astro 优化，**不需要改任何路径**
+- 独立页面放到 `src/content/pages/`，例如 `about/index.md` 会渲染到 `/about/`
 
-- **1069px and up** — the layout above, 36px gutters, 32px tile radius.
-- **735–1068px** — everything becomes two columns, 24px gutters, 24px radius, and the hero
-  downgrades from a side-by-side split to a stacked card.
-- **734px and below** — single column stack.
-
-## Content model
-
-Articles are Markdown files in `src/content/articles`. Frontmatter:
+### Frontmatter
 
 ```yaml
 ---
-title: 'Introducing Lumen Studio'
-eyebrow: 'Product'          # the small label above the headline
-description: 'One-line summary, also used for meta description and cards.'
-publishedAt: 2026-11-10
-category: 'products'        # products | design | engineering | culture
-author: 'Lumen Newsroom'
-coverAlt: ''                # optional alt text when you supply a cover image
-featured: false
-draft: false
+title: "40 元自制开源版 Yubikey"
+date: "2026-07-03T17:55:00.000Z"
+description: "摘要，也可以写成 excerpt 或 summary"
+tags:
+  - "安全密钥"
+  - "RP2350"
+categories:
+  - "技术"
 ---
 ```
 
-Drop an image into `src/assets` and reference it with `cover:` if you want real photography;
-otherwise the theme generates deterministic abstract SVG artwork from the article slug.
+支持字段（大部分可选，缺省也能跑）：
 
-## Gallery options
+| 字段                                | 说明                        |
+| ----------------------------------- | --------------------------- |
+| `title`                             | 必填                        |
+| `date`                              | 必填，可被 `z.coerce.date()` 解析 |
+| `updated`                           | 最后更新时间                |
+| `description` / `excerpt` / `summary` | 摘要，三者取其一            |
+| `categories` / `category`           | 字符串或数组                |
+| `tags`                              | 字符串或数组                |
+| `cover` / `banner` / `image`        | 头图与缩略图路径            |
+| `author`                            | 作者，缺省用 `site.author`  |
+| `sticky`                            | 数字越大越靠前              |
+| `draft`                             | `true` 则不构建             |
 
-The **In the Loop** carousel is configured in `src/lib/site.ts` — no component edits needed:
+## 站点配置
 
-```ts
-export const gallery = {
-  showArrows: true, // prev / next paging arrows
-  showDots: true, // dot navigation below the track
-  arrowPlacement: 'head' as 'head' | 'overlay',
-} as const;
+`src/lib/site.ts`：
+
+- `site`：标题、描述、作者、首页自我介绍、导航、社交链接
+- `gallery`：画廊标题、数量、是否显示箭头/圆点、箭头位置
+- `categoryOrder` / `categoryDescriptions`：分类展示顺序与文案
+
+## 图片路径解析
+
+`src/lib/assets.ts` 负责把博文里的相对路径映射到构建产物：
+
+1. 相对文章目录（`2026/rp2350-passkey/a.webp`）
+2. 相对文章目录的上一级（图片放在年份目录里也能找到）
+3. 相对 `src/content/`
+
+替换发生在 **Markdown 编译之前**——因为 Astro 会把渲染出的 `<img>` 变成
+`__ASTRO_IMAGE_` 占位符，编译之后再改 HTML 就改不到了。
+
+## 路由
+
+| 路由                    | 页面                                                 |
+| ----------------------- | ---------------------------------------------------- |
+| `/`                     | 最新文章磁贴 + 画廊 + 更多文章 + 分类                |
+| `/posts/[...slug]/`     | 文章详情（面包屑、标签、阅读时长、相关文章、分享）   |
+| `/archive/`             | 按年份分组的全部文章                                 |
+| `/categories/`          | 分类总览                                             |
+| `/categories/[name]/`   | 单个分类                                             |
+| `/tags/`                | 标签总览                                             |
+| `/tags/[name]/`         | 单个标签                                             |
+| `/about/`               | 来自 `content/pages/about/index.md`                  |
+| `/rss.xml`              | RSS                                                  |
+| `/404`                  | 未找到                                               |
+
+## 设计令牌
+
+全部在 `src/styles/global.css` 的 `@theme` 里。色板刻意做小——十一种灰 + 一个蓝：
+
+| 令牌               | 值        | 用途                                                  |
+| ------------------ | --------- | ----------------------------------------------------- |
+| `--color-ink`      | `#1d1d1f` | 正文与标题                                            |
+| `--color-graphite` | `#5f5f66` | 时间、分类、次级文本（白底与冷灰底均达 AA）           |
+| `--color-slate`    | `#6e6e73` | 图注、元信息                                          |
+| `--color-fog`      | `#f5f5f7` | 分区背景                                              |
+| `--color-chip`     | `#e8e8ed` | 药丸按钮                                              |
+| `--color-hairline` | `#d2d2d7` | 分隔线                                                |
+| `--color-link`     | `#0066cc` | 链接，别无他用                                        |
+
+中文排版：正文 `17px / 1.8`，字距 `0.01em`（不套用西文负字距），
+段落间距 `1.15em`，H1 桌面 42px、手机 30px。
+
+## 网格
+
+首屏磁贴使用 12 列网格，按位置排布，写文章时不用关心跨列：
+
+```
+第 1 篇  →  1 / -1       通栏头条
+第 2 篇  →  1 / span 6
+第 3 篇  →  7 / span 6
+第 4 篇  →  1 / span 4
+第 5 篇  →  5 / span 4
+第 6 篇  →  9 / span 4
+第 7 篇+ →  span 4（继续三列节奏）
 ```
 
-| Option           | Values                 | Effect                                                                                                         |
-| ---------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------- |
-| `showArrows`     | `true` / `false`       | Renders the two paging buttons. When `false`, nothing is emitted — the track stays scrollable.                  |
-| `showDots`       | `true` / `false`       | Renders the dot row.                                                                                           |
-| `arrowPlacement` | `'head'` / `'overlay'` | `head` puts arrows on the title row, right-aligned. `overlay` floats them over the cards, vertically centered. |
+断点：`≥1069px` 按上表；`735–1068px` 全部两列；`≤734px` 单列。
 
-The arrows page one card at a time, disable themselves at either end, and stay in sync with the
-dots and with manual scrolling. Left/Right arrow keys also page when the track has focus. If the
-track has no overflow, the arrow group hides itself entirely.
+## 画廊
 
-`<Gallery />` also accepts per-instance overrides (`showArrows`, `showDots`, `arrowPlacement`,
-`title`, `viewAllHref`) if you need a second carousel with different behavior.
+`<Gallery />` 左右箭头每次翻一页，两端自动禁用，与圆点、手动滚动、键盘方向键联动。
+圆点在运行时按「可达的滚动停靠点」生成——页数取决于视口宽度（桌面 5 页、手机 6 页），
+构建时无法预知，这样才不会出现永远点不亮的指示器。
 
-## More from Newsroom
+## 版权说明
 
-`src/components/MoreFromNewsroom.astro` renders a two-column list: a square thumbnail beside the
-category, headline, and date, one hairline per row, and a centered archive button underneath.
+- **字体**：Inter / Inter Tight 采用 SIL Open Font License 1.1，经 Fontsource 本地打包，
+  站点不发起任何第三方字体请求。
+- **配图**：`src/components/CoverArt.astro` 用文章 id 的哈希生成确定性 SVG，
+  不下载、不派生任何第三方图像。
+- **你的内容**：`src/content/posts/` 与 `src/content/pages/` 已在 `.gitignore` 中排除，
+  不会被提交到本仓库。
 
-How the grid works:
-
-- The list is set **56px wider than the container** (`margin-right: -56px`), and every row carries
-  a `56px` right margin. On a 980px column that yields two **462px** rows with a 56px gutter.
-- Left-column separators use `width: calc(100% + 56px)` so they meet the right column's separator
-  and read as one continuous rule.
-- The last row's separator is always hidden; on desktop, if the second-to-last row sits in the
-  left column, its separator is hidden too — otherwise a lone line would sit under the final card.
-- Below 1069px the list collapses to a single column with no negative margin, which keeps
-  `document.scrollWidth` clean at tablet widths.
-
-Breakpoints:
-
-| Property      | ≥1069px  | 735–1068px | ≤734px |
-| ------------- | -------- | ---------- | ------ |
-| Section pad   | 80px     | 64px       | 40px   |
-| Heading       | 32px     | 28px       | 24px   |
-| Thumbnail     | 132px    | 105px      | 105px  |
-| Thumb radius  | 20px     | 16px       | 16px   |
-| Row gap       | 44px     | 32px       | 28px   |
-| Headline      | 21px     | 19px       | 19px   |
-| Category      | 14px     | 12px       | 12px   |
-| Timestamp     | 17px     | 14px       | 14px   |
-
-Thumbnails use `CoverArt` with `scale="square"` (a 600×600 viewBox), so the generated artwork is
-composed for a 1:1 frame instead of being cropped from a 4:3 one.
-
-## Routes
-
-| Route                  | Page                                                  |
-| ---------------------- | ----------------------------------------------------- |
-| `/`                    | Hero tile, 2-up and 3-up grid, gallery, link list     |
-| `/news/`               | Archive grouped by month                              |
-| `/news/[slug]/`        | Article: narrow column, wide hero, related stories    |
-| `/category/[slug]/`    | One page per category                                 |
-| `/about/`              | Long-form prose demo                                  |
-| `/rss.xml`             | Full feed                                             |
-| `/404`                 | Not found                                             |
-
-## Licensing notes
-
-- **Typefaces** — Inter and Inter Tight are licensed under the SIL Open Font License 1.1 and are
-  bundled locally through Fontsource, so the site makes no third-party font requests.
-- **Imagery** — `src/components/CoverArt.astro` draws every cover in SVG from a hash of the
-  article slug. Nothing is fetched, and nothing is derived from third-party artwork.
-- **Layout inspiration** — the grid rhythm, type scale, and restraint are inspired by the
-  editorial conventions of corporate newsrooms. Layout patterns are not copyrightable, and no
-  code, copy, imagery, or brand asset from any such site is included here.
-
-If you adapt this theme, replace the `Lumen` name, copy, and sample articles with your own.
+使用时把 `site.name`、`site.title` 和首页自我介绍换成你自己的即可。
