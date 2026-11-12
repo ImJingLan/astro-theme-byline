@@ -47,7 +47,7 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
 
     <link rel="alternate" type="application/rss+xml" title={site.title} href="/rss.xml" />
   </head>
-  <body class="min-h-dvh bg-canvas antialiased">
+  <body class="flex min-h-dvh flex-col bg-canvas antialiased">
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-5 focus:py-2 focus:text-[14px] focus:text-white"
@@ -57,7 +57,8 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
 
     <GlobalNav active={Astro.url.pathname} />
 
-    <main id="main">
+    {/* main 用 flex-1 吃掉剩余高度，内容再短也能把 footer 顶到底部 */}
+    <main id="main" class="flex-1">
       <slot />
     </main>
 
