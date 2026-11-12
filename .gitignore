@@ -3,3 +3,11 @@ dist
 .astro
 .DS_Store
 *.log
+
+# 个人博客内容：不从本仓库提交
+src/content/posts/
+src/content/pages/
+
+# 由 scripts/sync-assets.mjs 从上述目录生成的配图副本
+public/content/
+public/content-pages/
