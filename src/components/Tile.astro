@@ -61,21 +61,11 @@ const pad = variant === 'hero' ? 'p-6 sm:p-8' : 'p-5 sm:p-6';
       href={href}
       class:list={[
         'tile group h-full',
-        variant === 'hero'
-          ? 'grid grid-cols-1 md:grid-cols-[1.9fr_1fr] rounded-[32px]'
-          : 'flex flex-col rounded-[24px]',
+        variant === 'hero' ? 'tile--hero tile--1up' : variant === '2up' ? 'tile--2up' : 'tile--3up',
+        variant === 'hero' ? '' : 'flex flex-col rounded-[24px]',
       ]}
     >
-      <div
-        class:list={[
-          'tile__media',
-          variant === 'hero'
-            ? 'aspect-[16/10] md:aspect-auto md:min-h-[362px] md:rounded-l-[32px]'
-            : variant === '2up'
-              ? 'aspect-[16/9]'
-              : 'aspect-[4/3]',
-        ]}
-      >
+      <div class="tile__media">
         {data.cover ? (
           <img
             src={data.cover.src}
@@ -97,13 +87,7 @@ const pad = variant === 'hero' ? 'p-6 sm:p-8' : 'p-5 sm:p-6';
         )}
       </div>
 
-      <div
-        class:list={[
-          'flex flex-1 flex-col justify-between gap-4 bg-canvas',
-          pad,
-          variant === 'hero' ? 'md:rounded-r-[32px]' : '',
-        ]}
-      >
+      <div class:list={['tile__body flex flex-1 flex-col justify-between gap-4 bg-canvas', pad]}>
         <div>
           <p class="eyebrow">{data.eyebrow}</p>
           <h3 class:list={['tile-headline mt-3', headlineSize]}>{data.title}</h3>

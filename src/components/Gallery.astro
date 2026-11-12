@@ -1,0 +1,133 @@
+---
+/**
+ * Gallery —— 横向吸附滚动画廊。
+ * 圆点导航与滚动位置双向联动：点击圆点滚动到对应卡片，滚动时高亮当前卡片。
+ * 没有 JS 时仍然可以正常横向滚动，圆点只是装饰。
+ */
+import CoverArt from './CoverArt.astro';
+import { formatRelative } from '../lib/format';
+
+interface Props {
+  items: {
+    id: string;
+    data: {
+      title: string;
+      eyebrow: string;
+      category: string;
+      publishedAt: Date;
+    };
+  }[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="gallery" data-gallery>
+  <div
+    class="no-scrollbar -mx-[22px] flex snap-x snap-mandatory gap-6 overflow-x-auto px-[22px] pb-2 sm:mx-0 sm:px-0"
+    data-gallery-track
+    role="group"
+    aria-label="In the Loop gallery"
+  >
+    {
+      items.map((article, index) => (
+        <div class="w-[300px] flex-none snap-start sm:w-[420px]">
+          <a
+            href={`/news/${article.id}/`}
+            class="tile group flex h-full flex-col rounded-[24px]"
+            data-gallery-item
+            data-index={index}
+          >
+            <div class="tile__media aspect-[16/9]">
+              <CoverArt
+                seed={article.id}
+                tone={article.data.category as any}
+                scale="wide"
+                glyph={article.data.title.charAt(0)}
+                alt=""
+                class="size-full object-cover"
+              />
+            </div>
+            <div class="flex flex-1 flex-col justify-between gap-4 bg-canvas p-5">
+              <div>
+                <p class="eyebrow">{article.data.eyebrow}</p>
+                <h3 class="tile-headline mt-2.5 text-[21px] leading-[1.1905] tracking-[0.011em]">
+                  {article.data.title}
+                </h3>
+              </div>
+              <p class="tile-timestamp text-[14px]">{formatRelative(article.data.publishedAt)}</p>
+            </div>
+          </a>
+        </div>
+      ))
+    }
+  </div>
+
+  <div class="mt-6 flex items-center justify-center gap-2" data-gallery-dots>
+    {
+      items.map((article, index) => (
+        <button
+          type="button"
+          class="h-2 rounded-full transition-all duration-300"
+          class:list={[index === 0 ? 'w-6 bg-ink/80' : 'w-2 bg-ink/20 hover:bg-ink/40']}
+          data-gallery-dot
+          data-index={index}
+          aria-label={`Go to slide ${index + 1}: ${article.data.title}`}
+        />
+      ))
+    }
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach((root) => {
+    const track = root.querySelector<HTMLElement>('[data-gallery-track]');
+    const dots = [...root.querySelectorAll<HTMLButtonElement>('[data-gallery-dot]')];
+    if (!track || dots.length === 0) return;
+
+    const cards = () => [...track.querySelectorAll<HTMLElement>('[data-gallery-item]')];
+
+    const setActive = (index: number) => {
+      dots.forEach((dot, i) => {
+        dot.classList.toggle('w-6', i === index);
+        dot.classList.toggle('bg-ink/80', i === index);
+        dot.classList.toggle('w-2', i !== index);
+        dot.classList.toggle('bg-ink/20', i !== index);
+        dot.classList.toggle('hover:bg-ink/40', i !== index);
+        dot.setAttribute('aria-current', i === index ? 'true' : 'false');
+      });
+    };
+
+    dots.forEach((dot, index) => {
+      dot.addEventListener('click', () => {
+        const card = cards()[index];
+        if (!card) return;
+        track.scrollTo({ left: card.offsetLeft - track.offsetLeft, behavior: 'smooth' });
+        setActive(index);
+      });
+    });
+
+    let frame = 0;
+    track.addEventListener(
+      'scroll',
+      () => {
+        cancelAnimationFrame(frame);
+        frame = requestAnimationFrame(() => {
+          const items = cards();
+          const left = track.scrollLeft;
+          let closest = 0;
+          let min = Infinity;
+          items.forEach((card, i) => {
+            const distance = Math.abs(card.offsetLeft - track.offsetLeft - left);
+            if (distance < min) {
+              min = distance;
+              closest = i;
+            }
+          });
+          setActive(closest);
+        });
+      },
+      { passive: true }
+    );
+  });
+</script>

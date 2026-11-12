@@ -3,7 +3,7 @@ import { getCollection } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LocalNav from '../components/LocalNav.astro';
 import Tile from '../components/Tile.astro';
-import CoverArt from '../components/CoverArt.astro';
+import Gallery from '../components/Gallery.astro';
 import { site } from '../lib/site';
 import { formatDate, formatRelative } from '../lib/format';
 
@@ -44,19 +44,16 @@ const more = all.slice(0, 6);
 
       {
         lead ? (
-          <div class="grid gap-6">
-            <Tile article={lead} variant="hero" />
-
-            {secondary.length ? (
-              <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
-                {secondary.map((article) => (
-                  <li>
-                    <Tile article={article} variant="3up" />
-                  </li>
-                ))}
-              </ul>
-            ) : null}
-          </div>
+          <ul class="tile-grid">
+            <li class="tile-item">
+              <Tile article={lead} variant="hero" />
+            </li>
+            {secondary.map((article, index) => (
+              <li class="tile-item">
+                <Tile article={article} variant={index < 2 ? '2up' : '3up'} />
+              </li>
+            ))}
+          </ul>
         ) : (
           <p class="text-[17px] text-graphite">No articles yet. Add a Markdown file to src/content/articles.</p>
         )
@@ -72,43 +69,7 @@ const more = all.slice(0, 6);
         <a href="/news/" class="cta-pill hidden sm:inline-flex">View All</a>
       </div>
 
-      <div
-        class="no-scrollbar -mx-[22px] flex snap-x snap-mandatory gap-6 overflow-x-auto px-[22px] pb-2 sm:mx-0 sm:px-0"
-        role="group"
-        aria-label="In the Loop gallery"
-      >
-        {
-          gallery.map((article) => (
-            <div class="w-[300px] flex-none snap-start sm:w-[420px]">
-              <a href={`/news/${article.id}/`} class="tile group flex h-full flex-col rounded-[24px]">
-                <div class="tile__media aspect-[16/9]">
-                  <CoverArt
-                    seed={article.id}
-                    tone={article.data.category as any}
-                    scale="wide"
-                    glyph={article.data.title.charAt(0)}
-                    alt=""
-                    class="size-full object-cover"
-                  />
-                </div>
-                <div class="flex flex-1 flex-col justify-between gap-4 bg-canvas p-5">
-                  <div>
-                    <p class="eyebrow">{article.data.eyebrow}</p>
-                    <h3 class="tile-headline mt-2.5 text-[21px] leading-[1.1905] tracking-[0.011em]">
-                      {article.data.title}
-                    </h3>
-                  </div>
-                  <p class="tile-timestamp text-[14px]">{formatRelative(article.data.publishedAt)}</p>
-                </div>
-              </a>
-            </div>
-          ))
-        }
-      </div>
-
-      <div class="mt-6 flex items-center justify-center gap-2" aria-hidden="true">
-        {gallery.map((_, i) => <span class:list={['h-2 w-6 rounded-full', i === 0 ? 'bg-ink/80' : 'bg-ink/20']} />)}
-      </div>
+      <Gallery items={gallery} />
     </div>
   </section>
 

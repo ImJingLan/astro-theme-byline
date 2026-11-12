@@ -353,4 +353,129 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
+  /* ─────────────────────────────────────────────────────────────
+     Latest News 网格：12 列 tile-item 规则
+     参考 Apple Newsroom 的排布逻辑（首条通栏 → 两列 → 三列），
+     但列宽、间距、圆角与配色均为本项目自有令牌。
+     断点：1069px+ / 735–1068px / ≤734px
+     ───────────────────────────────────────────────────────────── */
+  .tile-grid {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    grid-template-rows: auto;
+    gap: 36px;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tile-grid > .tile-item:first-child {
+    grid-column: 1 / -1;
+  }
+
+  .tile-grid > .tile-item:nth-child(2) {
+    grid-column: 1 / span 6;
+  }
+
+  .tile-grid > .tile-item:nth-child(3) {
+    grid-column: 7 / span 6;
+  }
+
+  .tile-grid > .tile-item:nth-child(4) {
+    grid-column: 1 / span 4;
+  }
+
+  .tile-grid > .tile-item:nth-child(5) {
+    grid-column: 5 / span 4;
+  }
+
+  .tile-grid > .tile-item:nth-child(6) {
+    grid-column: 9 / span 4;
+  }
+
+  /* 第 7 条起回到三列循环，避免后续条目落回单列 */
+  .tile-grid > .tile-item:nth-child(n + 7) {
+    grid-column: span 4;
+  }
+
+  /* 平板：全部退化为两列，首条不再通栏 */
+  @media (max-width: 1068px) {
+    .tile-grid {
+      gap: 24px;
+    }
+
+    .tile-grid > .tile-item:first-child,
+    .tile-grid > .tile-item:nth-child(odd) {
+      grid-column: 1 / span 6;
+    }
+
+    .tile-grid > .tile-item:nth-child(even) {
+      grid-column: 7 / span 6;
+    }
+
+    .tile-grid > .tile-item:nth-child(n + 7) {
+      grid-column: span 6;
+    }
+  }
+
+  /* 手机：单列堆叠 */
+  @media (max-width: 734px) {
+    .tile-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .tile-grid > .tile-item {
+      width: 100%;
+    }
+  }
+
+  /* 磁贴尺寸随列宽变化：2up 竖排、3up 更紧凑 */
+  .tile--2up .tile__media,
+  .tile--3up .tile__media {
+    aspect-ratio: 16 / 9;
+  }
+
+  /* hero 只在通栏（>1068px）时左右分栏；窄屏降级为上下堆叠的普通磁贴 */
+  .tile--hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.9fr) minmax(0, 1fr);
+    border-radius: var(--radius-tile);
+  }
+
+  .tile--hero .tile__media {
+    border-top-left-radius: var(--radius-tile);
+    border-bottom-left-radius: var(--radius-tile);
+    aspect-ratio: auto;
+    min-height: 362px;
+  }
+
+  .tile--hero .tile__body {
+    border-top-right-radius: var(--radius-tile);
+    border-bottom-right-radius: var(--radius-tile);
+  }
+
+  @media (max-width: 1068px) {
+    .tile {
+      border-radius: var(--radius-tile-sm);
+    }
+
+    .tile--hero {
+      display: flex;
+      flex-direction: column;
+      border-radius: var(--radius-tile-sm);
+    }
+
+    .tile--hero .tile__media {
+      aspect-ratio: 16 / 9;
+      min-height: 0;
+      border-radius: 0;
+    }
+
+    .tile--hero .tile__body {
+      border-radius: 0;
+    }
+  }
 }
