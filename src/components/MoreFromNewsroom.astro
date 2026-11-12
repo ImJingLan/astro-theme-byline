@@ -111,69 +111,61 @@ const {
     }
   }
 
+  /*
+    条目用 padding 上下留白、用 border-top 画分隔线 —— 与新闻站归档页的做法一致。
+    线紧贴条目顶部，上下两侧都由 padding 提供同样的间距，视觉天然对称。
+
+    单列（<1069px）：每项之间一条线，第一项不带线。
+    双列（≥1069px）：每行之间一条线，第一行两项都不带线；
+    左列用 ::after 把线向右延伸过 56px 列间距，与右列接成连续横线。
+  */
   .mfr-item {
+    position: relative;
     display: flex;
     flex-direction: column;
-    margin-bottom: 28px;
     min-width: 0;
-    /* 同一网格行内的条目等高，分隔线才会对齐 */
     height: 100%;
+    padding: 28px 0;
+    border-top: 1px solid var(--color-hairline);
+  }
+
+  /* 单列：第一项不带线 */
+  .mfr-item:first-child {
+    border-top: 0;
+    padding-top: 0;
   }
 
   @media (min-width: 735px) {
     .mfr-item {
-      margin-bottom: 32px;
+      padding: 32px 0;
+    }
+
+    .mfr-item:first-child {
+      padding-top: 0;
     }
   }
 
   @media (min-width: 1069px) {
     .mfr-item {
-      margin-bottom: 44px;
+      padding: 44px 0;
       margin-right: 56px;
     }
-  }
 
-  .mfr-item::after {
-    content: '';
-    display: block;
-    flex: 0 0 auto;
-    height: 1px;
-    margin-top: 28px;
-    background-color: var(--color-hairline);
-    width: 100%;
-  }
-
-  @media (min-width: 735px) {
-    .mfr-item::after {
-      margin-top: 32px;
-    }
-  }
-
-  @media (min-width: 1069px) {
-    .mfr-item::after {
-      margin-top: 44px;
+    /* 双列：第一行两项都不带线 */
+    .mfr-item:nth-child(-n + 2) {
+      border-top: 0;
+      padding-top: 0;
     }
 
+    /* 左列的线向右延伸一个列间距 */
     .mfr-item:nth-child(odd)::after {
-      width: calc(100% + 56px);
-    }
-  }
-
-  .mfr-item:last-child {
-    margin-bottom: 0;
-  }
-
-  .mfr-item:last-child::after {
-    display: none;
-  }
-
-  @media (min-width: 1069px) {
-    .mfr-item:nth-last-child(2):nth-child(odd) {
-      margin-bottom: 0;
-    }
-
-    .mfr-item:nth-last-child(2):nth-child(odd)::after {
-      display: none;
+      content: '';
+      position: absolute;
+      top: -1px;
+      right: -56px;
+      width: 56px;
+      height: 1px;
+      background-color: var(--color-hairline);
     }
   }
 
