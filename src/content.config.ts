@@ -3,50 +3,64 @@ import { glob } from 'astro/loaders';
 
 /**
  * 博文集。直接兼容 Hexo / Hugo 的 frontmatter：
- *   - title      → title
- *   - date       → date
- *   - categories → categories（字符串或数组）
- *   - tags       → tags（字符串或数组）
+ *   - title / date / categories / tags
  *   - description / excerpt → summary
- *   - cover / banner / image → cover
+ *   - cover / banner / image / thumbnail → cover（可选，字符串）
  *
- * 每篇文章可以是单文件 index.md（带同名目录下的图片），也可以是普通 .md 文件。
- * 目录结构（如 2026/rp2350-passkey/index.md）会被保留为 id，因此无需改动原博客。
+ * 目录结构：每篇文章是 `YYYY/<slug>/index.md`，图片放在同一目录。
+ * 正文图片由 Astro 原生管线解析，无需任何额外脚本。
  */
-const list = z.union([z.string(), z.array(z.string())]).optional();
+// YAML 里 `tags:` 留空会被解析成 null，必须允许
+const list = z.union([z.string(), z.array(z.union([z.string(), z.number()])), z.null()]).optional();
 
 const posts = defineCollection({
   loader: glob({ pattern: ['**/*.md', '!**/_*', '!**/.*'], base: './src/content/posts' }),
-  schema: ({ image }) =>
-    z.object({
+  schema: z
+    .object({
       title: z.string(),
       date: z.coerce.date(),
-      updated: z.coerce.date().optional(),
-      summary: z.string().optional(),
-      description: z.string().optional(),
-      excerpt: z.string().optional(),
+      updated: z.coerce.date().nullish(),
+      summary: z.string().nullish(),
+      description: z.string().nullish(),
+      excerpt: z.string().nullish(),
       categories: list,
       category: list,
       tags: list,
-      /** 兼容 Hexo 的 cover / banner / image */
-      cover: z.string().optional(),
-      banner: z.string().optional(),
-      image: z.string().optional(),
-      coverAlt: z.string().optional(),
-      author: z.string().optional(),
+      tag: list,
+      /**
+       * 封面：写文章目录里的文件名，例如 cover: "cover.webp"。
+       * 留空或缺失时，由组件自动从正文取第一张图。
+       */
+      cover: z.string().nullish(),
+      banner: z.string().nullish(),
+      image: z.string().nullish(),
+      thumbnail: z.string().nullish(),
+      coverAlt: z.string().nullish(),
+      author: z.string().nullish(),
       /** 置顶到首页 */
-      sticky: z.coerce.number().optional(),
+      sticky: z.coerce.number().nullish(),
       draft: z.boolean().default(false),
-    }).transform((data) => {
-      const toArray = (value?: string | string[]) =>
-        (Array.isArray(value) ? value : value ? [value] : []).filter(Boolean);
+    })
+    // 保留 lang、copyright 等 Hexo 额外字段，不做校验
+    .passthrough()
+    .transform((data) => {
+      const toArray = (value: string | Array<string | number> | null | undefined) => {
+        if (value === null || value === undefined) return [];
+        const items = Array.isArray(value) ? value : [value];
+        return items.map((item) => String(item).trim()).filter(Boolean);
+      };
 
       return {
         ...data,
         categories: toArray(data.categories ?? data.category),
-        tags: toArray(data.tags),
+        tags: [...toArray(data.tags), ...toArray(data.tag)],
         summary: data.summary ?? data.description ?? data.excerpt ?? '',
-        cover: data.cover ?? data.banner ?? data.image,
+        /** 封面文件名（同目录），由 lib/covers.ts 解析成最终 URL */
+        coverFile: (data.cover ?? data.banner ?? data.image ?? data.thumbnail ?? '')
+          .replace(/^['"]+|['"]+$/g, '')
+          .trim()
+          .split('/')
+          .pop() || '',
       };
     }),
 });

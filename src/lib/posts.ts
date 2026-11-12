@@ -3,6 +3,7 @@ import { categoryOrder } from './site';
 
 export type Post = CollectionEntry<'posts'>;
 
+
 /** 按置顶权重、再按日期倒序排序 */
 export function sortPosts(posts: Post[]) {
   return [...posts].sort((a, b) => {
@@ -17,8 +18,11 @@ export async function getAllPosts() {
   return sortPosts(posts);
 }
 
-/** 文章 URL：保留原有的年份目录，如 /posts/2026/rp2350-passkey/ */
-export const postHref = (post: { id: string }) => `/posts/${post.id}/`;
+/**
+ * 文章 URL：直接保留年份目录，如 2026/rp2350-passkey → /2026/rp2350-passkey/
+ * 和原博客的 permalink 保持一致。
+ */
+export const postHref = (post: { id: string }) => `/${post.id}/`;
 
 /** 统计分类，按预设顺序排列，未列出的按数量排序 */
 export function collectCategories(posts: Post[]) {
@@ -54,7 +58,7 @@ export function collectTags(posts: Post[]) {
     .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh-CN'));
 }
 
-/** 按年月分组 */
+/** 按年月分组（posts 已按日期倒序，因此分组天然有序） */
 export function groupByMonth(posts: Post[]) {
   const groups: { key: string; date: Date; posts: Post[] }[] = [];
   for (const post of posts) {
