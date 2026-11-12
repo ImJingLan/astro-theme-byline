@@ -7,9 +7,8 @@
  *
  * 查找顺序：
  *   1. frontmatter 的 cover / banner / image / thumbnail
- *   2. 正文里的第一张图
- *   3. 默认封面列表（src/assets/covers/，按文章 id 哈希取一张）
- *   4. 都没有 → 由组件生成抽象封面
+ *   2. 默认封面列表（src/assets/covers/，按文章 id 哈希取一张）
+ *   3. 都没有 → 由组件生成抽象封面
  */
 import type { Post } from './posts';
 import { defaultCovers } from './site';
@@ -54,19 +53,6 @@ const keyOf = (id: string, file: string) => {
   return `/src/content/posts/${id}/${clean}`;
 };
 
-/** 从正文里找第一张相对路径图片 */
-function firstImageInBody(body: string): string | undefined {
-  // Markdown 图片
-  const md = body.match(/!\[[^\]]*\]\(([^)\s]+)\)/);
-  if (md) return md[1];
-
-  // HTML img
-  const html = body.match(/<img\b[^>]*?\bsrc=["']([^"']+)["']/i);
-  if (html) return html[1];
-
-  return undefined;
-}
-
 /** 解析单张图 */
 function resolveImage(id: string, file: string): CoverInfo | undefined {
   if (!file) return undefined;
@@ -96,30 +82,20 @@ function resolveImage(id: string, file: string): CoverInfo | undefined {
 }
 
 /**
- * 取文章封面。
- * @param post 文章
- * @param fallbackToBody 没有封面字段时，是否用正文第一张图
+ * 取文章封面（列表页缩略图用）。
+ *
+ * 只认 frontmatter 里显式配置的封面；没有则从默认封面池挑一张。
+ * 不再回退到正文里的第一张图 —— 正文插图通常和「封面」无关，
+ * 拿它当缩略图容易误导。
  */
-export function postCover(post: Post, fallbackToBody = true): CoverInfo | undefined {
+export function postCover(post: Post): CoverInfo | undefined {
   const declared = post.data.coverFile;
   if (declared) {
     const resolved = resolveImage(post.id, declared);
     if (resolved) return resolved;
   }
 
-  if (fallbackToBody) {
-    const fromBody = firstImageInBody(post.body ?? '');
-    if (fromBody && !/^[a-z]+:\/\//i.test(fromBody)) {
-      const resolved = resolveImage(post.id, fromBody);
-      if (resolved) return resolved;
-    }
-  }
-
-  // 都没有 → 从默认封面池里稳定地挑一张
-  const fallback = pickDefaultCover(post.id);
-  if (fallback) return fallback;
-
-  return undefined;
+  return pickDefaultCover(post.id);
 }
 
 /** 简单的字符串哈希，用于稳定地选一张默认封面 */
