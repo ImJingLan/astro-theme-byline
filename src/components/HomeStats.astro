@@ -96,11 +96,12 @@ const stats = [
     width: 100%;
   }
 
-  /* 宽屏作为右栏时固定宽度，避免被内容挤压 */
+  /* 宽屏作为右栏时固定宽度，不参与伸缩 */
   @media (min-width: 1069px) {
     .stats-ledger {
       width: 400px;
       max-width: none;
+      flex: 0 0 400px;
     }
   }
 
