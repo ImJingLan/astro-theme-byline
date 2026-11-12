@@ -46,8 +46,24 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
     <meta name="twitter:card" content="summary_large_image" />
 
     <link rel="alternate" type="application/rss+xml" title={site.title} href="/rss.xml" />
+
+    {/*
+      首屏防闪烁：在样式生效前就把 data-theme 写上去，
+      否则深色用户会先看到一帧白底。脚本必须内联且同步执行。
+    */}
+    <script is:inline>
+      (() => {
+        const stored = localStorage.getItem('theme');
+        const mode = stored === 'light' || stored === 'dark' ? stored : 'system';
+        const dark =
+          mode === 'dark' ||
+          (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
+        document.documentElement.dataset.themeMode = mode;
+      })();
+    </script>
   </head>
-  <body class="flex min-h-dvh flex-col bg-canvas antialiased">
+  <body class="flex min-h-dvh flex-col bg-canvas text-ink antialiased">
     <a
       href="#main"
       class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:rounded-full focus:bg-ink focus:px-5 focus:py-2 focus:text-[14px] focus:text-white"

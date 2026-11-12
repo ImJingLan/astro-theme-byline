@@ -5,6 +5,7 @@
  * 浅色、细线、吸顶：左侧站点图标 + 名称，右侧站内导航。
  */
 import { site } from '../lib/site';
+import ThemeToggle from './ThemeToggle.astro';
 
 interface Props {
   /** 当前路径，用于高亮 */
@@ -19,7 +20,7 @@ const isActive = (href: string) =>
 const logo = site.logo?.trim() ?? '';
 ---
 
-<header class="sticky top-0 z-50 border-b border-black/8 bg-canvas/85 backdrop-blur-xl">
+<header class="sticky top-0 z-50 border-b border-hairline/60 bg-canvas/85 backdrop-blur-xl">
   <div class="shell flex h-[56px] items-center justify-between gap-6">
     <a
       href="/"
@@ -44,6 +45,7 @@ const logo = site.logo?.trim() ?? '';
       <span class="truncate text-[17px] font-semibold tracking-[0.01em]">{site.name}</span>
     </a>
 
+    <div class="flex items-center gap-3 sm:gap-5">
     <nav aria-label="站内导航">
       <ul class="flex items-center gap-5 sm:gap-7">
         {
@@ -66,5 +68,8 @@ const logo = site.logo?.trim() ?? '';
         }
       </ul>
     </nav>
+
+    <ThemeToggle />
+    </div>
   </div>
 </header>

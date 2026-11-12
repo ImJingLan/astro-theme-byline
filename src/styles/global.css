@@ -35,6 +35,10 @@
   --color-link: #0066cc;
   --color-link-hover: #0071e3;
 
+  /* 代码块 */
+  --color-code-bg: #161617;
+  --color-code-fg: #f5f5f7;
+
   --radius-tile: 32px;
   --radius-tile-sm: 24px;
 
@@ -43,6 +47,52 @@
   --container-prose: 680px;
 
   --ease-out-soft: cubic-bezier(0.28, 0.11, 0.32, 1);
+}
+
+/*
+  夜间模式
+  —— 只覆盖颜色令牌，布局与字号不动。
+     html[data-theme='dark'] 由切换按钮写入，也可以在 <head> 里提前设置以避免闪烁。
+     深色底不用纯黑：近黑的 #1c1c1e 更接近印刷观感，长时间阅读不刺眼。
+     正文与背景对比度保持在 12:1 以上，次级文字仍满足 WCAG AA。
+*/
+html[data-theme='dark'] {
+  color-scheme: dark;
+
+  --color-ink: #f5f5f7;
+  --color-ink-88: rgb(255 255 255 / 0.88);
+  --color-ink-72: rgb(255 255 255 / 0.72);
+  --color-ink-56: rgb(255 255 255 / 0.56);
+  --color-graphite: #a1a1a6;
+  --color-slate: #8e8e93;
+
+  --color-canvas: #1c1c1e;
+  --color-fog: #232325;
+  --color-chip: #2c2c2e;
+  --color-chip-hover: #3a3a3c;
+  --color-hairline: #38383a;
+  /* 夜间模式下 night 反而要变浅，否则与背景糊在一起 */
+  --color-night: #f5f5f7;
+
+  --color-link: #4d9fff;
+  --color-link-hover: #6fb2ff;
+
+  /* 夜间模式代码块：比画布更深，维持层级 */
+  --color-code-bg: #131315;
+  --color-code-fg: #e8e8ed;
+}
+
+/*
+  Shiki 的 github-dark token 是给 #24292e 背景调的，
+  换到更深的 #131315 后部分注释色偏暗，这里整体提亮一档。
+*/
+html[data-theme='dark'] .prose-newsroom pre .line span {
+  filter: brightness(1.12);
+}
+
+/* 夜间模式下，原本深色的表面（代码块、日期徽标）改为稍浅的灰 */
+html[data-theme='dark'] ::selection {
+  background-color: rgb(77 159 255 / 0.28);
 }
 
 @layer base {
@@ -348,16 +398,22 @@
     word-break: break-word;
   }
 
-  /* 代码块：博客的核心内容之一，单独处理 */
+  /*
+    代码块：博客的核心内容之一，单独处理。
+
+    Shiki 会给 <pre> 写内联 style="background-color:#24292e"，
+    优先级高于样式表，所以这里必须用 !important 才能让夜间模式统一改底色。
+    语法 token 的颜色仍由 Shiki 主题提供，不受影响。
+  */
   .prose-newsroom pre {
     margin: 1.8em 0;
     padding: 18px 20px;
-    background-color: var(--color-night);
+    background-color: var(--color-code-bg) !important;
     border-radius: 16px;
     overflow-x: auto;
     font-size: 14px;
     line-height: 1.65;
-    color: #f5f5f7;
+    color: var(--color-code-fg) !important;
     tab-size: 2;
   }
 
@@ -443,6 +499,10 @@
   .tile:hover {
     transform: translateY(-2px);
     box-shadow: 0 18px 44px -24px rgb(0 0 0 / 0.28);
+  }
+
+  html[data-theme='dark'] .tile:hover {
+    box-shadow: 0 18px 44px -24px rgb(0 0 0 / 0.7);
   }
 
   .tile__media {
