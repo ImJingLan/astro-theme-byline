@@ -90,6 +90,31 @@ draft: false
 Drop an image into `src/assets` and reference it with `cover:` if you want real photography;
 otherwise the theme generates deterministic abstract SVG artwork from the article slug.
 
+## Gallery options
+
+The **In the Loop** carousel is configured in `src/lib/site.ts` — no component edits needed:
+
+```ts
+export const gallery = {
+  showArrows: true, // prev / next paging arrows
+  showDots: true, // dot navigation below the track
+  arrowPlacement: 'head' as 'head' | 'overlay',
+} as const;
+```
+
+| Option           | Values                 | Effect                                                                                                         |
+| ---------------- | ---------------------- | -------------------------------------------------------------------------------------------------------------- |
+| `showArrows`     | `true` / `false`       | Renders the two paging buttons. When `false`, nothing is emitted — the track stays scrollable.                  |
+| `showDots`       | `true` / `false`       | Renders the dot row.                                                                                           |
+| `arrowPlacement` | `'head'` / `'overlay'` | `head` puts arrows on the title row, right-aligned. `overlay` floats them over the cards, vertically centered. |
+
+The arrows page one card at a time, disable themselves at either end, and stay in sync with the
+dots and with manual scrolling. Left/Right arrow keys also page when the track has focus. If the
+track has no overflow, the arrow group hides itself entirely.
+
+`<Gallery />` also accepts per-instance overrides (`showArrows`, `showDots`, `arrowPlacement`,
+`title`, `viewAllHref`) if you need a second carousel with different behavior.
+
 ## Routes
 
 | Route                  | Page                                                  |
