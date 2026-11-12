@@ -3,17 +3,14 @@ import { getCollection, render } from 'astro:content';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import LocalNav from '../components/LocalNav.astro';
 import { site } from '../lib/site';
-import { rewriteImages } from '../lib/assets';
 
 // pages/about/index.md → 优先使用这条
 const pages = await getCollection('pages', ({ data }) => !data.draft);
 const about = pages.find((page) => page.id.includes('about'));
 
-let html = '';
+let PageContent: Awaited<ReturnType<typeof render>>['Content'] | undefined;
 if (about) {
-  const { Content } = await render(about);
-  const renderedHtml = about.rendered?.html ?? '';
-  html = rewriteImages(renderedHtml, about.id, 'pages');
+  PageContent = (await render(about)).Content;
 }
 
 const title = about?.data.title ?? '关于';
@@ -32,7 +29,9 @@ const title = about?.data.title ?? '关于';
 
     {
       about ? (
-        <div class="prose-newsroom mt-10 max-w-[700px]" set:html={html} />
+        <div class="prose-newsroom mt-10 max-w-[700px]">
+          <PageContent />
+        </div>
       ) : (
         <div class="prose-newsroom mt-10 max-w-[700px]">
           <p>

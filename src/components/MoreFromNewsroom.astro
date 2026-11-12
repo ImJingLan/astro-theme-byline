@@ -8,6 +8,7 @@
 import CoverArt from './CoverArt.astro';
 import { formatDate } from '../lib/format';
 import { postHref, type Post } from '../lib/posts';
+import { postCover } from '../lib/covers';
 
 interface Props {
   posts: Post[];
@@ -36,12 +37,20 @@ const {
 
     <ul role="list" class="mfr-list">
       {
-        posts.map((post) => (
+        posts.map((post) => {
+          const cover = postCover(post);
+          return (
           <li class="mfr-item">
             <a href={postHref(post)} class="mfr-tile group">
               <div class="mfr-media">
-                {post.data.cover ? (
-                  <img src={post.data.cover} alt={post.data.title} loading="lazy" />
+                {cover ? (
+                  <img
+                    src={cover.src}
+                    width={cover.width}
+                    height={cover.height}
+                    alt={post.data.title}
+                    loading="lazy"
+                  />
                 ) : (
                   <CoverArt
                     seed={post.id}
@@ -62,7 +71,8 @@ const {
               </div>
             </a>
           </li>
-        ))
+          );
+        })
       }
     </ul>
 

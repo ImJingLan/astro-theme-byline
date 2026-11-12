@@ -12,6 +12,7 @@
 import CoverArt from './CoverArt.astro';
 import { formatRelative } from '../lib/format';
 import { postHref, type Post } from '../lib/posts';
+import { postCover } from '../lib/covers';
 import { gallery as galleryConfig } from '../lib/site';
 
 interface Props {
@@ -78,7 +79,9 @@ const overlayArrowClass =
       aria-label={title || '文章画廊'}
     >
       {
-        posts.map((post, index) => (
+        posts.map((post, index) => {
+          const cover = postCover(post);
+          return (
           <div class="w-[300px] flex-none snap-start sm:w-[420px]">
             <a
               href={postHref(post)}
@@ -87,9 +90,11 @@ const overlayArrowClass =
               data-index={index}
             >
               <div class="tile__media aspect-[16/9]">
-                {post.data.cover ? (
+                {cover ? (
                   <img
-                    src={post.data.cover}
+                    src={cover.src}
+                    width={cover.width}
+                    height={cover.height}
                     alt={post.data.title}
                     loading="lazy"
                     class="size-full object-cover"
@@ -116,7 +121,8 @@ const overlayArrowClass =
               </div>
             </a>
           </div>
-        ))
+          );
+        })
       }
     </div>
 
