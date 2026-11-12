@@ -11,8 +11,8 @@ interface Props {
   seed: string;
   /** 视觉主题，决定配色倾向 */
   tone?: 'products' | 'design' | 'engineering' | 'culture' | 'neutral';
-  /** 构图密度：hero 更适合大留白，thumb 更适合紧凑 */
-  scale?: 'hero' | 'wide' | 'thumb';
+  /** 构图密度：hero 更适合大留白，thumb 更适合紧凑，square 用于 1:1 缩略图 */
+  scale?: 'hero' | 'wide' | 'thumb' | 'square';
   /** 装饰用的大号字形（一般取标题首字母） */
   glyph?: string;
   class?: string;
@@ -56,9 +56,15 @@ const palettes = {
 
 const [c0, c1, c2, c3, c4] = palettes[tone] ?? palettes.neutral;
 
-const viewBox = scale === 'hero' ? '0 0 1200 675' : scale === 'thumb' ? '0 0 600 450' : '0 0 900 506';
-const w = scale === 'hero' ? 1200 : scale === 'thumb' ? 600 : 900;
-const h = scale === 'hero' ? 675 : scale === 'thumb' ? 450 : 506;
+const dims = {
+  hero: { w: 1200, h: 675 },
+  wide: { w: 900, h: 506 },
+  thumb: { w: 600, h: 450 },
+  square: { w: 600, h: 600 },
+} as const;
+
+const { w, h } = dims[scale] ?? dims.wide;
+const viewBox = `0 0 ${w} ${h}`;
 
 // 光斑
 const blobs = Array.from({ length: 3 }, (_, i) => {

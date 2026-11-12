@@ -1,0 +1,269 @@
+---
+/**
+ * MoreFromNewsroom —— 列表式“更多新闻”区块。
+ *
+ * 布局参考企业新闻编辑室的常见做法：方形缩略图 + 右侧文字、双列排布、
+ * 每条下方一条分隔线、底部居中的归档按钮。
+ * 全部使用自有令牌与开源字体，配图由 CoverArt 程序化生成。
+ */
+import CoverArt from './CoverArt.astro';
+import { formatDate } from '../lib/format';
+import { categoryLabel } from '../lib/site';
+
+interface Props {
+  items: {
+    id: string;
+    data: {
+      title: string;
+      eyebrow: string;
+      category: string;
+      publishedAt: Date;
+    };
+  }[];
+  title?: string;
+  archiveHref?: string;
+  archiveLabel?: string;
+}
+
+const {
+  items,
+  title = 'More from Newsroom',
+  archiveHref = '/news/',
+  archiveLabel = 'Read the archive',
+} = Astro.props;
+---
+
+<section class="bg-fog py-10 sm:py-16 lg:py-20">
+  <div class="shell">
+    <div class="mb-6 sm:mb-11 lg:mb-16">
+      <h2 class="section-head !mb-0 text-[24px] sm:text-[28px] lg:text-[32px]">{title}</h2>
+    </div>
+
+    <ul role="list" class="mfr-list">
+      {
+        items.map((article) => (
+          <li class="mfr-item">
+            <a href={`/news/${article.id}/`} class="mfr-tile group">
+              <div class="mfr-media">
+                <CoverArt
+                  seed={article.id}
+                  tone={article.data.category as any}
+                  scale="square"
+                  glyph={article.data.title.charAt(0)}
+                  alt=""
+                  class="size-full object-cover"
+                />
+              </div>
+
+              <div class="mfr-desc">
+                <div>
+                  <p class="eyebrow mfr-category">{categoryLabel(article.data.category)}</p>
+                  <h3 class="mfr-headline">{article.data.title}</h3>
+                </div>
+                <p class="tile-timestamp mfr-timestamp">{formatDate(article.data.publishedAt)}</p>
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="mt-9 flex justify-center sm:mt-16">
+      <a href={archiveHref} class="cta-pill">{archiveLabel}</a>
+    </div>
+  </div>
+</section>
+
+<style>
+  /*
+    列表网格。
+    桌面端双列：列表右移出容器 56px（980 → 1036），每条自身带 56px 右外边距，
+    于是列宽 462px、列间空白 56px，且左列分隔线能向右延伸与右列连成一条横线。
+    平板及以下退化为单列，取消负外边距，避免溢出容器。
+  */
+  .mfr-list {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  @media (min-width: 1069px) {
+    .mfr-list {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin-right: -56px;
+    }
+  }
+
+  .mfr-item {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 28px;
+    min-width: 0;
+  }
+
+  @media (min-width: 735px) {
+    .mfr-item {
+      margin-bottom: 32px;
+    }
+  }
+
+  @media (min-width: 1069px) {
+    .mfr-item {
+      margin-bottom: 44px;
+      margin-right: 56px;
+    }
+  }
+
+  /* 分隔线 */
+  .mfr-item::after {
+    content: '';
+    display: block;
+    flex: 0 0 auto;
+    height: 1px;
+    margin-top: 28px;
+    background-color: var(--color-hairline);
+    width: 100%;
+  }
+
+  @media (min-width: 735px) {
+    .mfr-item::after {
+      margin-top: 32px;
+    }
+  }
+
+  @media (min-width: 1069px) {
+    .mfr-item::after {
+      margin-top: 44px;
+    }
+
+    /* 左列分隔线延伸一个列间距，与右列接成连续横线 */
+    .mfr-item:nth-child(odd)::after {
+      width: calc(100% + 56px);
+    }
+  }
+
+  /* 最后一项不显示分隔线 */
+  .mfr-item:last-child {
+    margin-bottom: 0;
+  }
+
+  .mfr-item:last-child::after {
+    display: none;
+  }
+
+  /* 桌面端：倒数第二项在左列时也不显示分隔线（其右侧就是最后一项） */
+  @media (min-width: 1069px) {
+    .mfr-item:nth-last-child(2):nth-child(odd) {
+      margin-bottom: 0;
+    }
+
+    .mfr-item:nth-last-child(2):nth-child(odd)::after {
+      display: none;
+    }
+  }
+
+  /* 行内布局：方形缩略图 + 右侧文字 */
+  .mfr-tile {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    text-decoration: none;
+    min-width: 0;
+  }
+
+  .mfr-media {
+    flex: 0 0 auto;
+    width: 105px;
+    height: 105px;
+    border-radius: 16px;
+    overflow: hidden;
+    background-color: var(--color-chip);
+  }
+
+  @media (min-width: 1069px) {
+    .mfr-media {
+      width: 132px;
+      height: 132px;
+      border-radius: 20px;
+    }
+  }
+
+  .mfr-media :global(svg),
+  .mfr-media :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.6s var(--ease-out-soft);
+  }
+
+  .mfr-tile:hover .mfr-media :global(svg),
+  .mfr-tile:hover .mfr-media :global(img) {
+    transform: scale(1.04);
+  }
+
+  .mfr-desc {
+    display: flex;
+    flex: 1 1 auto;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+    padding-left: 16px;
+  }
+
+  @media (min-width: 1069px) {
+    .mfr-desc {
+      padding-left: 28px;
+    }
+  }
+
+  .mfr-category {
+    margin-bottom: 8px;
+    font-size: 12px;
+  }
+
+  @media (min-width: 1069px) {
+    .mfr-category {
+      font-size: 14px;
+    }
+  }
+
+  .mfr-headline {
+    font-family: var(--font-display);
+    font-size: 19px;
+    line-height: 1.2106;
+    font-weight: 700;
+    letter-spacing: 0.012em;
+    color: var(--color-ink);
+    transition: color 0.2s ease;
+    /* 最多三行，超出省略 */
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  @media (min-width: 1069px) {
+    .mfr-headline {
+      font-size: 21px;
+      line-height: 1.1905;
+      letter-spacing: 0.011em;
+    }
+  }
+
+  .mfr-tile:hover .mfr-headline {
+    color: var(--color-link);
+  }
+
+  .mfr-timestamp {
+    margin-top: 12px;
+    font-size: 14px;
+  }
+
+  @media (min-width: 1069px) {
+    .mfr-timestamp {
+      font-size: 17px;
+    }
+  }
+</style>

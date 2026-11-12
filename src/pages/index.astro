@@ -4,6 +4,7 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import LocalNav from '../components/LocalNav.astro';
 import Tile from '../components/Tile.astro';
 import Gallery from '../components/Gallery.astro';
+import MoreFromNewsroom from '../components/MoreFromNewsroom.astro';
 import { site } from '../lib/site';
 import { formatDate, formatRelative } from '../lib/format';
 
@@ -14,7 +15,8 @@ const all = (await getCollection('articles', ({ data }) => !data.draft)).sort(
 const [lead, ...rest] = all;
 const secondary = rest.slice(0, 4);
 const gallery = rest.slice(0, 6);
-const more = all.slice(0, 6);
+// 列表式区块：跳过头条，取其余文章
+const more = all.slice(1, 9);
 ---
 
 <BaseLayout description={site.description}>
@@ -68,63 +70,11 @@ const more = all.slice(0, 6);
     </div>
   </section>
 
-  <!-- More from Newsroom -->
-  <section class="bg-canvas py-20">
-    <div class="shell grid gap-12 lg:grid-cols-[minmax(0,1fr)_320px]">
-      <div>
-        <h2 class="section-head mb-8">More from Newsroom</h2>
-        <div class="flex flex-col">
-          {
-            more.map((article) => (
-              <a
-                href={`/news/${article.id}/`}
-                class="group grid grid-cols-[1fr_auto] items-start gap-6 border-t border-hairline py-5 first:border-t-0 first:pt-0"
-              >
-                <div class="min-w-0">
-                  <p class="eyebrow">{article.data.eyebrow}</p>
-                  <h3 class="tile-headline mt-1.5 text-[19px] leading-[1.2106] tracking-[0.012em] transition-colors group-hover:text-link">
-                    {article.data.title}
-                  </h3>
-                  <p class="mt-2 text-[14px] leading-[1.4286] tracking-[-0.016em] text-graphite">
-                    {article.data.description}
-                  </p>
-                </div>
-                <span
-                  aria-hidden="true"
-                  class="mt-1 grid size-8 flex-none place-items-center rounded-full bg-chip text-ink transition-colors group-hover:bg-chip-hover"
-                >
-                  <svg viewBox="0 0 16 16" class="size-3.5" fill="none" stroke="currentColor" stroke-width="1.8">
-                    <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </span>
-              </a>
-            ))
-          }
-        </div>
-      </div>
-
-      <aside class="flex flex-col gap-8 lg:pt-2">
-        <div class="rounded-[24px] bg-fog p-6">
-          <p class="eyebrow">Subscribe</p>
-          <h3 class="tile-headline mt-2 text-[21px] leading-[1.1905] tracking-[0.011em]">
-            Get the newsroom in your reader.
-          </h3>
-          <p class="mt-2 text-[14px] leading-[1.4286] tracking-[-0.016em] text-graphite">
-            An RSS feed with full articles, no tracking, no account required.
-          </p>
-          <a href="/rss.xml" class="cta-pill mt-4">RSS Feed</a>
-        </div>
-
-        <div class="rounded-[24px] border border-hairline p-6">
-          <p class="eyebrow">Latest date</p>
-          <p class="mt-2 text-[19px] leading-[1.2106] tracking-[0.012em] font-semibold text-ink">
-            {lead ? formatDate(lead.data.publishedAt) : '—'}
-          </p>
-          <p class="mt-1 text-[14px] leading-[1.4286] tracking-[-0.016em] text-graphite">
-            {all.length} articles published
-          </p>
-        </div>
-      </aside>
-    </div>
-  </section>
+  <!-- More from Newsroom：双列列表式，方形缩略图 + 分隔线 -->
+  <MoreFromNewsroom
+    items={more}
+    title="More from Newsroom"
+    archiveHref="/news/"
+    archiveLabel="Read the archive"
+  />
 </BaseLayout>
