@@ -68,13 +68,25 @@ const posts = defineCollection({
 /** 独立页面（关于、友链、公告等），同样兼容 Hexo 的 pages 目录 */
 const pages = defineCollection({
   loader: glob({ pattern: ['**/*.md', '!**/.*'], base: './src/content/pages' }),
-  schema: z.object({
-    title: z.string(),
-    path: z.string().optional(),
-    date: z.coerce.date().optional(),
-    description: z.string().optional(),
-    draft: z.boolean().default(false),
-  }),
+  schema: z
+    .object({
+      title: z.string(),
+      /** 显式指定路由，如 "/favicon/v2"；不写则用目录结构 */
+      path: z.string().nullish(),
+      date: z.coerce.date().nullish(),
+      description: z.string().nullish(),
+      /** 友链开关，数据在 src/content/_data/friends.json */
+      friends: z
+        .object({
+          show: z.boolean().optional().default(false),
+          siteTitle: z.string().optional().default('本站'),
+          listTitle: z.string().optional().default('友链'),
+        })
+        .nullish(),
+      draft: z.boolean().default(false),
+    })
+    // 保留 Hexo 页面里可能出现的其它字段
+    .passthrough(),
 });
 
 export const collections = { posts, pages };
