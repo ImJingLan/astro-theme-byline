@@ -4,11 +4,10 @@ import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import LocalNav from '../../components/LocalNav.astro';
 import Tile from '../../components/Tile.astro';
-import CoverArt from '../../components/CoverArt.astro';
 import { site, categoryHref, tagHref } from '../../lib/site';
 import { formatDate, readingTime } from '../../lib/format';
 import { postHref } from '../../lib/posts';
-import { postCover } from '../../lib/covers';
+import { postDeclaredCover } from '../../lib/covers';
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
@@ -21,7 +20,8 @@ export const getStaticPaths = (async () => {
 
 const { post } = Astro.props;
 const { data } = post;
-const cover = postCover(post);
+// 头图只用文章显式配置的封面；没配就不显示大图（列表页才用默认封面）
+const cover = postDeclaredCover(post);
 
 /*
   正文直接交给 Astro 渲染：图片用相对路径写在同目录，
@@ -99,11 +99,11 @@ const primaryCategory = data.categories[0];
       </div>
     </header>
 
-    <!-- 头图：优先使用文章自带的封面 -->
-    <div class="shell">
-      <figure class="overflow-hidden rounded-[20px] sm:rounded-[28px]">
-        {
-          cover ? (
+    <!-- 头图：仅在文章显式配置了 cover 时显示 -->
+    {
+      cover ? (
+        <div class="shell">
+          <figure class="overflow-hidden rounded-[20px] sm:rounded-[28px]">
             <img
               src={cover.src}
               width={cover.width}
@@ -112,19 +112,10 @@ const primaryCategory = data.categories[0];
               class="w-full object-cover"
               loading="eager"
             />
-          ) : (
-            <CoverArt
-              seed={post.id}
-              tone={primaryCategory}
-              scale="hero"
-              glyph={data.title}
-              alt=""
-              class="w-full"
-            />
-          )
-        }
-      </figure>
-    </div>
+          </figure>
+        </div>
+      ) : null
+    }
 
     <!-- 正文 -->
     <div class="shell py-12 sm:py-16">

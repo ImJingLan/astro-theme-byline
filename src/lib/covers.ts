@@ -158,3 +158,15 @@ function pickDefaultCover(id: string): CoverInfo | undefined {
 
   return { src: meta.src, width: meta.width, height: meta.height };
 }
+
+/**
+ * 只取文章显式配置的封面，不回退到默认池。
+ *
+ * 文章详情页的头图用它：没配 cover 就不显示大图，
+ * 否则每篇文章顶部都会被塞一张和内容无关的默认图。
+ */
+export function postDeclaredCover(post: Post): CoverInfo | undefined {
+  const declared = post.data.coverFile;
+  if (!declared) return undefined;
+  return resolveImage(post.id, declared);
+}
