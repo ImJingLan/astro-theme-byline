@@ -50,16 +50,20 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
     {/*
       首屏防闪烁：在样式生效前就把 data-theme 写上去，
       否则深色用户会先看到一帧白底。脚本必须内联且同步执行。
+
+      只有两态。没存过偏好时读一次系统主题作为初始值，
+      之后完全以用户的选择为准，不再跟随系统变化。
     */}
     <script is:inline>
       (() => {
         const stored = localStorage.getItem('theme');
-        const mode = stored === 'light' || stored === 'dark' ? stored : 'system';
-        const dark =
-          mode === 'dark' ||
-          (mode === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-        document.documentElement.dataset.theme = dark ? 'dark' : 'light';
-        document.documentElement.dataset.themeMode = mode;
+        const theme =
+          stored === 'light' || stored === 'dark'
+            ? stored
+            : window.matchMedia('(prefers-color-scheme: dark)').matches
+              ? 'dark'
+              : 'light';
+        document.documentElement.dataset.theme = theme;
       })();
     </script>
   </head>
