@@ -164,6 +164,27 @@ const logo = site.logo?.trim() ?? '';
       if (event.matches) setOpen(false);
     });
   }
+
+  /*
+    导航在 <main> 外面，swup 换页不会重新渲染它，
+    所以当前页高亮要自己按新路径重算。
+  */
+  const syncActive = () => {
+    const path = location.pathname;
+
+    // 只处理导航项，站点 logo 指向 / 但不算当前页
+    for (const link of document.querySelectorAll<HTMLAnchorElement>('.site-nav nav a[href]')) {
+      const href = link.getAttribute('href');
+      if (!href || href.startsWith('http')) continue;
+
+      const isActive = href === '/' ? path === '/' : path.startsWith(href);
+      if (isActive) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
+    }
+  };
+
+  syncActive();
+  document.addEventListener('astro:page-load', syncActive);
 </script>
 
 <style>
