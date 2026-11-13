@@ -1,11 +1,34 @@
-// 站点级配置：改这里就能换成你自己的品牌
+/**
+ * 站点配置。
+ *
+ * 只改这个文件就能把主题换成自己的站点，不需要动组件。
+ */
+
+// ---------------------------------------------------------------------------
+// 基础信息
+// ---------------------------------------------------------------------------
 export const site = {
+  /** 站点名，显示在导航栏与页脚 */
   name: 'Example Blog',
+  /** 完整标题，用于 <title> 与 RSS */
   title: 'Example Blog',
+  /** 一句话副标题，首页与 OG 描述用 */
+  subtitle: 'A quiet editorial blog theme for Astro',
+  /** SEO 描述 */
   description: 'A quiet editorial blog theme for Astro and Tailwind CSS.',
-  locale: 'zh-CN',
-  /** 作者名，用于 byline */
+  /** SEO 关键词，逗号分隔 */
+  keywords: 'example,blog,astro,tailwind,theme',
+  /** 站点地址，用于 canonical 与 RSS，末尾不要带斜杠 */
+  url: 'https://example.com',
+  /** <html lang> */
+  lang: 'zh-CN',
+  /** OG locale */
+  locale: 'zh_CN',
+  /** 作者名，用于 byline 与版权 */
   author: 'Example Author',
+  /** 时区，影响日期格式化 */
+  timezone: 'Asia/Shanghai',
+
   /**
    * 站点图标（导航栏左侧）。
    * - 留空则显示内置的方块占位图标
@@ -15,33 +38,92 @@ export const site = {
   /**
    * 站点 favicon（浏览器标签页图标）。
    * 留空则不输出 <link rel="icon">，由浏览器请求 /favicon.ico。
-   * 例：'/favicon/v2/favicon-32x32.png'
    */
   favicon: '/favicon/v2/favicon.ico',
+
   /** 首页顶部的一段自我介绍 */
   intro: {
     eyebrow: 'Byline',
     heading: 'Stories worth keeping.',
     lead: 'A demo blog built with this theme.',
   },
-  // 全站唯一的导航栏（浅色吸顶）
+
+  /**
+   * 导航栏。
+   * description 只用于 SEO（生成 meta description 与 RSS），不影响显示。
+   */
   globalNav: [
-    { label: '首页', href: '/' },
-    { label: '归档', href: '/archive/' },
-    { label: '标签', href: '/tags/' },
-    { label: '友链', href: '/friends/' },
-    { label: '关于', href: '/about/' },
+    { label: 'Home', href: '/',
+    { label: 'Archive', href: '/archive/',
+    { label: 'Tags', href: '/tags/',
+    { label: 'Friends', href: '/friends/',
+    { label: 'About', href: '/about/',
     { label: '开往', href: '/archive/' },
-  ],
-  social: [
-    { label: 'GitHub', href: 'https://github.com/example' },
   ],
 } as const;
 
-/**
- * 画廊的行为开关。
- * 改这里就能决定是否显示整个区块 / 左右翻页箭头 / 底部圆点导航，无需改动组件。
- */
+// ---------------------------------------------------------------------------
+// 页脚
+// ---------------------------------------------------------------------------
+export const footer = {
+  /**
+   * 社交链接。key 决定图标，常用的有：
+   * rss / github / twitter / bluesky / weibo / zhihu / facebook / email
+   * 留空字符串的条目不会显示。
+   */
+  social: {
+    rss: '/rss.xml',
+    github: 'https://github.com/example',
+    email: 'mailto:hello@example.com',
+    twitter: '',
+    bluesky: '',
+    weibo: '',
+    zhihu: '',
+    facebook: '',
+  } as Record<string, string>,
+
+  /** 备案信息；enable 为 false 时整条不显示 */
+  icp: {
+    enable: true,
+    url: 'https://beian.miit.gov.cn',
+    text: 'ICP备00000000号',
+  },
+
+  /** 版权行；{year} 与 {author} 会被替换 */
+  copyright: 'Copyright © {year} {author}. All rights reserved.',
+  /** 右下角的构建说明，留空则不显示 */
+  credit: 'Built with Astro | {{GIT_VERSION}}',
+} as const;
+
+// ---------------------------------------------------------------------------
+// Open Graph 图片
+// ---------------------------------------------------------------------------
+export const ogImage = {
+  /** 是否生成分享图（需要 @resvg/resvg-js，见 README） */
+  enable: false,
+  /** 背景色 */
+  bgColor: '#eaecf0',
+  /** 主文字色 */
+  fontColor: '#1e1e1e',
+  /** 作者行文字色 */
+  authorColor: '#444444',
+} as const;
+
+// ---------------------------------------------------------------------------
+// 分页
+// ---------------------------------------------------------------------------
+export const pagination = {
+  /** 归档页每页几篇 */
+  archivePerPage: 6,
+  /** 标签 / 分类详情页每页几篇 */
+  taxonomyPerPage: 12,
+} as const;
+
+// ---------------------------------------------------------------------------
+// 首页区块
+// ---------------------------------------------------------------------------
+
+/** In the Loop 画廊 */
 export const gallery = {
   /** 是否显示整个画廊区块；设为 false 则整块不渲染 */
   enable: true,
@@ -61,9 +143,7 @@ export const gallery = {
   count: 6,
 } as const;
 
-/**
- * 首页「最新文章」区块的配置。
- */
+/** 「最新文章」区块 */
 export const home = {
   /**
    * 展示几篇。
@@ -74,12 +154,15 @@ export const home = {
   latestCount: 6,
   /** 下面「更多文章」列表取几篇 */
   moreCount: 8,
+  /** 是否显示统计表 */
+  showStats: true,
 } as const;
 
+// ---------------------------------------------------------------------------
+// 默认封面
+// ---------------------------------------------------------------------------
 /**
- * 默认封面。
- *
- * 文章没写 cover、正文里也没有图片时，从下面的列表里挑一张。
+ * 文章没写 cover 时，从下面的列表里挑一张。
  *
  * 图片放这里：src/assets/covers/
  * 只写文件名即可，例如 '01.webp'，不需要写路径。
@@ -95,6 +178,9 @@ export const defaultCovers = {
   images: [] as string[],
 } as const;
 
+// ---------------------------------------------------------------------------
+// 分类
+// ---------------------------------------------------------------------------
 /**
  * 分类直接来自文章 frontmatter，这里只放展示顺序与可选描述。
  * 未列出的分类会按文章数量自动排在后面。
@@ -111,6 +197,10 @@ export const categoryDescriptions: Record<string, string> = {
   站点公告: '关于这个博客本身的变化。',
 };
 
+// ---------------------------------------------------------------------------
+// 派生工具
+// ---------------------------------------------------------------------------
+
 /** 把分类名转成 URL 片段（中文分类也保持可读，浏览器会自动编码） */
 export const categorySlug = (name: string) => encodeURIComponent(name);
 
@@ -118,3 +208,54 @@ export const categoryHref = (name: string) => `/categories/${categorySlug(name)}
 export const tagHref = (name: string) => `/tags/${encodeURIComponent(name)}/`;
 
 export const categoryLabel = (name: string) => name;
+
+/** 页脚社交链接：过滤空值，按固定顺序排列，便于稳定渲染 */
+export const socialOrder = [
+  'rss',
+  'github',
+  'twitter',
+  'bluesky',
+  'weibo',
+  'zhihu',
+  'facebook',
+  'email',
+] as const;
+
+/** 把 social 对象整理成有序数组，空值自动跳过 */
+export function socialLinks(): { key: string; label: string; href: string }[] {
+  const labels: Record<string, string> = {
+    rss: 'RSS',
+    github: 'GitHub',
+    twitter: 'Twitter',
+    bluesky: 'Bluesky',
+    weibo: '微博',
+    zhihu: '知乎',
+    facebook: 'Facebook',
+    email: '邮箱',
+  };
+
+  const entries = footer.social as Record<string, string>;
+  const known = socialOrder.filter((key) => entries[key]?.trim());
+  // 配置里出现的其他 key 也一并保留，按字母序排在后面
+  const extra = Object.keys(entries)
+    .filter((key) => !(socialOrder as readonly string[]).includes(key) && entries[key]?.trim())
+    .sort();
+
+  return [...known, ...extra].map((key) => ({
+    key,
+    label: labels[key] ?? key,
+    href: entries[key],
+  }));
+}
+
+/** 替换版权行里的占位符 */
+export function copyrightLine(): string {
+  return footer.copyright
+    .replace('{year}', String(new Date().getFullYear()))
+    .replace('{author}', site.author);
+}
+
+/** 按导航路径查描述，用于 SEO */
+export function navDescription(href: string): string | undefined {
+  return site.globalNav.find((item) => item.href === href)?.description;
+}

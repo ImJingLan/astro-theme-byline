@@ -1,45 +1,47 @@
 ---
-import { site } from '../lib/site';
+import { site, footer, socialLinks, copyrightLine } from '../lib/site';
 
-const year = new Date().getFullYear();
+const links = socialLinks();
+const icp = footer.icp;
 ---
 
 <footer class="bg-fog text-ink">
   <div class="shell py-10">
-    <!--<div class="hairline pt-6">
-      <p class="max-w-[620px] text-[12px] leading-[1.3334] tracking-[-0.01em] text-slate">
-        {site.title} is an independent publication. All imagery on this site is generated artwork
-        created for demonstration purposes. This theme is an original design exercise and is not
-        affiliated with, endorsed by, or sponsored by any company whose layout patterns inspired it.
-      </p>
-    </div>-->
-
     <nav class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3" aria-label="Footer">
       {
-        site.social.map((item) => (
+        links.map((item) => (
           <a
             href={item.href}
             class="text-[12px] tracking-[-0.01em] text-ink-72 transition-colors hover:text-link"
+            {...(item.href.startsWith('http')
+              ? { target: '_blank', rel: 'noopener noreferrer' }
+              : {})}
           >
             {item.label}
           </a>
         ))
       }
-      <a
-        href="/rss.xml"
-        class="text-[12px] tracking-[-0.01em] text-ink-72 transition-colors hover:text-link"
-      >
-        RSS Feed
-      </a>
     </nav>
 
     <div class="mt-6 flex flex-col gap-2 border-t border-hairline pt-4 sm:flex-row sm:items-center sm:justify-between">
       <p class="text-[12px] tracking-[-0.01em] text-slate">
-        Copyright © {year} {site.name}. All rights reserved. <a href="https://beian.miit.gov.cn" target="_blank" rel="noopener noreferrer">ICP备00000000号</a>
+        {copyrightLine()}
+        {
+          icp.enable ? (
+            <>
+              {' '}
+              <a href={icp.url} target="_blank" rel="noopener noreferrer" class="transition-colors hover:text-link">
+                {icp.text}
+              </a>
+            </>
+          ) : null
+        }
       </p>
-      <p class="text-[12px] tracking-[-0.01em] text-slate">
-        Built with Astro
-      </p>
+      {
+        footer.credit ? (
+          <p class="text-[12px] tracking-[-0.01em] text-slate">{footer.credit}</p>
+        ) : null
+      }
     </div>
   </div>
 </footer>

@@ -37,13 +37,17 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
         <p class="hero-lead">{site.intro.lead}</p>
       </div>
 
-      <HomeStats
-        postCount={posts.length}
-        tagCount={tags.length}
-        wordsLabel={formatWordCount(totalWords)}
-        latest={latestDate}
-        uptime={formatUptime()}
-      />
+      {
+        homeConfig.showStats ? (
+          <HomeStats
+            postCount={posts.length}
+            tagCount={tags.length}
+            wordsLabel={formatWordCount(totalWords)}
+            latest={latestDate}
+            uptime={formatUptime()}
+          />
+        ) : null
+      }
     </div>
   </section>
 

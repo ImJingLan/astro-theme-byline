@@ -18,15 +18,13 @@ import { getCollection } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import CoverArt from '../../components/CoverArt.astro';
-import { site } from '../../lib/site';
+import { site, pagination, navDescription } from '../../lib/site';
 import { sortPosts, groupByMonth, postHref } from '../../lib/posts';
 import { postCover } from '../../lib/covers';
 
-// Astro 会把 getStaticPaths 提升到模块作用域，常量必须在函数内部重复定义
-const PER_PAGE = 6;
-
 export const getStaticPaths = (async () => {
-  const perPage = 6;
+  // Astro 会把 getStaticPaths 提升到模块作用域，导入的配置在运行时可用
+  const perPage = pagination.archivePerPage;
   const posts = await getCollection('posts', ({ data }) => !data.draft);
   const total = Math.max(1, Math.ceil(posts.length / perPage));
 
@@ -40,11 +38,12 @@ export const getStaticPaths = (async () => {
 const { pageNumber, totalPages } = Astro.props;
 
 const all = sortPosts(await getCollection('posts', ({ data }) => !data.draft));
-const total = Math.max(1, Math.ceil(all.length / PER_PAGE));
+const perPage = pagination.archivePerPage;
+const total = Math.max(1, Math.ceil(all.length / perPage));
 
 // 当前页的文章
-const start = (pageNumber - 1) * PER_PAGE;
-const pagePosts = all.slice(start, start + PER_PAGE);
+const start = (pageNumber - 1) * perPage;
+const pagePosts = all.slice(start, start + perPage);
 
 /** 按月分组，月份标题形如「七月 2026」 */
 const groups = groupByMonth(pagePosts);

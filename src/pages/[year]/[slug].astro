@@ -43,7 +43,11 @@ const related = (
 const primaryCategory = data.categories[0];
 ---
 
-<BaseLayout title={data.title} description={data.summary || site.description}>
+<BaseLayout
+  title={data.title}
+  description={data.summary || site.description}
+  keywords={data.tags?.join(',')}
+>
   <article>
     <header class:list={['shell pt-12 sm:pt-16', cover ? 'pb-10' : 'pb-6']}>
       <div class="mx-auto max-w-[700px]">

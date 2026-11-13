@@ -1,5 +1,5 @@
 ---
-import { site } from '../lib/site';
+import { site, ogImage as ogConfig } from '../lib/site';
 import GlobalNav from '../components/GlobalNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import '../styles/global.css';
@@ -7,6 +7,8 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
+  /** 页面级关键词，会与站点关键词合并 */
+  keywords?: string;
   /** Open Graph 图（可选） */
   ogImage?: string;
 }
@@ -14,20 +16,38 @@ interface Props {
 const {
   title,
   description = site.description,
+  keywords,
   ogImage,
 } = Astro.props;
 
 const pageTitle = title ? `${title} - ${site.title}` : site.title;
-const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com');
+
+// 站点地址以 site.ts 为准，其次用 astro.config 的 site
+const origin = site.url || Astro.site?.toString() || 'https://example.com';
+const canonical = new URL(Astro.url.pathname, origin);
+
+// 合并关键词：站点级 + 页面级，去重后逗号分隔
+const keywordList = [...new Set(
+  [site.keywords, keywords]
+    .filter(Boolean)
+    .join(',')
+    .split(',')
+    .map((k) => k.trim())
+    .filter(Boolean)
+)];
+
+// OG 图：页面显式传入 > 配置开关下的站点默认图
+const ogImageUrl = ogImage ?? (ogConfig.enable ? `${origin}/og-default.png` : undefined);
 ---
 
 <!doctype html>
-<html lang="zh-CN">
+<html lang={site.lang}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
+    {keywordList.length ? <meta name="keywords" content={keywordList.join(',')} /> : null}
     <link rel="canonical" href={canonical} />
     {
       site.favicon?.trim() ? (
@@ -39,11 +59,14 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
     <meta name="theme-color" content="#ffffff" />
 
     <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.title} />
+    <meta property="og:locale" content={site.locale} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    {ogImage ? <meta property="og:image" content={ogImage} /> : null}
+    {ogImageUrl ? <meta property="og:image" content={ogImageUrl} /> : null}
     <meta name="twitter:card" content="summary_large_image" />
+    {ogImageUrl ? <meta name="twitter:image" content={ogImageUrl} /> : null}
 
     <link rel="alternate" type="application/rss+xml" title={site.title} href="/rss.xml" />
 
