@@ -1,4 +1,5 @@
 ---
+import { t } from '../i18n';
 import BaseLayout from '../layouts/BaseLayout.astro';
 import Tile from '../components/Tile.astro';
 import Gallery from '../components/Gallery.astro';
@@ -55,8 +56,8 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
   <section class="bg-fog pt-13 pb-20">
     <div class="shell">
       <div class="mb-6 flex items-end justify-between gap-6">
-        <h2 class="section-head">Latest</h2>
-        <a href="/archive/" class="cta-pill hidden sm:inline-flex">All posts</a>
+        <h2 class="section-head">{t.home.latest}</h2>
+        <a href="/archive/" class="cta-pill hidden sm:inline-flex">{t.home.allPosts}</a>
       </div>
 
       {
@@ -73,7 +74,7 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
           </ul>
         ) : (
           <p class="text-[17px] text-graphite">
-            No posts yet. Drop a Markdown file into src/content/posts and it will show up here.
+            {t.home.empty}
           </p>
         )
       }
@@ -94,7 +95,7 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
   <!-- More posts -->
   {
     more.length ? (
-      <MoreFromNewsroom posts={more} title="More posts" archiveHref="/archive/" archiveLabel="查看All posts" />
+      <MoreFromNewsroom posts={more} title={t.home.morePosts} archiveHref="/archive/" archiveLabel={t.home.viewAllPosts} />
     ) : null
   }
 
@@ -103,7 +104,7 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
     categories.length ? (
       <section class="py-16 sm:py-20">
         <div class="shell">
-          <h2 class="section-head mb-6">按分类浏览</h2>
+          <h2 class="section-head mb-6">{t.taxonomy.categoriesTitle}</h2>
           <ul class="flex flex-wrap gap-3">
             {categories.map((category) => (
               <li>

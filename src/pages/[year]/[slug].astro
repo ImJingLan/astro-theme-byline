@@ -1,4 +1,5 @@
 ---
+import { t } from '../../i18n';
 import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -51,8 +52,8 @@ const primaryCategory = data.categories[0];
   <article>
     <header class:list={['shell pt-12 sm:pt-16', cover ? 'pb-10' : 'pb-6']}>
       <div class="mx-auto max-w-[700px]">
-      <nav class="mb-6 flex flex-wrap items-center gap-2 text-[13px] text-slate" aria-label="Breadcrumb">
-        <a href="/" class="transition-colors hover:text-link">首页</a>
+      <nav class="mb-6 flex flex-wrap items-center gap-2 text-[13px] text-slate" aria-label={t.post.breadcrumb}>
+        <a href="/" class="transition-colors hover:text-link">{t.common.backHome}</a>
         {
           primaryCategory ? (
             <>
@@ -68,7 +69,7 @@ const primaryCategory = data.categories[0];
       <p class="text-[13px] font-semibold tracking-[0.02em] text-graphite">
         <time datetime={data.date.toISOString()}>{formatDate(data.date)}</time>
         <span class="mx-2 text-slate" aria-hidden="true">·</span>
-        <span>{minutes} min read</span>
+        <span>{minutes} {t.common.minRead}</span>
       </p>
 
       <h1
@@ -125,12 +126,13 @@ const primaryCategory = data.categories[0];
 
         <footer class="mt-16 border-t border-hairline pt-8">
           <p class="text-[13px] leading-[1.7] text-slate">
-            本文由 <span class="text-ink">{data.author ?? site.author}</span> 写于
-            {formatDate(data.date)}，最后更新于 {formatDate(data.updated ?? data.date)}。
+            {t.postExtra.writtenBy} <span class="text-ink">{data.author ?? site.author}</span>
+            · {formatDate(data.date)}
+            {data.updated ? `· ${t.common.lastUpdated} ${formatDate(data.updated)}` : ''}
           </p>
 
           <div class="mt-4 flex flex-wrap items-center gap-2">
-            <span class="text-[13px] text-graphite">Share:</span>
+            <span class="text-[13px] text-graphite">{t.common.share}:</span>
             <!--<a
               class="cta-pill !px-4 !py-2 !text-[13px]"
               href={`mailto:?subject=${encodeURIComponent(data.title)}&body=${encodeURIComponent(postHref(post))}`}
@@ -143,7 +145,7 @@ const primaryCategory = data.categories[0];
               data-copy-link
               data-url={postHref(post)}
             >
-              Copy link
+              {t.common.copyLink}
             </button>
             <a class="cta-pill !px-4 !py-2 !text-[13px]" href="/rss.xml">RSS</a>
           </div>
@@ -156,7 +158,7 @@ const primaryCategory = data.categories[0];
     related.length ? (
       <section class="bg-fog py-16">
         <div class="shell">
-          <h2 class="section-head mb-6">相关文章</h2>
+          <h2 class="section-head mb-6">{t.postExtra.related}</h2>
           <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             {related.map((item) => (
               <li>
@@ -171,7 +173,7 @@ const primaryCategory = data.categories[0];
 
   <section class="shell py-14">
     <div class="flex items-center justify-between gap-4">
-      <a href="/archive/" class="cta-pill">Back to archive</a>
+      <a href="/archive/" class="cta-pill">{t.post.backToArchive}</a>
       <a href="/" class="cta-link">Back home →</a>
     </div>
   </section>
@@ -192,9 +194,9 @@ const primaryCategory = data.categories[0];
         const original = button.textContent;
         try {
           await navigator.clipboard.writeText(url);
-          button.textContent = 'Copied';
+          button.textContent = t.common.copied;
         } catch {
-          button.textContent = 'Copy failed';
+          button.textContent = t.common.copyFailed;
         }
         setTimeout(() => {
           button.textContent = original;

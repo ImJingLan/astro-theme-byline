@@ -1,4 +1,5 @@
 ---
+import { t } from '../i18n';
 import { site, footer, socialLinks, copyrightLine } from '../lib/site';
 
 const links = socialLinks();
@@ -7,7 +8,7 @@ const icp = footer.icp;
 
 <footer class="bg-fog text-ink">
   <div class="shell py-10">
-    <nav class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3" aria-label="Footer">
+    <nav class="mt-6 flex flex-wrap items-center gap-x-6 gap-y-3" aria-label={t.footer.label}>
       {
         links.map((item) => (
           <a

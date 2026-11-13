@@ -1,4 +1,5 @@
 ---
+import { t } from '../i18n';
 /**
  * CoverArt —— 用代码生成的抽象封面图。
  *
@@ -108,7 +109,7 @@ const fontSize = Math.round(h * (scale === 'hero' ? 0.62 : 0.56));
   class={className}
   viewBox={viewBox}
   role="img"
-  aria-label={alt || 'Decorative cover artwork'}
+  aria-label={alt || t.a11y.decorativeCover}
   preserveAspectRatio="xMidYMid slice"
   xmlns="http://www.w3.org/2000/svg"
 >

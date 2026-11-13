@@ -1,0 +1,119 @@
+import type { Dictionary } from './en';
+
+/**
+ * 简体中文。
+ *
+ * 类型标注成 Dictionary，缺任何一条都会在编译期报错 ——
+ * 这是刻意为之：加新文案时忘了翻译，构建就会失败，而不是运行时露出英文。
+ */
+export const zh: Dictionary = {
+  common: {
+    post: '文章',
+    posts: '文章',
+    tags: '标签',
+    categories: '分类',
+    words: '总字数',
+    lastUpdated: '最近更新',
+    uptime: '运行时间',
+    minRead: '分钟阅读',
+    share: '分享',
+    copyLink: '复制链接',
+    copied: '已复制',
+    copyFailed: '复制失败',
+    backHome: '回到首页',
+  },
+
+  nav: {
+    site: '站内导航',
+    skipToContent: '跳到正文',
+  },
+
+  home: {
+    latest: '最新文章',
+    allPosts: '全部归档',
+    morePosts: '更多文章',
+    viewAllPosts: '查看全部归档',
+    empty: '还没有文章。把 Markdown 放进 src/content/posts 就会出现在这里。',
+    galleryLabel: '文章画廊',
+  },
+
+  archive: {
+    title: '归档',
+    heading: 'Stories worth keeping.',
+    description: 'A quiet editorial blog theme for Astro and Tailwind CSS.',
+    pagination: '归档分页',
+    previousPage: '上一页',
+    nextPage: '下一页',
+    empty: '还没有文章。',
+  },
+
+  taxonomy: {
+    tagsTitle: '标签',
+    tagsDescription: '按标签浏览全部文章。',
+    categoriesTitle: '分类',
+    categoriesDescription: '按分类浏览全部文章。',
+    tag: '标签',
+    category: '分类',
+    emptyTags: '还没有标签。在文章 frontmatter 里加 tags 即可。',
+    emptyCategories: '还没有分类。在文章 frontmatter 里加 categories 即可。',
+    postCount: (n: number) => `${n} 篇`,
+  },
+
+  post: {
+    breadcrumb: '面包屑',
+    backToArchive: '返回归档',
+    related: '相关文章',
+  },
+
+  page: {
+    about: '关于',
+    page: '页面',
+  },
+
+
+  taxonomyDetail: {
+    tagTitle: (name: string) => `标签：${name}`,
+    tagDescription: (name: string) => `标记为 ${name} 的文章。`,
+    categoryTitle: (name: string) => `分类：${name}`,
+    categoryDescription: (name: string) => `${name} 分类下的文章。`,
+    noDescription: '暂时还没有描述。',
+    emptyPosts: '这个分类下还没有文章。',
+    emptyTagged: '还没有文章使用这个标签。',
+  },
+
+  date: {
+    monthDay: (month: number, day: number) => `${month} 月 ${day} 日`,
+    today: '今天',
+    yesterday: '昨天',
+    daysAgo: (n: number) => `${n} 天前`,
+    weeksAgo: (n: number) => `${n} 周前`,
+  },
+
+  postExtra: {
+    writtenBy: '作者',
+    related: '相关文章',
+  },
+
+  notFound: {
+    title: '页面不存在',
+    heading: 'Stories worth keeping.',
+    description: 'A quiet editorial blog theme for Astro and Tailwind CSS.',
+    browseArchive: '浏览归档',
+  },
+
+  theme: {
+    switch: '切换主题',
+    toLight: '切换到亮色主题',
+    toDark: '切换到暗色主题',
+  },
+
+  footer: {
+    label: '页脚',
+    rss: 'RSS',
+    email: '邮箱',
+  },
+
+  a11y: {
+    decorativeCover: '装饰性封面图',
+  },
+};

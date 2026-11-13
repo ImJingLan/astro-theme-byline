@@ -9,6 +9,7 @@
  *
  * 无 JS 时仍可正常横向滚动。
  */
+import { t } from '../i18n';
 import CoverArt from './CoverArt.astro';
 import { formatCardDate, formatCardDateISO } from '../lib/format';
 import { postHref, type Post } from '../lib/posts';
@@ -53,19 +54,19 @@ const overlayArrowClass =
         <div class="flex items-center gap-2">
           {showArrows && arrowPlacement === 'head' ? (
             <div class="flex items-center gap-2" data-gallery-arrows>
-              <button type="button" class={arrowClass} data-gallery-arrow data-dir="-1" aria-label="Previous group">
+              <button type="button" class={arrowClass} data-gallery-arrow data-dir="-1" aria-label={t.archive.previousPage}>
                 <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                   <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </button>
-              <button type="button" class={arrowClass} data-gallery-arrow data-dir="1" aria-label="Next group">
+              <button type="button" class={arrowClass} data-gallery-arrow data-dir="1" aria-label={t.archive.nextPage}>
                 <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                   <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </button>
             </div>
           ) : null}
-          {viewAllHref ? <a href={viewAllHref} class="cta-pill hidden sm:inline-flex">全部文章</a> : null}
+          {viewAllHref ? <a href={viewAllHref} class="cta-pill hidden sm:inline-flex">{t.home.allPosts}</a> : null}
         </div>
       </div>
     ) : null
@@ -76,7 +77,7 @@ const overlayArrowClass =
       class="no-scrollbar -mx-[22px] flex snap-x snap-mandatory gap-6 overflow-x-auto px-[22px] pb-2 sm:mx-0 sm:px-0"
       data-gallery-track
       role="group"
-      aria-label={title || 'Post gallery'}
+      aria-label={title || t.home.galleryLabel}
     >
       {
         posts.map((post, index) => {
@@ -112,7 +113,7 @@ const overlayArrowClass =
               </div>
               <div class="flex flex-1 flex-col justify-between gap-4 bg-canvas p-5">
                 <div>
-                  <p class="eyebrow">{post.data.categories[0] ?? 'Post'}</p>
+                  <p class="eyebrow">{post.data.categories[0] ?? t.common.post}</p>
                   <h3 class="tile-headline mt-2.5 line-clamp-2 text-[21px] leading-[1.35] tracking-[0.011em]">
                     {post.data.title}
                   </h3>
@@ -131,12 +132,12 @@ const overlayArrowClass =
     {
       showArrows && arrowPlacement === 'overlay' ? (
         <div class="pointer-events-none absolute inset-x-0 inset-y-0 flex items-center justify-between px-2" data-gallery-arrows>
-          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="-1" aria-label="Previous group">
+          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="-1" aria-label={t.archive.previousPage}>
             <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
               <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
-          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="1" aria-label="Next group">
+          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="1" aria-label={t.archive.nextPage}>
             <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
               <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
@@ -231,7 +232,7 @@ const overlayArrowClass =
         dot.className = 'h-2 rounded-full transition-all duration-300 w-2 bg-ink/20 hover:bg-ink/40';
         dot.dataset.galleryDot = '';
         dot.dataset.index = String(i);
-        dot.setAttribute('aria-label', `第 ${i + 1} 页，共 ${count} 页`);
+        dot.setAttribute('aria-label', `${i + 1} / ${count}`);
         dot.addEventListener('click', () => scrollToStop(i));
         dotContainer.append(dot);
       }

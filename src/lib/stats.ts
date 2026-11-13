@@ -30,7 +30,7 @@ export function countWords(markdown: string): number {
 
 /** 全站总字数，超过一万时用「万」显示 */
 export function formatWordCount(total: number): string {
-  if (total >= 10000) return `${(total / 10000).toFixed(1)} 万`;
+  if (total >= 10000) return `${(total / 10000).toFixed(1)}k`;
   return total.toLocaleString('zh-CN');
 }
 
@@ -49,5 +49,5 @@ export function formatUptime(now = Date.now()): string {
   const days = Math.floor(totalSeconds / 86400);
   const hours = Math.floor((totalSeconds % 86400) / 3600);
   const seconds = totalSeconds % 3600;
-  return `${days}天${pad(hours)}小时${seconds}秒`;
+  return `${days}d ${pad(hours)}h ${pad(seconds)}s`;
 }

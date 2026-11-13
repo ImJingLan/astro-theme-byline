@@ -14,6 +14,7 @@
  *
  * 日期只显示月日，年份在分组标题里。
  */
+import { t } from '../../i18n';
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
 import BaseLayout from '../../layouts/BaseLayout.astro';
@@ -52,7 +53,7 @@ const monthLabel = (date: Date) =>
   `${new Intl.DateTimeFormat('zh-CN', { month: 'long' }).format(date)} ${date.getFullYear()}`;
 
 /** 日期只到月日，年份在分组标题里 */
-const dayLabel = (date: Date) => `${date.getMonth() + 1} 月 ${date.getDate()} 日`;
+const dayLabel = (date: Date) => t.date.monthDay(date.getMonth() + 1, date.getDate());
 
 /** 分页器页码序列：首尾常驻，当前页附近展开，其余用省略号 */
 function pageNumbers(current: number, count: number): (number | '…')[] {
@@ -77,18 +78,18 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
 ---
 
 <BaseLayout
-  title={pageNumber === 1 ? 'Archive' : `归档 · 第 ${pageNumber} 页`}
-  description={`${site.title} 的全部文章，按时间排列。`}
+  title={pageNumber === 1 ? t.archive.title : `${t.archive.title} · ${pageNumber}`}
+  description={t.archive.description}
 >
   <section class="shell pt-14 pb-10 sm:pt-16">
-    <p class="eyebrow">Archive</p>
+    <p class="eyebrow">{t.archive.title}</p>
     <h1
       class="mt-3 font-display text-[36px] leading-[1.25] font-bold tracking-[0.01em] text-ink sm:text-[52px] sm:leading-[1.2]"
     >
-      All posts
+      {t.archive.heading}
     </h1>
     <p class="mt-5 text-[18px] leading-[1.7] text-graphite">
-      {all.length}  posts，共 {total} 页{total > 1 ? `，当前第 ${pageNumber} 页` : ''}。
+      {t.taxonomy.postCount(all.length)} · {total} pages
     </p>
   </section>
 
@@ -101,7 +102,7 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
           <ul role="list" class="archive-list">
             {group.posts.map((post) => {
               const cover = postCover(post);
-              const category = post.data.categories[0] ?? 'Post';
+              const category = post.data.categories[0] ?? t.common.post;
               return (
                 <li class="archive-item">
                   <a href={postHref(post)} class="archive-link group">
@@ -144,15 +145,15 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
     <!-- 分页器 -->
     {
       total > 1 ? (
-        <nav class="pager" aria-label="Archive pagination">
+        <nav class="pager" aria-label={t.archive.pagination}>
           {pageNumber > 1 ? (
-            <a class="pager-btn" href={pageHref(pageNumber - 1)} aria-label="Previous page">
+            <a class="pager-btn" href={pageHref(pageNumber - 1)} aria-label={t.archive.previousPage}>
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </a>
           ) : (
-            <span class="pager-btn is-disabled" aria-disabled="true" aria-label="Previous page">
+            <span class="pager-btn is-disabled" aria-disabled="true" aria-label={t.archive.previousPage}>
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
@@ -180,13 +181,13 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
           </ul>
 
           {pageNumber < total ? (
-            <a class="pager-btn" href={pageHref(pageNumber + 1)} aria-label="Next page">
+            <a class="pager-btn" href={pageHref(pageNumber + 1)} aria-label={t.archive.nextPage}>
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
             </a>
           ) : (
-            <span class="pager-btn is-disabled" aria-disabled="true" aria-label="Next page">
+            <span class="pager-btn is-disabled" aria-disabled="true" aria-label={t.archive.nextPage}>
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>

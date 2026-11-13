@@ -1,5 +1,11 @@
 // 日期与排版辅助函数
-const LOCALE = 'zh-CN';
+import { site } from './site';
+
+/**
+ * 日期格式跟随站点语言。
+ * site.lang 是 BCP 47 标签（en / zh-CN / ja …），Intl 直接接受。
+ */
+const LOCALE = site.lang || 'en';
 
 export const formatDate = (date: Date) =>
   new Intl.DateTimeFormat(LOCALE, {
@@ -15,11 +21,12 @@ export const formatMonth = (date: Date) =>
   new Intl.DateTimeFormat(LOCALE, { year: 'numeric', month: 'long' }).format(date);
 
 /**
- * 磁贴时间戳：完整年月日，形如 `2026 年 11 月 2 日`。
+ * 磁贴时间戳：完整年月日。
  * 博客跨年内容多，卡片上必须能看出年份，所以不用相对时间。
+ * 用 ISO 风格的 yyyy-mm-dd，任何语言下都不会有歧义。
  */
 export function formatCardDate(date: Date): string {
-  return `${date.getFullYear()} 年 ${date.getMonth() + 1} 月 ${date.getDate()} 日`;
+  return `${date.getFullYear()}/${String(date.getMonth() + 1).padStart(2, '0')}/${String(date.getDate()).padStart(2, '0')}`;
 }
 
 /** 磁贴用的机器可读时间（datetime 属性） */
@@ -33,10 +40,10 @@ export function formatRelative(date: Date, now = new Date()) {
   const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
   const days = Math.round((startOfDay(now) - startOfDay(date)) / 86_400_000);
 
-  if (days <= 0) return '今天';
-  if (days === 1) return '昨天';
-  if (days < 7) return `${days} 天前`;
-  if (days < 30) return `${Math.floor(days / 7)} 周前`;
+  if (days <= 0) return 'Today';
+  if (days === 1) return 'Yesterday';
+  if (days < 7) return `${days}d ago`;
+  if (days < 30) return `${Math.floor(days / 7)}w ago`;
   return formatShortDate(date);
 }
 

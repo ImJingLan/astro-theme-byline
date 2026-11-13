@@ -79,7 +79,7 @@ const pages = defineCollection({
       friends: z
         .object({
           show: z.boolean().optional().default(false),
-          siteTitle: z.string().optional().default('本站'),
+          siteTitle: z.string().optional().default('This site'),
           listTitle: z.string().optional().default('Friends'),
         })
         .nullish(),

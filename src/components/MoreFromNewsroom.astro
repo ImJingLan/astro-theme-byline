@@ -5,6 +5,7 @@
  * 方形缩略图 + 右侧文字、桌面双列、每条下方分隔线、底部居中按钮。
  * 配图优先使用文章自带 cover，否则用 CoverArt 程序化生成。
  */
+import { t } from '../i18n';
 import CoverArt from './CoverArt.astro';
 import { formatCardDate, formatCardDateISO } from '../lib/format';
 import { postHref, type Post } from '../lib/posts';
@@ -19,9 +20,9 @@ interface Props {
 
 const {
   posts,
-  title = 'More posts',
+  title = t.home.morePosts,
   archiveHref = '/archive/',
-  archiveLabel = 'View all posts',
+  archiveLabel = t.home.viewAllPosts,
 } = Astro.props;
 ---
 
@@ -64,7 +65,7 @@ const {
 
               <div class="mfr-desc">
                 <div>
-                  <p class="eyebrow mfr-category">{post.data.categories[0] ?? 'Post'}</p>
+                  <p class="eyebrow mfr-category">{post.data.categories[0] ?? t.common.post}</p>
                   <h3 class="mfr-headline">{post.data.title}</h3>
                 </div>
                 <time class="mfr-timestamp" datetime={formatCardDateISO(post.data.date)}>
