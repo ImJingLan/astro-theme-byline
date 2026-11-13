@@ -2,12 +2,12 @@
 
 export const site = {
   /** 站点名 */
-  name: 'Example Blog',
+  name: 'Byline',
   /** 完整标题 */
-  title: 'Example Blog',
+  title: 'Byline',
   subtitle: 'A quiet editorial blog theme for Astro',
   description:
-    'A quiet editorial blog theme for Astro and Tailwind CSS, with a newsroom-style layout.',
+    'Byline is a quiet editorial blog theme for Astro and Tailwind CSS, with a newsroom-style layout.',
   /** 关键词，逗号分隔 */
   keywords: 'example,blog,astro,tailwind,theme',
   /** 站点地址，末尾不带斜杠 */

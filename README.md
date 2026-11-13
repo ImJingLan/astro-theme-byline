@@ -1,11 +1,11 @@
-# Newsroom Theme
+# Byline
 
 A quiet editorial blog theme for Astro and Tailwind CSS.
 
-The layout borrows the rhythm of a newsroom — a wide lead story, a grid of
-smaller tiles, a narrow measure for long-form reading — without copying
-anyone's assets or typefaces. Everything visual is either open source or
-generated at build time.
+A byline is the line that names the writer. The layout borrows the rhythm of a
+newsroom — a wide lead story, a grid of smaller tiles, a narrow measure for
+long-form reading — without copying anyone's assets or typefaces. Everything
+visual is either open source or generated at build time.
 
 - **Fonts** — Inter and Inter Tight, bundled locally under the SIL Open Font
   License. No commercial typefaces.
