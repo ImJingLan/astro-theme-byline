@@ -161,6 +161,10 @@ const overlayArrowClass =
   type GalleryRoot = HTMLElement;
 
   const initGallery = (root: GalleryRoot) => {
+    // swup 每次换页都会重新调用，已初始化过的跳过，避免重复绑定
+    if (root.dataset.galleryReady === '1') return;
+    root.dataset.galleryReady = '1';
+
     const track = root.querySelector<HTMLElement>('[data-gallery-track]');
     const dotContainer = root.querySelector<HTMLElement>('[data-gallery-dots]');
     if (!track) return;
@@ -291,5 +295,14 @@ const overlayArrowClass =
     syncUi();
   };
 
-  document.querySelectorAll<HTMLElement>('[data-gallery]').forEach(initGallery);
+  /*
+    swup 换页不会重新执行脚本，所以要监听 astro:page-load：
+    首次加载与每次切换后都会触发，新插入的 DOM 才能被初始化。
+  */
+  const initAll = () => {
+    document.querySelectorAll<HTMLElement>('[data-gallery]').forEach(initGallery);
+  };
+
+  initAll();
+  document.addEventListener('astro:page-load', initAll);
 </script>

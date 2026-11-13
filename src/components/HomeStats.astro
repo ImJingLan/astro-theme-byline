@@ -48,30 +48,41 @@ const stats = [
 <script>
   import { formatUptime } from '../lib/stats';
 
-  const el = document.getElementById('site-uptime');
-  if (el) {
-    const paint = () => {
-      el.textContent = formatUptime();
-    };
+  let timer: number | null = null;
 
-    let timer: number | null = null;
-    const start = () => {
-      if (timer !== null) clearInterval(timer);
-      if (document.hidden) return;
-      paint();
-      timer = window.setInterval(paint, 1000);
-    };
-    const stop = () => {
-      if (timer !== null) {
-        clearInterval(timer);
-        timer = null;
-      }
-    };
+  /*
+    每次刷新都重新查一次元素：swup 换页会换掉 <main> 里的 DOM，
+    抓住旧引用的话计时器会一直在改一个已经脱离文档的节点。
+  */
+  const paint = (): boolean => {
+    const el = document.getElementById('site-uptime');
+    if (!el) return false;
+    el.textContent = formatUptime();
+    return true;
+  };
 
-    document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
-    window.addEventListener('pagehide', stop);
-    start();
-  }
+  const stop = () => {
+    if (timer !== null) {
+      clearInterval(timer);
+      timer = null;
+    }
+  };
+
+  const start = () => {
+    stop();
+    if (document.hidden) return;
+    // 首页之外没有这个元素，直接不启动
+    if (!paint()) return;
+    timer = window.setInterval(() => {
+      if (!paint()) stop();
+    }, 1000);
+  };
+
+  document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
+  window.addEventListener('pagehide', stop);
+  // 首次加载与每次 swup 切换后都重启，避免指向旧节点或留下多个计时器
+  document.addEventListener('astro:page-load', start);
+  start();
 </script>
 
 <style>

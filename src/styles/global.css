@@ -659,3 +659,91 @@ html[data-theme='dark'] ::selection {
     }
   }
 }
+
+/*
+  —— 页面切换动画（swup） ——
+
+  swup 在切换过程中给 <html> 加一串类名，这里用它们驱动状态机：
+    is-changing     切换开始
+    is-leaving      正在离开旧页面
+    is-rendering    新内容已插入，正在渲染
+    is-popstate     由浏览器前进/后退触发（动画方向相反）
+
+  节奏：离开瞬间完成（不拖沓），进入用 300ms 淡入并轻微上移。
+  内容只换 <main>，导航与页脚原地不动，所以整页不会闪。
+*/
+
+.transition-main {
+  opacity: 1;
+}
+
+html.is-changing .transition-main {
+  transition:
+    opacity 300ms var(--ease-out-soft),
+    translate 300ms var(--ease-out-soft);
+}
+
+/* 离开阶段几乎瞬间完成，避免点击后先"卡"一下再走 */
+html.is-leaving.is-animating .transition-main {
+  transition-duration: 1ms;
+}
+
+/* 新内容进场：从下方 10px 淡入 */
+html.is-rendering.is-animating .transition-main {
+  opacity: 0;
+  translate: 0 10px;
+}
+
+/* 后退时方向相反：从上方落下 */
+html.is-popstate.is-rendering.is-animating .transition-main {
+  translate: 0 -10px;
+}
+
+/*
+  加载指示条：沿导航底边左右扫动。
+  只有 is-changing 期间可见，切换结束后淡出。
+*/
+.route-bar {
+  position: absolute;
+  inset-inline: 0;
+  bottom: -1px;
+  height: 2px;
+  overflow: hidden;
+  opacity: 0;
+  transition: opacity 200ms ease;
+  pointer-events: none;
+}
+
+html.is-changing .route-bar {
+  opacity: 1;
+}
+
+.route-bar::before {
+  content: '';
+  position: absolute;
+  inset-block: 0;
+  left: 0;
+  width: 30%;
+  background-color: var(--color-link);
+}
+
+html.is-changing .route-bar::before {
+  animation: route-shuttle 900ms var(--ease-out-soft) infinite alternate;
+}
+
+@keyframes route-shuttle {
+  to {
+    left: 70%;
+  }
+}
+
+/* 尊重系统的减少动态效果设置 */
+@media (prefers-reduced-motion: reduce) {
+  html.is-changing .transition-main {
+    transition-duration: 1ms;
+  }
+
+  html.is-changing .route-bar::before {
+    animation: none;
+  }
+}

@@ -77,13 +77,26 @@
   let mode = readMode();
   apply(mode);
 
-  button?.addEventListener('click', () => {
-    // 三态循环
-    mode = mode === 'system' ? 'light' : mode === 'light' ? 'dark' : 'system';
-    if (mode === 'system') localStorage.removeItem(STORAGE_KEY);
-    else localStorage.setItem(STORAGE_KEY, mode);
-    apply(mode);
-  });
+  /*
+    swup 换页会把导航栏之外的 DOM 换掉，但导航栏本身留在原处，
+    按钮元素不变，所以监听器只需绑一次。这里仍按「重新查询」写，
+    避免将来把按钮挪进 <main> 时静默失效。
+  */
+  const bind = () => {
+    const btn = document.getElementById('theme-toggle');
+    if (!btn || btn.dataset.bound === '1') return;
+    btn.dataset.bound = '1';
+    btn.addEventListener('click', () => {
+      // 三态循环
+      mode = mode === 'system' ? 'light' : mode === 'light' ? 'dark' : 'system';
+      if (mode === 'system') localStorage.removeItem(STORAGE_KEY);
+      else localStorage.setItem(STORAGE_KEY, mode);
+      apply(mode);
+    });
+  };
+
+  bind();
+  document.addEventListener('astro:page-load', bind);
 
   // 跟随系统时，系统主题变化要实时反映
   window

@@ -73,11 +73,72 @@ const canonical = new URL(Astro.url.pathname, Astro.site ?? 'https://example.com
 
     <GlobalNav active={Astro.url.pathname} />
 
-    {/* main 用 flex-1 吃掉剩余高度，内容再短也能把 footer 顶到底部 */}
-    <main id="main" class="flex-1">
+    {/*
+      main 是 swup 的替换容器：切换时只换这里面的内容，
+      导航与页脚原地不动。flex-1 让它吃掉剩余高度，短页面也能把页脚顶到底。
+      transition-main 是动画选择器，CSS 按 html.is-changing 等类名驱动。
+    */}
+    <main id="main" class="transition-main flex-1">
       <slot />
     </main>
 
     <SiteFooter />
+
+    <script>
+      /*
+        swup 换块后浏览器不会自动恢复滚动位置，这里自己记录/还原：
+        普通点击进入新页面滚到顶部；浏览器前进/后退回到离开时的位置。
+
+        时序坑：后退时 swup 内部的 popstate 处理先于页面脚本，
+        它的 visit:start 会先触发，那时页面已经是目标页、scrollY 是 0。
+        所以「是否后退」必须用 swup 自己的 history:popstate 判断，
+        并且在该事件里先把位置存好，visit:start 只处理普通跳转。
+      */
+      const KEY = 'swup-scroll';
+      const readMap = () => {
+        try {
+          return JSON.parse(sessionStorage.getItem(KEY) || '{}');
+        } catch {
+          return {};
+        }
+      };
+      const writeMap = (map) => sessionStorage.setItem(KEY, JSON.stringify(map));
+
+      // 本次后退要恢复的目标位置，由 history:popstate 提前算好
+      let restoreTo = null;
+
+      document.addEventListener('swup:history:popstate', () => {
+        // 此时 location 已指向目标页，读它自己的记录
+        restoreTo = readMap()[location.pathname] ?? 0;
+      });
+
+      // 普通跳转：离开前保存当前页位置
+      document.addEventListener('swup:visit:start', () => {
+        if (restoreTo !== null) return;
+        const map = readMap();
+        map[location.pathname] = Math.round(window.scrollY);
+        writeMap(map);
+      });
+
+      document.addEventListener('swup:page:view', () => {
+        if (restoreTo !== null) {
+          const y = restoreTo;
+          restoreTo = null;
+          // 等新内容布局完成（高度到位）再滚，否则滚不到目标位置
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => window.scrollTo({ top: y, behavior: 'instant' }));
+          });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        }
+      });
+
+      // 每次切页后把「当前页 + 当前位置」记下来，供下次后退使用
+      window.addEventListener('pagehide', () => {
+        const map = readMap();
+        map[location.pathname] = Math.round(window.scrollY);
+        writeMap(map);
+      });
+    </script>
   </body>
 </html>

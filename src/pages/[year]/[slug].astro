@@ -174,19 +174,31 @@ const primaryCategory = data.categories[0];
 </BaseLayout>
 
 <script>
-  document.querySelectorAll<HTMLButtonElement>('[data-copy-link]').forEach((button) => {
-    button.addEventListener('click', async () => {
-      const url = new URL(button.dataset.url ?? '', location.origin).toString();
-      const original = button.textContent;
-      try {
-        await navigator.clipboard.writeText(url);
-        button.textContent = '已复制';
-      } catch {
-        button.textContent = '复制失败';
-      }
-      setTimeout(() => {
-        button.textContent = original;
-      }, 1600);
+  /*
+    swup 换页会换掉文章内容，按钮是新的 DOM，
+    所以要每次重新绑定；data-copied 防止重复挂同一个监听器。
+  */
+  const bindCopy = () => {
+    document.querySelectorAll<HTMLButtonElement>('[data-copy-link]').forEach((button) => {
+      if (button.dataset.copied === '1') return;
+      button.dataset.copied = '1';
+
+      button.addEventListener('click', async () => {
+        const url = new URL(button.dataset.url ?? '', location.origin).toString();
+        const original = button.textContent;
+        try {
+          await navigator.clipboard.writeText(url);
+          button.textContent = '已复制';
+        } catch {
+          button.textContent = '复制失败';
+        }
+        setTimeout(() => {
+          button.textContent = original;
+        }, 1600);
+      });
     });
-  });
+  };
+
+  bindCopy();
+  document.addEventListener('astro:page-load', bindCopy);
 </script>
