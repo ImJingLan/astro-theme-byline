@@ -2,13 +2,8 @@ import { defineCollection, z } from 'astro:content';
 import { glob } from 'astro/loaders';
 
 /**
- * 博文集。直接兼容 Hexo / Hugo 的 frontmatter：
- *   - title / date / categories / tags
- *   - description / excerpt → summary
- *   - cover / banner / image / thumbnail → cover（可选，字符串）
- *
- * 目录结构：每 posts是 `YYYY/<slug>/index.md`，图片放在同一目录。
- * 正文图片由 Astro 原生管线解析，无需任何额外脚本。
+ * 博文集，兼容 Hexo / Hugo 的 frontmatter。
+ * 目录结构：`YYYY/<slug>/index.md`，图片放同一目录。
  */
 // YAML 里 `tags:` 留空会被解析成 null，必须允许
 const list = z.union([z.string(), z.array(z.union([z.string(), z.number()])), z.null()]).optional();
@@ -27,10 +22,7 @@ const posts = defineCollection({
       category: list,
       tags: list,
       tag: list,
-      /**
-       * 封面：写文章目录里的文件名，例如 cover: "cover.webp"。
-       * 留空或缺失时，由组件自动从正文取第一张图。
-       */
+      /** 封面文件名，相对文章目录；留空则用默认封面池 */
       cover: z.string().nullish(),
       banner: z.string().nullish(),
       image: z.string().nullish(),
@@ -41,7 +33,7 @@ const posts = defineCollection({
       sticky: z.coerce.number().nullish(),
       draft: z.boolean().default(false),
     })
-    // 保留 lang、copyright 等 Hexo 额外字段，不做校验
+    // 保留 lang、copyright 等额外字段
     .passthrough()
     .transform((data) => {
       const toArray = (value: string | Array<string | number> | null | undefined) => {
@@ -55,7 +47,7 @@ const posts = defineCollection({
         categories: toArray(data.categories ?? data.category),
         tags: [...toArray(data.tags), ...toArray(data.tag)],
         summary: data.summary ?? data.description ?? data.excerpt ?? '',
-        /** 封面文件名（同目录），由 lib/covers.ts 解析成最终 URL */
+        /** 封面文件名，由 lib/covers.ts 解析成 URL */
         coverFile: (data.cover ?? data.banner ?? data.image ?? data.thumbnail ?? '')
           .replace(/^['"]+|['"]+$/g, '')
           .trim()
@@ -85,7 +77,7 @@ const pages = defineCollection({
         .nullish(),
       draft: z.boolean().default(false),
     })
-    // 保留 Hexo 页面里可能出现的其它字段
+    // 保留其它字段
     .passthrough(),
 });
 

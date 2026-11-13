@@ -1,10 +1,5 @@
 ---
-/**
- * MoreFromNewsroom —— 列表式「More posts」区块。
- *
- * 方形缩略图 + 右侧文字、桌面双列、每条下方分隔线、底部居中按钮。
- * 配图优先使用文章自带 cover，否则用 CoverArt 程序化生成。
- */
+/** MoreFromNewsroom —— 列表式「More posts」区块。 */
 import { t } from '../i18n';
 import CoverArt from './CoverArt.astro';
 import { formatCardDate, formatCardDateISO } from '../lib/format';
@@ -92,11 +87,7 @@ const {
 </section>
 
 <style>
-  /*
-    桌面端双列：列表右移出容器 56px（980 → 1036），每条自带 56px 右外边距，
-    列宽约 462px，左列分隔线向右延伸一个列间距与右列连成一条横线。
-    平板及以下退化为单列，取消负外边距避免溢出。
-  */
+  /** 桌面端双列：列表右移出容器 56px（980 → 1036），每条自带 56px 右外边距， */
   .mfr-list {
     display: grid;
     grid-template-columns: minmax(0, 1fr);
@@ -112,16 +103,7 @@ const {
     }
   }
 
-  /*
-    分隔线统一由 ::before 绘制，只有一种粗细（1px），不会出现拼接错位。
-
-    条目用 padding 上下留白：线画在条目顶部，上方间距来自上一条的 padding-bottom，
-    下方间距来自本条 padding-top，两边天然相等。
-
-    单列（<1069px）：每项之间一条线，第一项不画。
-    双列（≥1069px）：每行之间一条线，第一行不画；左列的线向右延伸 56px
-    跨过列间距，与右列的线接成完整的一条。
-  */
+  /** 分隔线统一由 ::before 绘制，只有一种粗细（1px），不会出现拼接错位。 */
   .mfr-item {
     position: relative;
     display: flex;
@@ -238,10 +220,7 @@ const {
     }
   }
 
-  /*
-    标题固定最多两行。行数不一致会让同一行的两个条目高度不同，
-    进而把 ::after 画出的分隔线推到不同位置。
-  */
+  /** 标题固定最多两行。行数不一致会让同一行的两个条目高度不同， */
   .mfr-headline {
     font-family: var(--font-display);
     font-size: 19px;

@@ -1,14 +1,5 @@
 ---
-/**
- * Gallery —— 横向吸附滚动画廊。
- *
- * 交互：
- * - 左右箭头翻页（site.ts 的 gallery.showArrows 控制）
- * - 底部圆点导航（gallery.showDots 控制）
- * - 圆点在运行时按「可达的滚动停靠点」生成，页数随视口变化
- *
- * 无 JS 时仍可正常横向滚动。
- */
+/** Gallery —— 横向吸附滚动画廊。 */
 import { t } from '../i18n';
 import CoverArt from './CoverArt.astro';
 import { formatCardDate, formatCardDateISO } from '../lib/format';
@@ -149,10 +140,7 @@ const overlayArrowClass =
 
   {
     showDots ? (
-      /*
-        指示器由 JS 在运行时按「可达的滚动停靠点」生成。
-        页数取决于视口宽度，构建时无法预知，所以这里只输出容器。
-      */
+      /** 指示器由 JS 在运行时按「可达的滚动停靠点」生成。 */
       <div class="mt-6 flex items-center justify-center gap-2" data-gallery-dots />
     ) : null
   }
@@ -185,10 +173,7 @@ const overlayArrowClass =
       return items.length ? offsetOf(items[0]) : 0;
     };
 
-    /**
-     * 可达的滚动停靠点：末尾几张卡的偏移可能超过 maxScroll，永远无法对齐左边缘，
-     * 因此只把真正能停住的位置作为一页，避免出现永远点不亮的指示器。
-     */
+    /** 可达的滚动停靠点：末尾几张卡的偏移可能超过 maxScroll，永远无法对齐左边缘， */
     const stops = () => {
       const items = cards();
       const limit = maxScroll();
@@ -296,10 +281,7 @@ const overlayArrowClass =
     syncUi();
   };
 
-  /*
-    swup 换页不会重新执行脚本，所以要监听 astro:page-load：
-    首次加载与每次切换后都会触发，新插入的 DOM 才能被初始化。
-  */
+  /** swup 换页不会重新执行脚本，所以要监听 astro:page-load： */
   const initAll = () => {
     document.querySelectorAll<HTMLElement>('[data-gallery]').forEach(initGallery);
   };

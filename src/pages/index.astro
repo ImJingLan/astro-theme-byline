@@ -125,16 +125,8 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
 </BaseLayout>
 
 <style>
-  /*
-    标题区：文字在左、统计表在右。
-    用 grid 的 minmax(0, 1fr) 让左栏优先占满剩余空间，
-    统计表固定 400px 不参与伸缩，标题就不会被挤窄而提前换行。
-  */
-  /*
-    标题区用比正文更宽的版心：正文 980px，这里 1280px。
-    参考 Astral-Blog 的做法 —— 宽屏下标题与统计表并排时，
-    980px 会让标题只剩 532px 而被迫换行，1280px 才有足够空间。
-  */
+  /* 标题区：左栏 minmax(0,1fr) 优先占宽，统计表固定 400px 不伸缩 */
+  /* 标题区版心比正文宽：980px 放不下并排的标题，1280px 才行 */
   .hero-shell {
     width: 100%;
     max-width: 1280px;

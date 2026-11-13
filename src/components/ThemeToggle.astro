@@ -1,14 +1,6 @@
 ---
 import { t } from '../i18n';
-/**
- * 主题切换按钮。
- *
- * 只有亮 / 暗两态。首次访问时若没有存过偏好，
- * 用系统当前的主题作为初始值，之后完全由用户的选择决定。
- *
- * 切换时用 View Transitions 做一次圆形遮罩扩散：
- * 新主题以按钮为圆心向外铺开，旧主题被覆盖。
- */
+/** 主题切换：只有亮 / 暗两态，首次访问按系统主题初始化。 */
 ---
 
 <button
@@ -40,10 +32,7 @@ import { t } from '../i18n';
 </button>
 
 <script>
-  /*
-    <head> 里的内联脚本负责首屏前设置 data-theme，避免闪白；
-    这里只负责交互。两者共用同一个 localStorage 键。
-  */
+  /** <head> 里的内联脚本负责首屏前设置 data-theme，避免闪白； */
   type Theme = 'light' | 'dark';
 
   const STORAGE_KEY = 'theme';
@@ -62,12 +51,7 @@ import { t } from '../i18n';
 
   const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /**
-   * 以按钮为圆心把新主题铺开。
-   *
-   * 半径取到视口最远角，保证圆形能覆盖整屏；
-   * 圆心用按钮中心，视觉上像是从开关处扩散出来。
-   */
+  /** 以按钮为圆心把新主题铺开。 */
   const circleFrom = (el: HTMLElement) => {
     const rect = el.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
@@ -110,10 +94,7 @@ import { t } from '../i18n';
       });
   };
 
-  /*
-    swup 换页会换掉 <main> 里的 DOM，导航栏留在原处、按钮不变，
-    所以监听器只需绑一次。仍按「重新查询」写，避免将来挪动按钮时静默失效。
-  */
+  /** swup 换页会换掉 <main> 里的 DOM，导航栏留在原处、按钮不变， */
   const bind = () => {
     const btn = document.getElementById('theme-toggle');
     if (!btn || btn.dataset.bound === '1') return;
@@ -132,10 +113,7 @@ import { t } from '../i18n';
 </script>
 
 <style>
-  /*
-    默认的整页交叉淡入会把遮罩动画盖掉，这里关掉两边的动画，
-    只留 ::view-transition-new 的 clip-path 扩散。
-  */
+  /* 关掉默认的交叉淡入，只留 clip-path 扩散 */
   :global(::view-transition-old(root)),
   :global(::view-transition-new(root)) {
     animation: none;

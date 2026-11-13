@@ -1,10 +1,7 @@
-/**
- * 首页统计：字数与运行时间。
- */
-
+/** 首页统计：字数与运行时间。 */
 import { site } from './site';
 
-/** Markdown 还原成读者实际看到的文字：去掉代码、图片、标记 */
+/** Markdown 还原成纯文本：去掉代码、图片、标记 */
 function toPlainText(markdown: string): string {
   return markdown
     .replace(/```[\s\S]*?```/g, ' ')
@@ -18,10 +15,7 @@ function toPlainText(markdown: string): string {
     .trim();
 }
 
-/**
- * 统计一篇正文的字数。
- * 中文按字计，西文按词计，与阅读时长的口径保持一致。
- */
+/** 字数：中文按字计，西文按词计 */
 export function countWords(markdown: string): number {
   const text = toPlainText(markdown);
   if (!text) return 0;
@@ -30,21 +24,18 @@ export function countWords(markdown: string): number {
   return cjk + latin;
 }
 
-/** 全站总字数，超过一万时用「万」显示 */
+/** 全站总字数，过万显示成 12.3k */
 export function formatWordCount(total: number): string {
   if (total >= 10000) return `${(total / 10000).toFixed(1)}k`;
   return total.toLocaleString(site.lang);
 }
 
-/**
- * 站点运行时间，从最早一 posts的日期算起。
- * 用 UTC 固定时刻，观者时区不影响结果。
- */
+/** 站点起算时刻；改这一行即可换起点 */
 export const SITE_BIRTH_MS = Date.UTC(2022, 1, 10, 0, 0, 0);
 
 const pad = (n: number) => String(n).padStart(2, '0');
 
-/** 「1916天19小时2357秒」——天、小时、小时内秒数 */
+/** 形如 `1916d 19h 2357s` */
 export function formatUptime(now = Date.now()): string {
   const elapsed = Math.max(0, now - SITE_BIRTH_MS);
   const totalSeconds = Math.floor(elapsed / 1000);

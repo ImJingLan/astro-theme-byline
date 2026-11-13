@@ -1,16 +1,6 @@
 ---
 import { t } from '../i18n';
-/**
- * 首页统计表。
- *
- * 用 `gap-px` 铺在内线颜色上，让格子之间出现 1px 细线，
- * 不需要给每个格子单独画边框。
- *
- * 布局：
- *   小屏  2×2
- *   中屏  一行四个
- *   大屏  2×2（作为右侧窄栏时）
- */
+/** 首页统计表：用 gap:1px 透出底色画细线，格子不必各画边框。 */
 interface Props {
   postCount: number;
   tagCount: number;
@@ -51,10 +41,7 @@ const stats = [
 
   let timer: number | null = null;
 
-  /*
-    每次刷新都重新查一次元素：swup 换页会换掉 <main> 里的 DOM，
-    抓住旧引用的话计时器会一直在改一个已经脱离文档的节点。
-  */
+  /** 每次刷新都重新查一次元素：swup 换页会换掉 <main> 里的 DOM， */
   const paint = (): boolean => {
     const el = document.getElementById('site-uptime');
     if (!el) return false;
@@ -87,12 +74,7 @@ const stats = [
 </script>
 
 <style>
-  /*
-    表格宽度跟随 hero-grid 的列数走，断点与它保持一致（1280px）：
-      单列区间（<1280px）  撑满整行
-      两列区间（≥1280px）  固定 400px，作为右栏
-    手机端（<735px）额外限制 600px，避免 2×2 的格子被拉得过宽。
-  */
+  /** 表格宽度跟随 hero-grid 的列数走，断点与它保持一致（1280px）： */
   .stats-ledger {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));

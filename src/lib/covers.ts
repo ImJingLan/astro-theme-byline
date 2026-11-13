@@ -1,14 +1,10 @@
 /**
- * 封面图解析器。
+ * 封面图解析。
  *
- * 图片就放在文章目录里（`2026/rp2350-passkey/cover.webp`）。
- * 用 Vite 的 `import.meta.glob` 在构建期把这些文件登记成模块，
- * Astro 会对它们做 hash 化、转 webp、输出宽高——和正文图片完全一致。
+ * 图片放在文章目录里，用 import.meta.glob 在构建期登记，
+ * Astro 会做 hash、转 webp、输出宽高。
  *
- * 查找顺序：
- *   1. frontmatter 的 cover / banner / image / thumbnail
- *   2. 默认封面列表（src/assets/covers/，按文章 id 哈希取一张）
- *   3. 都没有 → 由组件生成抽象封面
+ * 顺序：frontmatter 的 cover → 默认封面池 → 组件生成抽象封面。
  */
 import type { Post } from './posts';
 import { defaultCovers } from './site';
@@ -17,26 +13,19 @@ type ImageModule = {
   default: { src: string; width: number; height: number };
 };
 
-/**
- * 预先登记 posts 目录下所有图片。
- * `eager: true` 让元数据在构建期就可用；`import: 'default'` 拿到的是
- * `{ src, width, height }` 形式的 ImageMetadata。
- */
+/** 构建期登记 posts 目录下的所有图片 */
 const images = import.meta.glob<ImageModule>('/src/content/posts/**/*.{webp,jpg,jpeg,png,avif,gif,svg}', {
   eager: true,
   import: 'default',
 });
 
-/**
- * 默认封面池。图片放 src/assets/covers/，构建期同样被优化。
- * 键形如 '/src/assets/covers/01.webp'。
- */
+/** 默认封面池，图片放 src/assets/covers/ */
 const defaultPool = import.meta.glob<ImageModule>(
   '/src/assets/covers/*.{webp,jpg,jpeg,png,avif,gif,svg}',
   { eager: true, import: 'default' }
 );
 
-/** 把 glob 结果整理成按文件名排序的数组，保证每次构建顺序一致 */
+/** 按文件名排序，保证每次构建顺序一致 */
 const defaultList = Object.keys(defaultPool)
   .sort()
   .map((key) => ({ key, name: key.split('/').pop() ?? key, meta: defaultPool[key] }));
