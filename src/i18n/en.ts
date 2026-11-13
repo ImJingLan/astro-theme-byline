@@ -108,6 +108,7 @@ export default {
     title: 'Page not found',
     heading: 'Page not found',
     description: 'The page you were looking for could not be found.',
+    hint: 'The link may be out of date, or the article may have been moved to the archive.',
     browseArchive: 'Browse the archive',
   },
 

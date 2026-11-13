@@ -12,11 +12,11 @@ import BaseLayout from '../layouts/BaseLayout.astro';
       {t.notFound.heading}
     </h1>
     <p class="mt-5 max-w-[560px] text-[19px] leading-[1.42] tracking-[-0.012em] text-graphite">
-      The link may be out of date, or the article may have been moved to the archive.
+      {t.notFound.hint}
     </p>
     <div class="mt-8 flex flex-wrap gap-3">
-      <a href="/" class="cta-pill">Back to Newsroom</a>
-      <a href="/news/" class="cta-pill">{t.notFound.browseArchive}</a>
+      <a href="/" class="cta-pill">{t.common.backHome}</a>
+      <a href="/archive/" class="cta-pill">{t.notFound.browseArchive}</a>
     </div>
   </section>
 </BaseLayout>

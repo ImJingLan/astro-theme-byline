@@ -43,8 +43,8 @@ export default {
   // —— 归档 ——
   archive: {
     title: '归档',
-    heading: 'Stories worth keeping.',
-    description: 'A quiet editorial blog theme for Astro and Tailwind CSS.',
+    heading: '全部归档',
+    description: '按时间排列的全部文章。',
     pagination: '归档分页',
     previousPage: '上一页',
     nextPage: '下一页',
@@ -106,8 +106,9 @@ export default {
   // —— 404 ——
   notFound: {
     title: '页面不存在',
-    heading: 'Stories worth keeping.',
-    description: 'A quiet editorial blog theme for Astro and Tailwind CSS.',
+    heading: '页面不存在',
+    description: '你找的页面可能已经被移动或删除。',
+    hint: '链接可能已经过期，或者文章被移到了归档里。',
     browseArchive: '浏览归档',
   },
 
