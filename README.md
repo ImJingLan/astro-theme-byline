@@ -38,6 +38,8 @@ delete them and add your own.
 | Colours, spacing, type | `src/styles/global.css` (`@theme` block) |
 | Default cover images | `src/assets/covers/` |
 | Friend links | `src/content/_data/friends.json` |
+| Interface language | `src/lib/site.ts` (`lang`) |
+| Interface copy | `src/i18n/<lang>.ts` |
 
 ### Writing a post
 
@@ -68,6 +70,37 @@ draft: false
 Images referenced with a relative path (`![](diagram.webp)`) are resolved
 against the post folder, hashed, converted to WebP, and given explicit
 dimensions so the layout does not shift while they load.
+
+### Interface language
+
+The interface ships in English and Chinese. A site is one language at a time;
+set `site.lang` in `src/lib/site.ts` and the matching dictionary is used:
+
+```ts
+export const site = {
+  lang: 'zh-CN',   // → src/i18n/zh.ts
+  // ...
+}
+```
+
+Dates follow the same value, via `Intl.DateTimeFormat`.
+
+To add a language, copy `src/i18n/en.ts`, translate the values, and register
+it in `src/i18n/index.ts`:
+
+```ts
+import { ja } from './ja';
+
+export const dictionaries = { en, zh, ja };
+```
+
+`zh.ts` is typed as `Dictionary`, the shape of `en.ts`. Add a key to English
+and forget the other file, and the build fails — you cannot ship a half
+translated interface by accident.
+
+What lives in the dictionary is interface only: headings, buttons, empty
+states, aria labels. Site identity — name, nav labels, category descriptions —
+stays in `src/lib/site.ts`, because that is content, not chrome.
 
 ### Keeping your posts out of the repo
 
