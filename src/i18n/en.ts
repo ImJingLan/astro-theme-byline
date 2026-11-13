@@ -26,6 +26,8 @@ export default {
   nav: {
     site: 'Site',
     skipToContent: 'Skip to content',
+    openMenu: 'Open menu',
+    closeMenu: 'Close menu',
   },
 
   // —— 首页 ——
