@@ -137,11 +137,11 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
               </svg>
             </a>
           ) : (
-            <span class="pager-btn is-disabled" aria-disabled="true" aria-label={t.archive.previousPage}>
+            <button type="button" class="pager-btn is-disabled" disabled aria-label={t.archive.previousPage}>
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-            </span>
+            </button>
           )}
 
           <ul class="pager-pages">
@@ -171,11 +171,11 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
               </svg>
             </a>
           ) : (
-            <span class="pager-btn is-disabled" aria-disabled="true" aria-label={t.archive.nextPage}>
+            <button type="button" class="pager-btn is-disabled" disabled aria-label={t.archive.nextPage}>
               <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
                 <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
               </svg>
-            </span>
+            </button>
           )}
         </nav>
       ) : null
@@ -294,6 +294,8 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
     flex: none;
     width: 44px;
     height: 44px;
+    padding: 0;
+    border: 0;
     border-radius: 44px;
     background-color: var(--color-fog);
     color: var(--color-graphite);

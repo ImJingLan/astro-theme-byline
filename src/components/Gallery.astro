@@ -141,7 +141,7 @@ const overlayArrowClass =
   {
     showDots ? (
       /** 指示器由 JS 生成 */
-      <div class="mt-6 flex items-center justify-center gap-2" data-gallery-dots />
+      <div class="mt-4 flex items-center justify-center" data-gallery-dots />
     ) : null
   }
 </div>
@@ -214,7 +214,8 @@ const overlayArrowClass =
       for (let i = 0; i < count; i++) {
         const dot = document.createElement('button');
         dot.type = 'button';
-        dot.className = 'h-2 rounded-full transition-all duration-300 w-2 bg-ink/20 hover:bg-ink/40';
+        // 按钮本身 24×24 满足触摸目标，圆点由 ::before 画成 8×8
+        dot.className = 'gallery-dot';
         dot.dataset.galleryDot = '';
         dot.dataset.index = String(i);
         dot.setAttribute('aria-label', `${i + 1} / ${count}`);
@@ -237,11 +238,7 @@ const overlayArrowClass =
       [...(dotContainer?.children ?? [])].forEach((node, i) => {
         const dot = node as HTMLButtonElement;
         const on = i === active;
-        dot.classList.toggle('w-6', on);
-        dot.classList.toggle('bg-ink/80', on);
-        dot.classList.toggle('w-2', !on);
-        dot.classList.toggle('bg-ink/20', !on);
-        dot.classList.toggle('hover:bg-ink/40', !on);
+        dot.dataset.active = on ? 'true' : 'false';
         dot.setAttribute('aria-current', on ? 'true' : 'false');
       });
 
@@ -288,3 +285,44 @@ const overlayArrowClass =
   initAll();
   document.addEventListener('astro:page-load', initAll);
 </script>
+
+<style>
+  /* 圆点由 JS 创建，用 :global 避免 scoped 属性选择器不匹配 */
+  :global(.gallery-dot) {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    padding: 0;
+    border: 0;
+    background: none;
+    cursor: pointer;
+  }
+
+  :global(.gallery-dot::before) {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    background-color: var(--color-ink);
+    opacity: 0.2;
+    transition:
+      width 0.3s var(--ease-out-soft),
+      opacity 0.3s ease;
+  }
+
+  :global(.gallery-dot:hover::before) {
+    opacity: 0.4;
+  }
+
+  :global(.gallery-dot[data-active='true']::before) {
+    width: 24px;
+    opacity: 0.8;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :global(.gallery-dot::before) {
+      transition-duration: 1ms;
+    }
+  }
+</style>

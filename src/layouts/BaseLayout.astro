@@ -4,6 +4,10 @@ import GlobalNav from '../components/GlobalNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import '../styles/global.css';
 
+// 提前加载两个正文字体，避免 CSS 解析完才发请求
+import interLatin from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
+import interTightLatin from '@fontsource-variable/inter-tight/files/inter-tight-latin-wght-normal.woff2?url';
+
 interface Props {
   title?: string;
   description?: string;
@@ -45,6 +49,8 @@ const ogImageUrl = ogImage ?? (ogConfig.enable ? `${origin}/og-default.png` : un
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href={interTightLatin} as="font" type="font/woff2" crossorigin />
     <title>{pageTitle}</title>
     <meta name="description" content={description} />
     {keywordList.length ? <meta name="keywords" content={keywordList.join(',')} /> : null}
