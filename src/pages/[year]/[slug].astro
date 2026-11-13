@@ -122,8 +122,16 @@ const primaryCategory = data.categories[0];
         <footer class="mt-16 border-t border-hairline pt-8">
           <p class="text-[13px] leading-[1.7] text-slate">
             {t.postExtra.writtenBy} <span class="text-ink">{data.author ?? site.author}</span>
-            · {formatDate(data.date)}
-            {data.updated ? `· ${t.common.lastUpdated} ${formatDate(data.updated)}` : ''}
+            <span class="mx-1.5" aria-hidden="true">·</span>{' '}
+            {formatDate(data.date)}
+            {
+              data.updated ? (
+                <>
+                  <span class="mx-1.5" aria-hidden="true">·</span>{' '}
+                  {t.common.lastUpdated} {formatDate(data.updated)}
+                </>
+              ) : null
+            }
           </p>
 
           <div class="mt-4 flex flex-wrap items-center gap-2">
