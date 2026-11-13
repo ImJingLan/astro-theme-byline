@@ -38,7 +38,7 @@ delete them and add your own.
 | Colours, spacing, type | `src/styles/global.css` (`@theme` block) |
 | Default cover images | `src/assets/covers/` |
 | Friend links | `src/content/_data/friends.json` |
-| Interface language | `src/lib/site.ts` (`lang`) |
+| Interface language, date format, `og:locale` | `src/lib/site.ts` (`lang`) |
 | Interface copy | `src/i18n/<lang>.ts` |
 
 ### Writing a post
@@ -84,6 +84,12 @@ export const site = {
 ```
 
 Dates follow the same value, via `Intl.DateTimeFormat`.
+
+`og:locale` is derived from it rather than configured separately: Open Graph
+wants `en_US`, with an underscore and a region, while `<html lang>` wants the
+BCP 47 form `en-US`. Writing both by hand invites them drifting apart, so
+`lang` is the only input and `ogLocale()` fills in a sensible region when you
+omit one — `ja` becomes `ja_JP`, `pt-BR` stays `pt_BR`.
 
 To add a language, copy `src/i18n/en.ts`, translate the values, and register
 it in `src/i18n/index.ts`:

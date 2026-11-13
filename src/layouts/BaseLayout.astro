@@ -1,5 +1,5 @@
 ---
-import { site, ogImage as ogConfig } from '../lib/site';
+import { site, ogImage as ogConfig, ogLocale } from '../lib/site';
 import GlobalNav from '../components/GlobalNav.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import '../styles/global.css';
@@ -60,7 +60,7 @@ const ogImageUrl = ogImage ?? (ogConfig.enable ? `${origin}/og-default.png` : un
 
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content={site.title} />
-    <meta property="og:locale" content={site.locale} />
+    <meta property="og:locale" content={ogLocale()} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />

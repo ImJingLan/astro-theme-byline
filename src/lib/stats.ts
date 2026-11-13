@@ -2,6 +2,8 @@
  * 首页统计：字数与运行时间。
  */
 
+import { site } from './site';
+
 /** Markdown 还原成读者实际看到的文字：去掉代码、图片、标记 */
 function toPlainText(markdown: string): string {
   return markdown
@@ -31,7 +33,7 @@ export function countWords(markdown: string): number {
 /** 全站总字数，超过一万时用「万」显示 */
 export function formatWordCount(total: number): string {
   if (total >= 10000) return `${(total / 10000).toFixed(1)}k`;
-  return total.toLocaleString('zh-CN');
+  return total.toLocaleString(site.lang);
 }
 
 /**

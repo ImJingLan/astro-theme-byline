@@ -1,5 +1,5 @@
 import { getCollection, type CollectionEntry } from 'astro:content';
-import { categoryOrder } from './site';
+import { categoryOrder, site } from './site';
 
 export type Post = CollectionEntry<'posts'>;
 
@@ -55,7 +55,7 @@ export function collectTags(posts: Post[]) {
   }
   return [...counts.entries()]
     .map(([name, count]) => ({ name, count }))
-    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, 'zh-CN'));
+    .sort((a, b) => b.count - a.count || a.name.localeCompare(b.name, site.lang));
 }
 
 /** 按年月分组（posts 已按日期倒序，因此分组天然有序） */

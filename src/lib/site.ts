@@ -22,10 +22,16 @@ export const site = {
   keywords: 'example,blog,astro,tailwind,theme',
   /** 站点地址，用于 canonical 与 RSS，末尾不要带斜杠 */
   url: 'https://example.com',
-  /** <html lang> */
+  /**
+   * 站点语言，BCP 47 标签（en / zh-CN / ja / pt-BR …）。
+   *
+   * 这一个值决定四件事：
+   *   - <html lang>
+   *   - 选哪份界面字典（src/i18n/）
+   *   - 日期格式（Intl.DateTimeFormat）
+   *   - og:locale 与 RSS <language>（自动转成 en_US 这种下划线写法）
+   */
   lang: 'en',
-  /** OG locale */
-  locale: 'en_US',
   /** 作者名，用于 byline 与版权 */
   author: 'Example Author',
   /** 时区，影响日期格式化 */
@@ -263,4 +269,36 @@ export function navDescription(href: string): string | undefined {
   const norm = (p: string) => p.replace(/\/+$/, '') || '/';
   const target = norm(href);
   return site.globalNav.find((item) => norm(item.href) === target)?.description;
+}
+
+/**
+ * 把 BCP 47 标签转成 Open Graph 要求的 `语言_地区` 形式。
+ *
+ *   en       → en_US   （没有地区时补一个默认值）
+ *   zh-CN    → zh_CN
+ *   pt-BR    → pt_BR
+ *
+ * og:locale 用的是 Facebook 的约定，必须下划线且带地区，
+ * 和 <html lang> 的写法不是一回事，所以由 lang 派生而不是再配一次。
+ */
+export function ogLocale(lang: string = site.lang): string {
+  const [base, region] = lang.split(/[-_]/);
+
+  if (region) return `${base.toLowerCase()}_${region.toUpperCase()}`;
+
+  // 没有地区时的默认归属
+  const defaults: Record<string, string> = {
+    en: 'US',
+    zh: 'CN',
+    ja: 'JP',
+    ko: 'KR',
+    pt: 'BR',
+    es: 'ES',
+    fr: 'FR',
+    de: 'DE',
+    ru: 'RU',
+  };
+
+  const fallback = defaults[base.toLowerCase()];
+  return fallback ? `${base.toLowerCase()}_${fallback}` : base.toLowerCase();
 }

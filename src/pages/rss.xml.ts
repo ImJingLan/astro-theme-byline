@@ -18,6 +18,6 @@ export async function GET(context: APIContext) {
       link: postHref(post),
       categories: [...post.data.categories, ...post.data.tags],
     })),
-    customData: `<language>${site.locale}</language>`,
+    customData: `<language>${site.lang}</language>`,
   });
 }
