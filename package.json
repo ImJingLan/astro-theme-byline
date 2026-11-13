@@ -8,7 +8,10 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "version:set": "node tools/update-version.mjs",
+    "snapshot:version": "node tools/weekly-snapshot.mjs",
+    "changelog": "node tools/generate-changelog.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
