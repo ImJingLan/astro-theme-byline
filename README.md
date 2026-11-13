@@ -142,6 +142,12 @@ after uncommenting is ignored.
 | `bun run dev` | Dev server with HMR |
 | `bun run build` | Static build into `dist/` |
 | `bun run preview` | Serve the built output |
+| `bun run words` | Count words per post, and the total |
+
+`bun run words` walks `src/content/posts/`, strips each file's frontmatter and
+Markdown syntax, and counts Chinese characters individually while counting
+Latin text by word. The total is the same number the home page shows in its
+stats block, so the two can be compared when a post is edited.
 
 ## Deploying
 

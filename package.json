@@ -12,7 +12,8 @@
     "astro": "astro",
     "version:set": "node tools/update-version.mjs",
     "snapshot:version": "node tools/weekly-snapshot.mjs",
-    "changelog": "node tools/generate-changelog.mjs"
+    "changelog": "node tools/generate-changelog.mjs",
+    "words": "bun tools/word-count.mjs"
   },
   "dependencies": {
     "@astrojs/rss": "^4.0.19",
