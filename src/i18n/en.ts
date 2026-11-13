@@ -1,7 +1,9 @@
 /**
- * 界面文案（英文）。
+ * Language: English
+ * Author: Theme Author
+ * BCP 47: en
  *
- * 只有数据，没有类型和逻辑。加语言时复制本文件即可。
+ * Only data — no types, no logic. To add a language, copy this file.
  */
 
 export default {

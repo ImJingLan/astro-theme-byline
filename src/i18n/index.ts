@@ -20,9 +20,19 @@ const dictionaries = {
 /** 语言标签归一：zh-CN / zh_CN / zh 都取 zh */
 const baseOf = (lang: string) => lang.toLowerCase().split(/[-_]/)[0];
 
+/**
+ * 已注册语言的元信息。
+ * 与文件头的注释对应，方便做语言切换器时不用去翻文件。
+ */
+export const locales: { code: string; label: string }[] = [
+  { code: 'en', label: 'English' },
+  { code: 'zh-CN', label: '简体中文' },
+];
+
 export function getDictionary(lang: string): Dictionary {
   const key = baseOf(lang);
-  return dictionaries[key as keyof typeof dictionaries] ?? dictionaries[lang as keyof typeof dictionaries] ?? en;
+  const table = dictionaries as Record<string, Dictionary>;
+  return table[key] ?? table[lang] ?? en;
 }
 
 export const t: Dictionary = getDictionary(site.lang);
