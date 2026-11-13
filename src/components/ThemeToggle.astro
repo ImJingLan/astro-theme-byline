@@ -5,8 +5,10 @@ import { t } from '../i18n';
 
 <button
   type="button"
-  id="theme-toggle"
   class="theme-toggle"
+  data-theme-toggle
+  data-label-light={t.theme.toLight}
+  data-label-dark={t.theme.toDark}
   aria-label={t.theme.switch}
   aria-live="polite"
   title={t.theme.switch}
@@ -32,19 +34,27 @@ import { t } from '../i18n';
 </button>
 
 <script>
-  /** <head> 里的内联脚本负责首屏前设置 data-theme，避免闪白； */
+  /** <head> 里的内联脚本负责首屏前设置 data-theme，避免闪白 */
   type Theme = 'light' | 'dark';
 
   const STORAGE_KEY = 'theme';
   const root = document.documentElement;
 
+  /** 页面上所有切换按钮；导航栏在宽窄屏各渲染一个 */
+  const buttons = () => [...document.querySelectorAll<HTMLElement>('[data-theme-toggle]')];
+
   const apply = (theme: Theme) => {
     root.dataset.theme = theme;
+
     const meta = document.querySelector('meta[name="theme-color"]');
     if (meta) meta.setAttribute('content', theme === 'dark' ? '#1c1c1e' : '#ffffff');
-    document
-      .getElementById('theme-toggle')
-      ?.setAttribute('aria-label', theme === 'dark' ? t.theme.toLight : t.theme.toDark);
+
+    for (const btn of buttons()) {
+      const label = theme === 'dark' ? btn.dataset.labelLight : btn.dataset.labelDark;
+      if (!label) continue;
+      btn.setAttribute('aria-label', label);
+      btn.setAttribute('title', label);
+    }
   };
 
   const current = (): Theme => (root.dataset.theme === 'dark' ? 'dark' : 'light');
@@ -74,7 +84,6 @@ import { t } from '../i18n';
       apply(next);
     });
 
-    // 等快照就绪再驱动动画
     transition.ready
       .then(() => {
         root.animate(
@@ -88,22 +97,20 @@ import { t } from '../i18n';
           }
         );
       })
-      .catch(() => {
-      });
+      .catch(() => {});
   };
 
   const bind = () => {
-    const btn = document.getElementById('theme-toggle');
-    if (!btn || btn.dataset.bound === '1') return;
-    btn.dataset.bound = '1';
+    for (const btn of buttons()) {
+      if (btn.dataset.bound === '1') continue;
+      btn.dataset.bound = '1';
 
-    btn.addEventListener('click', () => {
-      const next: Theme = current() === 'dark' ? 'light' : 'dark';
-      switchTo(next, btn);
-    });
+      btn.addEventListener('click', () => {
+        switchTo(current() === 'dark' ? 'light' : 'dark', btn);
+      });
+    }
   };
 
-  // 同步按钮文案与浏览器配色
   apply(current());
   bind();
   document.addEventListener('astro:page-load', bind);
