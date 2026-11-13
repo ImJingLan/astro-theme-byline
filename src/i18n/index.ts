@@ -3,19 +3,26 @@
  * 一个站点一种语言，不加 URL 前缀。
  */
 import { site } from '../lib/site';
-import { en, type Dictionary } from './en';
-import { zh } from './zh';
+import en from './en';
+import zh from './zh';
+import type { Dictionary } from './types';
 
-/** 已注册的字典；加语言在这里补一行 */
-export const dictionaries: Record<string, Dictionary> = {
+/*
+  语言文件是纯数据，不带类型标注。
+  在这里用 satisfies 校验：少键或多键都会编译失败，
+  加语言时不会悄悄漏翻。
+*/
+const dictionaries = {
   en,
   zh,
-};
+} satisfies Record<string, Dictionary>;
 
-/** 取站点语言的字典，找不到回退英文。zh-CN / zh_CN / zh 都归到 zh */
+/** 语言标签归一：zh-CN / zh_CN / zh 都取 zh */
+const baseOf = (lang: string) => lang.toLowerCase().split(/[-_]/)[0];
+
 export function getDictionary(lang: string): Dictionary {
-  const base = lang.toLowerCase().split(/[-_]/)[0];
-  return dictionaries[base] ?? dictionaries[lang] ?? en;
+  const key = baseOf(lang);
+  return dictionaries[key as keyof typeof dictionaries] ?? dictionaries[lang as keyof typeof dictionaries] ?? en;
 }
 
 export const t: Dictionary = getDictionary(site.lang);

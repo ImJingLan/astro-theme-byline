@@ -1,12 +1,11 @@
-import type { Dictionary } from './en';
-
 /**
- * 简体中文。
+ * 界面文案（简体中文）。
  *
- * 类型标注成 Dictionary，缺任何一条都会在编译期报错 ——
- * 这是刻意为之：加新文案时忘了翻译，构建就会失败，而不是运行时露出英文。
+ * 只有数据，没有类型和逻辑。
  */
-export const zh: Dictionary = {
+
+export default {
+  // —— 通用 ——
   common: {
     post: '文章',
     posts: '文章',
@@ -23,11 +22,13 @@ export const zh: Dictionary = {
     backHome: '回到首页',
   },
 
+  // —— 导航 ——
   nav: {
     site: '站内导航',
     skipToContent: '跳到正文',
   },
 
+  // —— 首页 ——
   home: {
     latest: '最新文章',
     allPosts: '全部归档',
@@ -37,6 +38,7 @@ export const zh: Dictionary = {
     galleryLabel: '文章画廊',
   },
 
+  // —— 归档 ——
   archive: {
     title: '归档',
     heading: 'Stories worth keeping.',
@@ -47,6 +49,7 @@ export const zh: Dictionary = {
     empty: '还没有文章。',
   },
 
+  // —— 标签 / 分类 ——
   taxonomy: {
     tagsTitle: '标签',
     tagsDescription: '按标签浏览全部文章。',
@@ -59,18 +62,7 @@ export const zh: Dictionary = {
     postCount: (n: number) => `${n} 篇`,
   },
 
-  post: {
-    breadcrumb: '面包屑',
-    backToArchive: '返回归档',
-    related: '相关文章',
-  },
-
-  page: {
-    about: '关于',
-    page: '页面',
-  },
-
-
+  // —— 标签 / 分类详情 ——
   taxonomyDetail: {
     tagTitle: (name: string) => `标签：${name}`,
     tagDescription: (name: string) => `标记为 ${name} 的文章。`,
@@ -81,6 +73,7 @@ export const zh: Dictionary = {
     emptyTagged: '还没有文章使用这个标签。',
   },
 
+  // —— 日期 ——
   date: {
     monthDay: (month: number, day: number) => `${month} 月 ${day} 日`,
     today: '今天',
@@ -89,11 +82,26 @@ export const zh: Dictionary = {
     weeksAgo: (n: number) => `${n} 周前`,
   },
 
+  // —— 文章页 ——
+  post: {
+    breadcrumb: '面包屑',
+    backToArchive: '返回归档',
+    related: '相关文章',
+  },
+
+  // —— 文章页补充 ——
   postExtra: {
     writtenBy: '作者',
     related: '相关文章',
   },
 
+  // —— 页面 ——
+  page: {
+    about: '关于',
+    page: '页面',
+  },
+
+  // —— 404 ——
   notFound: {
     title: '页面不存在',
     heading: 'Stories worth keeping.',
@@ -101,18 +109,21 @@ export const zh: Dictionary = {
     browseArchive: '浏览归档',
   },
 
+  // —— 主题切换 ——
   theme: {
     switch: '切换主题',
     toLight: '切换到亮色主题',
     toDark: '切换到暗色主题',
   },
 
+  // —— 页脚 ——
   footer: {
     label: '页脚',
     rss: 'RSS',
     email: '邮箱',
   },
 
+  // —— 无障碍标签 ——
   a11y: {
     decorativeCover: '装饰性封面图',
   },

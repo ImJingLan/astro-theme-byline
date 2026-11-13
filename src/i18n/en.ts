@@ -1,9 +1,10 @@
 /**
- * 界面文案。只放主题自带的文案；
- * 站点名、导航标签等属于配置，在 src/lib/site.ts。
+ * 界面文案（英文）。
+ *
+ * 只有数据，没有类型和逻辑。加语言时复制本文件即可。
  */
 
-export const en = {
+export default {
   // —— 通用 ——
   common: {
     post: 'Post',
@@ -61,20 +62,6 @@ export const en = {
     postCount: (n: number) => (n === 1 ? '1 post' : `${n} posts`),
   },
 
-  // —— 文章页 ——
-  post: {
-    breadcrumb: 'Breadcrumb',
-    backToArchive: 'Back to archive',
-    related: 'Related',
-  },
-
-  // —— 页面 ——
-  page: {
-    about: 'About',
-    page: 'Page',
-  },
-
-
   // —— 标签 / 分类详情 ——
   taxonomyDetail: {
     tagTitle: (name: string) => `Tag: ${name}`,
@@ -95,10 +82,23 @@ export const en = {
     weeksAgo: (n: number) => `${n} weeks ago`,
   },
 
+  // —— 文章页 ——
+  post: {
+    breadcrumb: 'Breadcrumb',
+    backToArchive: 'Back to archive',
+    related: 'Related',
+  },
+
   // —— 文章页补充 ——
   postExtra: {
     writtenBy: 'Written by',
     related: 'Related posts',
+  },
+
+  // —— 页面 ——
+  page: {
+    about: 'About',
+    page: 'Page',
   },
 
   // —— 404 ——
@@ -127,25 +127,4 @@ export const en = {
   a11y: {
     decorativeCover: 'Decorative cover artwork',
   },
-} as const;
-
-/**
- * 字典的形状。
- *
- * `typeof en` 带 `as const`，每个值都是字面量类型（'Switch theme'），
- * 直接当类型用会让别的语言无法赋不同的字符串。
- *
- * 这里把叶子上的字面量展宽成 string，保留键的结构和函数签名。
- * - 字符串 → string
- * - 函数 → 原样保留（postCount 之类带参数的）
- * - 对象 → 递归
- */
-type Widen<T> = T extends string
-  ? string
-  : T extends (...args: infer A) => infer R
-    ? (...args: A) => R
-    : T extends object
-      ? { [K in keyof T]: Widen<T[K]> }
-      : T;
-
-export type Dictionary = Widen<typeof en>;
+};
