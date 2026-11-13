@@ -11,7 +11,7 @@ import { postDeclaredCover } from '../../lib/covers';
 
 export const getStaticPaths = (async () => {
   const posts = await getCollection('posts', ({ data }) => !data.draft);
-  // 文章 id 形如 2026/rp2350-passkey → 路由 /2026/rp2350-passkey/
+  // 2026/slug → /2026/slug/
   return posts.map((post) => {
     const [year, slug] = post.id.split('/');
     return { params: { year, slug }, props: { post } };
@@ -20,14 +20,10 @@ export const getStaticPaths = (async () => {
 
 const { post } = Astro.props;
 const { data } = post;
-// 头图只用文章显式配置的封面；没配就不显示大图（列表页才用默认封面）
+// 头图只用显式 cover
 const cover = postDeclaredCover(post);
 
-/*
-  正文直接交给 Astro 渲染：图片用相对路径写在同目录，
-  Astro 会按文章所在目录解析并优化（生成 hash 文件名 + 宽高）。
-  注意必须传原始 entry，不能 spread —— 展开会丢掉内部的源文件路径。
-*/
+/* 必须传原始 entry，spread 会丢源文件路径 */
 const { Content } = await render(post);
 
 const minutes = readingTime(post.body ?? '');
@@ -101,7 +97,7 @@ const primaryCategory = data.categories[0];
       </div>
     </header>
 
-    <!-- 头图：仅在文章显式配置了 cover 时显示 -->
+    <!-- 头图 -->
     {
       cover ? (
         <div class="shell">
@@ -119,7 +115,6 @@ const primaryCategory = data.categories[0];
       ) : null
     }
 
-    <!-- 正文 -->
     <div class:list={['shell pb-12 sm:pb-16', cover ? 'pt-12 sm:pt-16' : 'pt-6 sm:pt-8']}>
       <div class="mx-auto max-w-[700px]">
         <div class="prose-newsroom"><Content /></div>
@@ -180,10 +175,7 @@ const primaryCategory = data.categories[0];
 </BaseLayout>
 
 <script>
-  /*
-    swup 换页会换掉文章内容，按钮是新的 DOM，
-    所以要每次重新绑定；data-copied 防止重复挂同一个监听器。
-  */
+  /* 每次切页重绑；data-copied 防重复 */
   const bindCopy = () => {
     document.querySelectorAll<HTMLButtonElement>('[data-copy-link]').forEach((button) => {
       if (button.dataset.copied === '1') return;

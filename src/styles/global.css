@@ -2,12 +2,7 @@
 @import '@fontsource-variable/inter-tight';
 @import 'tailwindcss';
 
-/*
-  设计令牌
-  —— 编辑式排版语言：大圆角白色磁贴 / 冷灰分区背景 / 单一蓝色链接 / 克制的层级对比。
-     字体使用开源 Inter / Inter Tight 搭配系统中文字体，不依赖任何商业字体。
-     中文正文行高放宽到 1.75，字母间距归零，避免西文字距套用到汉字上。
-*/
+/* 设计令牌 */
 @theme {
   --font-text: 'Inter Variable', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     'Helvetica Neue', Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
@@ -53,13 +48,7 @@
   --ease-out-soft: cubic-bezier(0.28, 0.11, 0.32, 1);
 }
 
-/*
-  夜间模式
-  —— 只覆盖颜色令牌，布局与字号不动。
-     html[data-theme='dark'] 由切换按钮写入，也可以在 <head> 里提前设置以避免闪烁。
-     深色底不用纯黑：近黑的 #1c1c1e 更接近印刷观感，长时间阅读不刺眼。
-     正文与背景对比度保持在 12:1 以上，次级文字仍满足 WCAG AA。
-*/
+/* 夜间模式：只覆盖颜色令牌 */
 html[data-theme='dark'] {
   color-scheme: dark;
 
@@ -90,10 +79,7 @@ html[data-theme='dark'] {
   --color-selected-fg: #1c1c1e;
 }
 
-/*
-  Shiki 的 github-dark token 是给 #24292e 背景调的，
-  换到更深的 #131315 后部分注释色偏暗，这里整体提亮一档。
-*/
+/* 提亮 token 适配更深的底色 */
 html[data-theme='dark'] .prose-newsroom pre .line span {
   filter: brightness(1.12);
 }
@@ -200,10 +186,7 @@ html[data-theme='dark'] ::selection {
   }
 
   /* 磁贴时间戳，带一个小圆点标记 */
-  /*
-    磁贴时间戳：带一个小时钟图标，参考编辑式新闻站的元信息写法。
-    图标用内联 SVG 背景，避免额外的 DOM 节点。
-  */
+  /* 磁贴时间戳，前置时钟图标 */
   .tile-timestamp {
     display: inline-flex;
     align-items: center;
@@ -299,10 +282,7 @@ html[data-theme='dark'] ::selection {
     margin-top: 1.15em;
   }
 
-  /*
-    正文第一个元素不留上边距。
-    只处理 p 的话，正文以引用块或标题开头时仍会空出一大块。
-  */
+  /* 正文首元素不留上边距 */
   .prose-newsroom > :first-child {
     margin-top: 0;
   }
@@ -406,13 +386,7 @@ html[data-theme='dark'] ::selection {
     word-break: break-word;
   }
 
-  /*
-    代码块：博客的核心内容之一，单独处理。
-
-    Shiki 会给 <pre> 写内联 style="background-color:#24292e"，
-    优先级高于样式表，所以这里必须用 !important 才能让夜间模式统一改底色。
-    语法 token 的颜色仍由 Shiki 主题提供，不受影响。
-  */
+  /* 代码块；!important 覆盖 Shiki 的内联背景色 */
   .prose-newsroom pre {
     margin: 1.8em 0;
     padding: 18px 20px;
@@ -542,12 +516,7 @@ html[data-theme='dark'] ::selection {
     display: none;
   }
 
-  /* ─────────────────────────────────────────────────────────────
-     Latest News 网格：12 列 tile-item 规则
-     参考 Apple Newsroom 的排布逻辑（首条通栏 → 两列 → 三列），
-     但列宽、间距、圆角与配色均为本项目自有令牌。
-     断点：1069px+ / 735–1068px / ≤734px
-     ───────────────────────────────────────────────────────────── */
+  /* 12 列磁贴布局 */
   .tile-grid {
     display: grid;
     grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -668,18 +637,7 @@ html[data-theme='dark'] ::selection {
   }
 }
 
-/*
-  —— 页面切换动画（swup） ——
-
-  swup 在切换过程中给 <html> 加一串类名，这里用它们驱动状态机：
-    is-changing     切换开始
-    is-leaving      正在离开旧页面
-    is-rendering    新内容已插入，正在渲染
-    is-popstate     由浏览器前进/后退触发（动画方向相反）
-
-  节奏：离开瞬间完成（不拖沓），进入用 300ms 淡入并轻微上移。
-  内容只换 <main>，导航与页脚原地不动，所以整页不会闪。
-*/
+/* 页面切换动画：离开瞬间完成，进入 300ms 淡入上移 */
 
 .transition-main {
   opacity: 1;
@@ -707,10 +665,7 @@ html.is-popstate.is-rendering.is-animating .transition-main {
   translate: 0 -10px;
 }
 
-/*
-  加载指示条：沿导航底边左右扫动。
-  只有 is-changing 期间可见，切换结束后淡出。
-*/
+/* 加载指示条 */
 .route-bar {
   position: absolute;
   inset-inline: 0;

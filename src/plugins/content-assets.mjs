@@ -1,21 +1,4 @@
-/**
- * 内容目录里的静态资源 → 同名 URL。
- *
- * 需求：`src/content/pages/favicon/v2/favicon.ico` 要能通过
- * `/favicon/v2/favicon.ico` 访问，且不复制文件。
- *
- * 做法：
- *   - dev：注册中间件，命中路径就直接读文件返回
- *   - build：在 generateBundle 阶段用 emitFile 把文件写进产物
- *
- * 关键区别：
- *   pages 目录的文件是「独立资源」，全部发布。
- *   posts 目录的图片会被 Markdown 引用，Astro 已经把它们优化并输出到
- *   /assets/ 下了；这里只发布**正文没有引用**的附属文件（比如
- *   site.webmanifest、icon_raw.tar.gz），否则同一张图会存三份。
- *
- * `.md` 自身不发布（由页面路由渲染）。
- */
+/** 内容目录的静态资源映射到同名 URL */
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -50,7 +33,7 @@ const contentTypeOf = (file) => MIME[path.extname(file).toLowerCase()] || 'appli
 /**
  * 收集目录下的静态文件。
  * @param {string} dir 当前目录
- * @param {string} urlPrefix 对应的 URL 前缀
+ * @param {string} urlPrefix URL 前缀
  * @param {Map<string, string>} out 结果表
  * @param {number} depth 递归深度
  */
@@ -74,11 +57,7 @@ function collect(dir, urlPrefix, out, depth) {
   }
 }
 
-/**
- * 从 frontmatter 里取出封面字段（cover / banner / image / thumbnail）。
- * 这些图由 lib/covers.ts 通过 import.meta.glob 交给 Astro 处理，
- * 因此不需要再原样发布。
- */
+/** 取 frontmatter 封面字段，这些图不重复发布 */
 function coverFiles(markdown) {
   const names = new Set();
   const m = markdown.match(/^---\r?\n([\s\S]*?)\r?\n---/);
@@ -98,10 +77,7 @@ function coverFiles(markdown) {
   return names;
 }
 
-/**
- * 找出文章正文里引用到的图片文件名。
- * 同时覆盖 Markdown 与 HTML 两种写法。
- */
+/** 正文或封面引用的图片 */
 function referencedFiles(body) {
   const names = new Set();
 

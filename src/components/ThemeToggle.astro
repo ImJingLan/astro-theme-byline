@@ -1,6 +1,6 @@
 ---
 import { t } from '../i18n';
-/** 主题切换：只有亮 / 暗两态，首次访问按系统主题初始化。 */
+/** 主题切换 */
 ---
 
 <button
@@ -51,7 +51,7 @@ import { t } from '../i18n';
 
   const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /** 以按钮为圆心把新主题铺开。 */
+  /** 以按钮为圆心铺开新主题 */
   const circleFrom = (el: HTMLElement) => {
     const rect = el.getBoundingClientRect();
     const x = rect.left + rect.width / 2;
@@ -61,7 +61,6 @@ import { t } from '../i18n';
   };
 
   const switchTo = (next: Theme, btn: HTMLElement) => {
-    // 不支持 View Transitions 或用户要求减少动效时直接切换
     if (!document.startViewTransition || reduceMotion()) {
       localStorage.setItem(STORAGE_KEY, next);
       apply(next);
@@ -75,7 +74,7 @@ import { t } from '../i18n';
       apply(next);
     });
 
-    // 等快照就绪再驱动动画，否则会被浏览器的默认淡入淡出顶掉
+    // 等快照就绪再驱动动画
     transition.ready
       .then(() => {
         root.animate(
@@ -90,11 +89,9 @@ import { t } from '../i18n';
         );
       })
       .catch(() => {
-        // 过渡被中断（例如连续点击）时忽略，状态已经切好了
       });
   };
 
-  /** swup 换页会换掉 <main> 里的 DOM，导航栏留在原处、按钮不变， */
   const bind = () => {
     const btn = document.getElementById('theme-toggle');
     if (!btn || btn.dataset.bound === '1') return;
@@ -106,21 +103,20 @@ import { t } from '../i18n';
     });
   };
 
-  // 首屏脚本已设好 data-theme，这里同步一次按钮文案与浏览器配色
+  // 同步按钮文案与浏览器配色
   apply(current());
   bind();
   document.addEventListener('astro:page-load', bind);
 </script>
 
 <style>
-  /* 关掉默认的交叉淡入，只留 clip-path 扩散 */
+  /* 关掉默认交叉淡入 */
   :global(::view-transition-old(root)),
   :global(::view-transition-new(root)) {
     animation: none;
     mix-blend-mode: normal;
   }
 
-  /* 新主题在上层，才能盖住旧主题 */
   :global(::view-transition-new(root)) {
     z-index: 2;
   }
@@ -148,7 +144,6 @@ import { t } from '../i18n';
     background-color: var(--color-chip);
   }
 
-  /* 点击时轻微缩放，给遮罩一个起点上的反馈 */
   .theme-toggle:active {
     scale: 0.92;
   }
@@ -159,7 +154,7 @@ import { t } from '../i18n';
     display: none;
   }
 
-  /* 当前是暗色 → 显示太阳（提示点了会变亮）；亮色 → 显示月亮 */
+  /* 暗色显示太阳，亮色显示月亮 */
   :global(html[data-theme='dark']) .theme-icon--light,
   :global(html:not([data-theme='dark'])) .theme-icon--dark {
     display: block;

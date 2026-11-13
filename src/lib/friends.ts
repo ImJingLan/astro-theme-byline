@@ -1,10 +1,4 @@
-/**
- * 友链数据读取。
- *
- * 数据放在 `src/content/_data/friends.json`：
- *   - 和内容在一起，迁移博客时整体搬 src/content 即可
- *   - `_` 前缀不会被当成页面路由，也不会被 content-assets 插件发布
- */
+/** 友链数据，读取 src/content/_data/friends.json */
 import fs from 'node:fs';
 import path from 'node:path';
 
@@ -19,7 +13,7 @@ const DATA_DIR = path.resolve(process.cwd(), 'src/content/_data');
 
 let cache: Friend[] | null = null;
 
-/** 读取并校验 friends.json；文件不存在时返回空数组 */
+/** 读取友链；文件不存在返回空数组 */
 export async function getFriends(): Promise<Friend[]> {
   if (cache) return cache;
 

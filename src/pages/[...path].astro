@@ -1,13 +1,5 @@
 ---
-/**
- * 兜底路由：把 `src/content/pages` 下的每个 Markdown 渲染成页面。
- *
- * 路径来源：
- *   1. frontmatter 的 `path:` 优先，例如 path: "/favicon/v2"
- *   2. 否则用目录结构，例如 friends/index.md → /friends
- *
- * 这样 about / affs / friends / links / favicon/v1 / favicon/v2 都不需要单独写路由。
- */
+/** 兜底路由：渲染 src/content/pages 下的 Markdown */
 import { t } from '../i18n';
 import { getCollection, render } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
@@ -17,7 +9,7 @@ import { formatDate } from '../lib/format';
 import { getFriends } from '../lib/friends';
 
 export const getStaticPaths = (async () => {
-  // Astro 会把 getStaticPaths 提升到模块作用域，辅助函数必须定义在内部
+  // getStaticPaths 被提升，辅助函数须定义在内部
   const routePath = (entry: { id: string; data: { path?: string | null } }): string => {
     const declared = entry.data.path?.trim();
     if (declared) return declared.replace(/^\/+|\/+$/g, '');

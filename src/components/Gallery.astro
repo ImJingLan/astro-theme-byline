@@ -1,5 +1,5 @@
 ---
-/** Gallery —— 横向吸附滚动画廊。 */
+/** 横向滚动画廊 */
 import { t } from '../i18n';
 import CoverArt from './CoverArt.astro';
 import { formatCardDate, formatCardDateISO } from '../lib/format';
@@ -140,7 +140,7 @@ const overlayArrowClass =
 
   {
     showDots ? (
-      /** 指示器由 JS 在运行时按「可达的滚动停靠点」生成。 */
+      /** 指示器由 JS 生成 */
       <div class="mt-6 flex items-center justify-center gap-2" data-gallery-dots />
     ) : null
   }
@@ -150,7 +150,7 @@ const overlayArrowClass =
   type GalleryRoot = HTMLElement;
 
   const initGallery = (root: GalleryRoot) => {
-    // swup 每次换页都会重新调用，已初始化过的跳过，避免重复绑定
+    // 跳过已初始化的画廊
     if (root.dataset.galleryReady === '1') return;
     root.dataset.galleryReady = '1';
 
@@ -167,7 +167,7 @@ const overlayArrowClass =
 
     const maxScroll = () => Math.max(0, track.scrollWidth - track.clientWidth);
 
-    /** 手机端轨道有内边距，最左位置不是 0，用首卡偏移作为基准 */
+    /** 首卡偏移作为基准 */
     const startPos = () => {
       const items = cards();
       return items.length ? offsetOf(items[0]) : 0;
@@ -281,7 +281,6 @@ const overlayArrowClass =
     syncUi();
   };
 
-  /** swup 换页不会重新执行脚本，所以要监听 astro:page-load： */
   const initAll = () => {
     document.querySelectorAll<HTMLElement>('[data-gallery]').forEach(initGallery);
   };

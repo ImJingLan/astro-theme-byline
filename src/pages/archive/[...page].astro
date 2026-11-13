@@ -1,19 +1,5 @@
 ---
-/**
- * 归档页（带分页）。
- *
- * 布局参考新闻编辑室归档页：
- *   月份作为分组标题（`十一月 2026`）
- *   每条 = 缩略图 + 分类 / 标题 / 日期，条目之间一条细分隔线
- *   底部分页器，逐页显示页码
- *
- * 用 `[...page]` 生成静态子页：
- *   /archive/        第 1 页
- *   /archive/2/      第 2 页
- * 这样分页是真的可访问、可分享、可被爬虫索引的。
- *
- * 日期只显示月日，年份在分组标题里。
- */
+/** 归档页：按月分组、分页 */
 import { t } from '../../i18n';
 import { getCollection } from 'astro:content';
 import type { GetStaticPaths } from 'astro';
@@ -24,12 +10,12 @@ import { sortPosts, groupByMonth, postHref } from '../../lib/posts';
 import { postCover } from '../../lib/covers';
 
 export const getStaticPaths = (async () => {
-  // Astro 会把 getStaticPaths 提升到模块作用域，导入的配置在运行时可用
+  // getStaticPaths 被提升，配置在运行时可用
   const perPage = pagination.archivePerPage;
   const posts = await getCollection('posts', ({ data }) => !data.draft);
   const total = Math.max(1, Math.ceil(posts.length / perPage));
 
-  // 第 1 页不带页码（/archive/），其余是 /archive/2/、/archive/3/ ...
+  // 第 1 页不带页码
   return Array.from({ length: total }, (_, i) => ({
     params: { page: i === 0 ? undefined : String(i + 1) },
     props: { pageNumber: i + 1, totalPages: total },
@@ -42,20 +28,19 @@ const all = sortPosts(await getCollection('posts', ({ data }) => !data.draft));
 const perPage = pagination.archivePerPage;
 const total = Math.max(1, Math.ceil(all.length / perPage));
 
-// 当前页的文章
 const start = (pageNumber - 1) * perPage;
 const pagePosts = all.slice(start, start + perPage);
 
-/** 按月分组，月份标题形如「七月 2026」 */
+/** 按月分组 */
 const groups = groupByMonth(pagePosts);
 
 const monthLabel = (date: Date) =>
   `${new Intl.DateTimeFormat('zh-CN', { month: 'long' }).format(date)} ${date.getFullYear()}`;
 
-/** 日期只到月日，年份在分组标题里 */
+/** 月日，年份在分组标题里 */
 const dayLabel = (date: Date) => t.date.monthDay(date.getMonth() + 1, date.getDate());
 
-/** 分页器页码序列：首尾常驻，当前页附近展开，其余用省略号 */
+/** 页码序列 */
 function pageNumbers(current: number, count: number): (number | '…')[] {
   if (count <= 7) return Array.from({ length: count }, (_, i) => i + 1);
 
@@ -73,7 +58,7 @@ function pageNumbers(current: number, count: number): (number | '…')[] {
 
 const pages = pageNumbers(pageNumber, total);
 
-/** 第 1 页用 /archive/，其余 /archive/N/ */
+/** 页码 → URL */
 const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
 ---
 
@@ -142,7 +127,6 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
       ))
     }
 
-    <!-- 分页器 -->
     {
       total > 1 ? (
         <nav class="pager" aria-label={t.archive.pagination}>
@@ -200,7 +184,7 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
 </BaseLayout>
 
 <style>
-  /* 月份标题：28px / 700 / 上间距 52px */
+  /* 月份标题 */
   .archive-month {
     margin: 52px 0 16px;
     font-family: var(--font-display);
@@ -221,7 +205,7 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
     padding: 0;
   }
 
-  /* 条目：40px 上下内边距，顶部一条细分隔线 */
+  /* 条目 */
   .archive-item {
     border-top: 1px solid var(--color-hairline);
   }
@@ -294,7 +278,6 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
     color: var(--color-graphite);
   }
 
-  /* 分页器 */
   .pager {
     display: flex;
     align-items: center;
@@ -366,7 +349,7 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
     color: var(--color-ink);
   }
 
-  /* 选中态：背景与文字成对取自令牌，深色模式下自动翻转 */
+  /* 选中态 */
   .pager-num.is-current {
     background-color: var(--color-selected-bg);
     color: var(--color-selected-fg);
@@ -382,7 +365,7 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
     font-size: 15px;
   }
 
-  /* 窄屏：缩略图缩小、上下堆叠 */
+  /* 窄屏 */
   @media (max-width: 734px) {
     .archive-link {
       flex-direction: column;

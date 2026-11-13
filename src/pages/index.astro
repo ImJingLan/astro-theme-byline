@@ -14,22 +14,21 @@ const posts = await getAllPosts();
 const categories = collectCategories(posts);
 const tags = collectTags(posts);
 
-// Latest：头条 1 篇 + 其余按配置数量铺开
+// 最新文章
 const latest = posts.slice(0, Math.max(1, homeConfig.latestCount));
 const [lead, ...secondary] = latest;
 
-// 画廊与列表从Latest之后接着取，避免重复
+// 画廊与列表接在最新文章之后
 const afterLatest = posts.slice(latest.length);
 const galleryPosts = afterLatest.slice(0, galleryConfig.count);
 const more = afterLatest.slice(0, homeConfig.moreCount);
 
-// 首页统计
 const totalWords = posts.reduce((sum, post) => sum + countWords(post.body ?? ''), 0);
 const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
 ---
 
 <BaseLayout description={site.description}>
-  <!-- 页面标题区：文字在左，统计表在右。宽屏用更宽的版心，避免标题被统计表挤到换行 -->
+  <!-- 标题区 -->
   <section class="hero-shell pt-14 pb-10 sm:pt-20">
     <div class="hero-grid">
       <div class="min-w-0">
@@ -81,7 +80,7 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
     </div>
   </section>
 
-  <!-- 画廊：gallery.enable 为 false 时整块不渲染 -->
+  <!-- 画廊 -->
   {
     galleryConfig.enable && galleryPosts.length >= 2 ? (
       <section class="bg-fog pb-20">
@@ -99,7 +98,7 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
     ) : null
   }
 
-  <!-- 分类 -->
+  <!-- 分类入口 -->
   {
     categories.length ? (
       <section class="py-16 sm:py-20">
@@ -125,8 +124,8 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
 </BaseLayout>
 
 <style>
-  /* 标题区：左栏 minmax(0,1fr) 优先占宽，统计表固定 400px 不伸缩 */
-  /* 标题区版心比正文宽：980px 放不下并排的标题，1280px 才行 */
+  /* 标题区：左栏自适应，统计表固定 400px */
+  /* 标题区版心 1280px */
   .hero-shell {
     width: 100%;
     max-width: 1280px;
@@ -161,7 +160,7 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
     font-weight: 700;
     letter-spacing: 0.01em;
     color: var(--color-ink);
-    /* 让标题自然换行，不做均衡拆分，避免明明放得下也断成两行 */
+    /* 自然换行，不做均衡拆分 */
     text-wrap: wrap;
   }
 

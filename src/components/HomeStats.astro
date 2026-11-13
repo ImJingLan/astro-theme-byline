@@ -1,6 +1,6 @@
 ---
 import { t } from '../i18n';
-/** 首页统计表：用 gap:1px 透出底色画细线，格子不必各画边框。 */
+/** 首页统计表 */
 interface Props {
   postCount: number;
   tagCount: number;
@@ -41,7 +41,6 @@ const stats = [
 
   let timer: number | null = null;
 
-  /** 每次刷新都重新查一次元素：swup 换页会换掉 <main> 里的 DOM， */
   const paint = (): boolean => {
     const el = document.getElementById('site-uptime');
     if (!el) return false;
@@ -59,7 +58,6 @@ const stats = [
   const start = () => {
     stop();
     if (document.hidden) return;
-    // 首页之外没有这个元素，直接不启动
     if (!paint()) return;
     timer = window.setInterval(() => {
       if (!paint()) stop();
@@ -68,17 +66,16 @@ const stats = [
 
   document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
   window.addEventListener('pagehide', stop);
-  // 首次加载与每次 swup 切换后都重启，避免指向旧节点或留下多个计时器
+  // 每次切页后重启计时器
   document.addEventListener('astro:page-load', start);
   start();
 </script>
 
 <style>
-  /** 表格宽度跟随 hero-grid 的列数走，断点与它保持一致（1280px）： */
   .stats-ledger {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    /* 用 1px 间隙透出底色，形成细线 */
+    /* 1px 间隙形成细线 */
     gap: 1px;
     margin: 0;
     padding: 0;
@@ -90,7 +87,7 @@ const stats = [
     max-width: 600px;
   }
 
-  /* 平板及以上：单列布局，撑满整行，并排成一行四格 */
+  /* 平板：一行四格 */
   @media (min-width: 735px) {
     .stats-ledger {
       grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -98,7 +95,7 @@ const stats = [
     }
   }
 
-  /* 宽屏：并排右栏，固定 400px，回到 2×2 */
+  /* 宽屏：固定 400px，2×2 */
   @media (min-width: 1280px) {
     .stats-ledger {
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -122,7 +119,6 @@ const stats = [
     }
   }
 
-  /* 运行时间与特别感谢跨两列 */
   .stats-cell--wide {
     grid-column: span 2;
   }

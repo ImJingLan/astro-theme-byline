@@ -1,17 +1,15 @@
 ---
 import { t } from '../i18n';
-/** CoverArt —— 用代码生成的抽象封面图。 */
+/** 生成的抽象封面 */
 interface Props {
   seed: string;
-  /** 视觉主题，决定配色倾向 */
-  /** 分类名（中文亦可），用于稳定映射配色 */
+  /** 配色种子 */
   tone?: string;
-  /** 构图密度：hero 更适合大留白，thumb 更适合紧凑，square 用于 1:1 缩略图 */
+  /** 构图密度 */
   scale?: 'hero' | 'wide' | 'thumb' | 'square';
-  /** 装饰用的大号字形（一般取标题首字符） */
+  /** 装饰字形 */
   glyph?: string;
   class?: string;
-  /** 图片替代文本 */
   alt?: string;
 }
 
@@ -40,7 +38,7 @@ function rng(seedValue: number) {
 
 const rand = rng(hash(seed));
 
-// 每个主题一套低饱和配色（原创，与任何品牌色板无关）
+// 低饱和配色
 const palettes = [
   ['#eef2f8', '#dbe4f0', '#b9cbe4', '#7f9cc4', '#3f5a7d'],
   ['#f7f3ee', '#efe7dc', '#e2d3c1', '#c2a98c', '#8a7357'],
@@ -50,7 +48,7 @@ const palettes = [
   ['#f5f2f8', '#e9e2f0', '#d4c8e3', '#a894c2', '#6b5686'],
 ];
 
-// 分类名先哈希再取模，中文分类也能稳定映射到同一套配色
+// 哈希取模选配色
 const paletteIndex = tone && tone !== 'neutral' ? hash(tone) % palettes.length : 4;
 const [c0, c1, c2, c3, c4] = palettes[paletteIndex];
 

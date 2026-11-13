@@ -7,9 +7,9 @@ import '../styles/global.css';
 interface Props {
   title?: string;
   description?: string;
-  /** 页面级关键词，会与站点关键词合并 */
+  /** 页面级关键词 */
   keywords?: string;
-  /** Open Graph 图（可选） */
+  /** Open Graph 图 */
   ogImage?: string;
 }
 
@@ -22,11 +22,11 @@ const {
 
 const pageTitle = title ? `${title} - ${site.title}` : site.title;
 
-// 站点地址以 site.ts 为准，其次用 astro.config 的 site
+// 站点地址：site.ts 优先
 const origin = site.url || Astro.site?.toString() || 'https://example.com';
 const canonical = new URL(Astro.url.pathname, origin);
 
-// 合并关键词：站点级 + 页面级，去重后逗号分隔
+// 合并并去重关键词
 const keywordList = [...new Set(
   [site.keywords, keywords]
     .filter(Boolean)
@@ -36,7 +36,7 @@ const keywordList = [...new Set(
     .filter(Boolean)
 )];
 
-// OG 图：页面显式传入 > 配置开关下的站点默认图
+// 页面图优先，其次站点默认图
 const ogImageUrl = ogImage ?? (ogConfig.enable ? `${origin}/og-default.png` : undefined);
 ---
 
@@ -106,12 +106,7 @@ const ogImageUrl = ogImage ?? (ogConfig.enable ? `${origin}/og-default.png` : un
     <SiteFooter />
 
     <script>
-      /*
-        swup 换块不恢复滚动位置，这里自己记录/还原。
-
-        时序坑：后退时 swup 的 popstate 处理先于页面脚本，visit:start 触发时
-        scrollY 已经是 0。所以要用 swup 的 history:popstate 判断是否后退。
-      */
+      /* 记录/还原滚动位置；用 history:popstate 判断是否后退 */
       const KEY = 'swup-scroll';
       const readMap = () => {
         try {
@@ -122,15 +117,14 @@ const ogImageUrl = ogImage ?? (ogConfig.enable ? `${origin}/og-default.png` : un
       };
       const writeMap = (map) => sessionStorage.setItem(KEY, JSON.stringify(map));
 
-      // 本次后退要恢复的目标位置，由 history:popstate 提前算好
+      // 后退时要恢复的位置
       let restoreTo = null;
 
       document.addEventListener('swup:history:popstate', () => {
-        // 此时 location 已指向目标页，读它自己的记录
         restoreTo = readMap()[location.pathname] ?? 0;
       });
 
-      // 普通跳转：离开前保存当前页位置
+      // 保存当前位置
       document.addEventListener('swup:visit:start', () => {
         if (restoreTo !== null) return;
         const map = readMap();
@@ -142,7 +136,7 @@ const ogImageUrl = ogImage ?? (ogConfig.enable ? `${origin}/og-default.png` : un
         if (restoreTo !== null) {
           const y = restoreTo;
           restoreTo = null;
-          // 等新内容布局完成（高度到位）再滚，否则滚不到目标位置
+          // 等布局完成再滚
           requestAnimationFrame(() => {
             requestAnimationFrame(() => window.scrollTo({ top: y, behavior: 'instant' }));
           });
@@ -151,7 +145,6 @@ const ogImageUrl = ogImage ?? (ogConfig.enable ? `${origin}/og-default.png` : un
         }
       });
 
-      // 每次切页后把「当前页 + 当前位置」记下来，供下次后退使用
       window.addEventListener('pagehide', () => {
         const map = readMap();
         map[location.pathname] = Math.round(window.scrollY);
