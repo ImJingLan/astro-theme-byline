@@ -366,9 +366,10 @@ const pageHref = (n: number) => (n === 1 ? '/archive/' : `/archive/${n}/`);
     color: var(--color-ink);
   }
 
+  /* 选中态：背景与文字成对取自令牌，深色模式下自动翻转 */
   .pager-num.is-current {
-    background-color: var(--color-night);
-    color: #fff;
+    background-color: var(--color-selected-bg);
+    color: var(--color-selected-fg);
   }
 
   .pager-gap {

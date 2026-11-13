@@ -39,6 +39,10 @@
   --color-code-bg: #161617;
   --color-code-fg: #f5f5f7;
 
+  /* 选中态（翻页器当前页等）：背景与文字必须成对使用 */
+  --color-selected-bg: #1d1d1f;
+  --color-selected-fg: #ffffff;
+
   --radius-tile: 32px;
   --radius-tile-sm: 24px;
 
@@ -80,6 +84,10 @@ html[data-theme='dark'] {
   /* 夜间模式代码块：比画布更深，维持层级 */
   --color-code-bg: #131315;
   --color-code-fg: #e8e8ed;
+
+  /* 夜间选中态：浅底深字，与白天的深底浅字对称 */
+  --color-selected-bg: #f5f5f7;
+  --color-selected-fg: #1c1c1e;
 }
 
 /*
