@@ -53,12 +53,12 @@ const overlayArrowClass =
         <div class="flex items-center gap-2">
           {showArrows && arrowPlacement === 'head' ? (
             <div class="flex items-center gap-2" data-gallery-arrows>
-              <button type="button" class={arrowClass} data-gallery-arrow data-dir="-1" aria-label="上一组">
+              <button type="button" class={arrowClass} data-gallery-arrow data-dir="-1" aria-label="Previous group">
                 <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                   <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
               </button>
-              <button type="button" class={arrowClass} data-gallery-arrow data-dir="1" aria-label="下一组">
+              <button type="button" class={arrowClass} data-gallery-arrow data-dir="1" aria-label="Next group">
                 <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
                   <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
                 </svg>
@@ -76,7 +76,7 @@ const overlayArrowClass =
       class="no-scrollbar -mx-[22px] flex snap-x snap-mandatory gap-6 overflow-x-auto px-[22px] pb-2 sm:mx-0 sm:px-0"
       data-gallery-track
       role="group"
-      aria-label={title || '文章画廊'}
+      aria-label={title || 'Post gallery'}
     >
       {
         posts.map((post, index) => {
@@ -112,7 +112,7 @@ const overlayArrowClass =
               </div>
               <div class="flex flex-1 flex-col justify-between gap-4 bg-canvas p-5">
                 <div>
-                  <p class="eyebrow">{post.data.categories[0] ?? '文章'}</p>
+                  <p class="eyebrow">{post.data.categories[0] ?? 'Post'}</p>
                   <h3 class="tile-headline mt-2.5 line-clamp-2 text-[21px] leading-[1.35] tracking-[0.011em]">
                     {post.data.title}
                   </h3>
@@ -131,12 +131,12 @@ const overlayArrowClass =
     {
       showArrows && arrowPlacement === 'overlay' ? (
         <div class="pointer-events-none absolute inset-x-0 inset-y-0 flex items-center justify-between px-2" data-gallery-arrows>
-          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="-1" aria-label="上一组">
+          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="-1" aria-label="Previous group">
             <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
               <path d="M10 3L5 8l5 5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
           </button>
-          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="1" aria-label="下一组">
+          <button type="button" class={overlayArrowClass} data-gallery-arrow data-dir="1" aria-label="Next group">
             <svg viewBox="0 0 16 16" class="size-4" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true">
               <path d="M6 3l5 5-5 5" stroke-linecap="round" stroke-linejoin="round" />
             </svg>

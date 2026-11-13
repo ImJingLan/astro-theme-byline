@@ -26,7 +26,7 @@ const posts = sortPosts(
 
 <BaseLayout title={`分类：${name}`} description={categoryDescriptions[name] ?? `${site.title} 中分类为 ${name} 的文章。`}>
   <section class="shell pt-14 pb-12 sm:pt-20">
-    <nav class="mb-6 flex items-center gap-2 text-[13px] text-slate" aria-label="面包屑">
+    <nav class="mb-6 flex items-center gap-2 text-[13px] text-slate" aria-label="Breadcrumb">
       <a href="/" class="transition-colors hover:text-link">首页</a>
       <span aria-hidden="true">/</span>
       <a href="/categories/" class="transition-colors hover:text-link">分类</a>
@@ -55,7 +55,7 @@ const posts = sortPosts(
             ))}
           </ul>
         ) : (
-          <p class="text-[17px] text-graphite">这个分类下还没有文章。</p>
+          <p class="text-[17px] text-graphite">这 categories下还没有文章。</p>
         )
       }
     </div>

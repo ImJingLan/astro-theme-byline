@@ -112,7 +112,7 @@ function hashId(str: string): number {
  * 从默认封面池里挑一张。
  *
  * 优先用 site.ts 里 defaultCovers.images 指定的文件名（可只列一部分），
- * 没配置则用目录里全部图片。用文章 id 哈希取模，保证同一篇文章结果稳定。
+ * 没配置则用目录里全部图片。用文章 id 哈希取模，保证同一 posts结果稳定。
  */
 function pickDefaultCover(id: string): CoverInfo | undefined {
   if (!defaultCovers.enable || defaultList.length === 0) return undefined;
@@ -139,7 +139,7 @@ function pickDefaultCover(id: string): CoverInfo | undefined {
  * 只取文章显式配置的封面，不回退到默认池。
  *
  * 文章详情页的头图用它：没配 cover 就不显示大图，
- * 否则每篇文章顶部都会被塞一张和内容无关的默认图。
+ * 否则每 posts顶部都会被塞一张和内容无关的默认图。
  */
 export function postDeclaredCover(post: Post): CoverInfo | undefined {
   const declared = post.data.coverFile;

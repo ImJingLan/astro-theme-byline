@@ -7,7 +7,7 @@ import { glob } from 'astro/loaders';
  *   - description / excerpt → summary
  *   - cover / banner / image / thumbnail → cover（可选，字符串）
  *
- * 目录结构：每篇文章是 `YYYY/<slug>/index.md`，图片放在同一目录。
+ * 目录结构：每 posts是 `YYYY/<slug>/index.md`，图片放在同一目录。
  * 正文图片由 Astro 原生管线解析，无需任何额外脚本。
  */
 // YAML 里 `tags:` 留空会被解析成 null，必须允许
@@ -80,7 +80,7 @@ const pages = defineCollection({
         .object({
           show: z.boolean().optional().default(false),
           siteTitle: z.string().optional().default('本站'),
-          listTitle: z.string().optional().default('友链'),
+          listTitle: z.string().optional().default('Friends'),
         })
         .nullish(),
       draft: z.boolean().default(false),

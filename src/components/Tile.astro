@@ -14,7 +14,7 @@ const { post, variant = '2up' } = Astro.props;
 const { data } = post;
 const href = postHref(post);
 const cover = postCover(post);
-const category = data.categories[0] ?? '文章';
+const category = data.categories[0] ?? 'Post';
 
 const headlineSize = {
   hero: 'text-[32px] leading-[1.3] tracking-[0.004em]',

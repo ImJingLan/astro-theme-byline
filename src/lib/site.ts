@@ -2,6 +2,7 @@
  * 站点配置。
  *
  * 只改这个文件就能把主题换成自己的站点，不需要动组件。
+ * 下面全是演示值，替换成你自己的即可。
  */
 
 // ---------------------------------------------------------------------------
@@ -15,37 +16,38 @@ export const site = {
   /** 一句话副标题，首页与 OG 描述用 */
   subtitle: 'A quiet editorial blog theme for Astro',
   /** SEO 描述 */
-  description: 'A quiet editorial blog theme for Astro and Tailwind CSS.',
+  description:
+    'A quiet editorial blog theme for Astro and Tailwind CSS, with a newsroom-style layout.',
   /** SEO 关键词，逗号分隔 */
   keywords: 'example,blog,astro,tailwind,theme',
   /** 站点地址，用于 canonical 与 RSS，末尾不要带斜杠 */
   url: 'https://example.com',
   /** <html lang> */
-  lang: 'zh-CN',
+  lang: 'en',
   /** OG locale */
-  locale: 'zh_CN',
+  locale: 'en_US',
   /** 作者名，用于 byline 与版权 */
   author: 'Example Author',
   /** 时区，影响日期格式化 */
-  timezone: 'Asia/Shanghai',
+  timezone: 'UTC',
 
   /**
    * 站点图标（导航栏左侧）。
    * - 留空则显示内置的方块占位图标
-   * - 写 /favicon/v2/icon@256px.png 这类站点路径，或完整外链
+   * - 写 /logo.png 这类站点路径，或完整外链
    */
-  logo: '/favicon/v2/android-chrome-512x512.png',
+  logo: '',
   /**
    * 站点 favicon（浏览器标签页图标）。
-   * 留空则不输出 <link rel="icon">，由浏览器请求 /favicon.ico。
+   * 留空则使用内置的 /favicon.svg。
    */
-  favicon: '/favicon/v2/favicon.ico',
+  favicon: '',
 
   /** 首页顶部的一段自我介绍 */
   intro: {
     eyebrow: 'Byline',
     heading: 'Stories worth keeping.',
-    lead: 'A demo blog built with this theme.',
+    lead: 'A demo blog built with this theme. Replace these posts with your own.',
   },
 
   /**
@@ -53,12 +55,11 @@ export const site = {
    * description 只用于 SEO（生成 meta description 与 RSS），不影响显示。
    */
   globalNav: [
-    { label: 'Home', href: '/',
-    { label: 'Archive', href: '/archive/',
-    { label: 'Tags', href: '/tags/',
-    { label: 'Friends', href: '/friends/',
-    { label: 'About', href: '/about/',
-    { label: '开往', href: '/archive/' },
+    { label: 'Home', href: '/', description: 'The latest posts and site statistics.' },
+    { label: 'Archive', href: '/archive/', description: 'Every post, newest first, grouped by month.' },
+    { label: 'Tags', href: '/tags/', description: 'Browse posts by topic.' },
+    { label: 'Friends', href: '/friends/', description: 'Other blogs worth reading.' },
+    { label: 'About', href: '/about/', description: 'About this site and the theme behind it.' },
   ],
 } as const;
 
@@ -74,7 +75,7 @@ export const footer = {
   social: {
     rss: '/rss.xml',
     github: 'https://github.com/example',
-    email: 'mailto:hello@example.com',
+    email: '',
     twitter: '',
     bluesky: '',
     weibo: '',
@@ -84,22 +85,22 @@ export const footer = {
 
   /** 备案信息；enable 为 false 时整条不显示 */
   icp: {
-    enable: true,
+    enable: false,
     url: 'https://beian.miit.gov.cn',
-    text: 'ICP备00000000号',
+    text: '',
   },
 
   /** 版权行；{year} 与 {author} 会被替换 */
   copyright: 'Copyright © {year} {author}. All rights reserved.',
   /** 右下角的构建说明，留空则不显示 */
-  credit: 'Built with Astro | {{GIT_VERSION}}',
+  credit: 'Built with Astro & Tailwind CSS',
 } as const;
 
 // ---------------------------------------------------------------------------
 // Open Graph 图片
 // ---------------------------------------------------------------------------
 export const ogImage = {
-  /** 是否生成分享图（需要 @resvg/resvg-js，见 README） */
+  /** 是否输出站点默认分享图（放一张 public/og-default.png 即可） */
   enable: false,
   /** 背景色 */
   bgColor: '#eaecf0',
@@ -138,12 +139,12 @@ export const gallery = {
    */
   arrowPlacement: 'head' as 'head' | 'overlay',
   /** 画廊区块标题 */
-  title: '随便看看',
-  /** 从最新文章之后取几条 */
+  title: 'In the Loop',
+  /** 从Latest之后取几条 */
   count: 6,
 } as const;
 
-/** 「最新文章」区块 */
+/** 「Latest」区块 */
 export const home = {
   /**
    * 展示几篇。
@@ -152,7 +153,7 @@ export const home = {
    *   5 篇 → 三列那行会空一格
    */
   latestCount: 6,
-  /** 下面「更多文章」列表取几篇 */
+  /** 下面「More posts」列表取几篇 */
   moreCount: 8,
   /** 是否显示统计表 */
   showStats: true,
@@ -168,7 +169,7 @@ export const home = {
  * 只写文件名即可，例如 '01.webp'，不需要写路径。
  * 目录为空或不配置时，回退到程序生成的抽象封面（CoverArt）。
  *
- * 选择规则：用文章 id 的哈希取模，所以同一篇文章每次构建都拿到同一张图，
+ * 选择规则：用文章 id 的哈希取模，所以同一 posts每次构建都拿到同一张图，
  * 不会出现「刷新一次换一张」的情况。
  */
 export const defaultCovers = {
@@ -185,16 +186,13 @@ export const defaultCovers = {
  * 分类直接来自文章 frontmatter，这里只放展示顺序与可选描述。
  * 未列出的分类会按文章数量自动排在后面。
  */
-export const categoryOrder = ['技术', '开箱', '项目', '信竞', '随笔', '杂谈', '站点公告'] as const;
+export const categoryOrder = ['Engineering', 'Design', 'Notes', 'Announcements'] as const;
 
 export const categoryDescriptions: Record<string, string> = {
-  技术: '折腾记录：服务器、单片机、开发工具。',
-  开箱: '买回来拆开、用一段时间、再写下来。',
-  项目: '自己写的东西，以及为什么这么写。',
-  信竞: '竞赛留下的算法与题解。',
-  随笔: '生活里的一些片段。',
-  杂谈: '没什么主题的碎碎念。',
-  站点公告: '关于这个博客本身的变化。',
+  Engineering: 'How things are built, and why.',
+  Design: 'Type, spacing, colour, and the reasoning behind them.',
+  Notes: 'Short observations and things worth remembering.',
+  Announcements: 'Changes to this site.',
 };
 
 // ---------------------------------------------------------------------------
@@ -228,10 +226,10 @@ export function socialLinks(): { key: string; label: string; href: string }[] {
     github: 'GitHub',
     twitter: 'Twitter',
     bluesky: 'Bluesky',
-    weibo: '微博',
-    zhihu: '知乎',
+    weibo: 'Weibo',
+    zhihu: 'Zhihu',
     facebook: 'Facebook',
-    email: '邮箱',
+    email: 'Email',
   };
 
   const entries = footer.social as Record<string, string>;
@@ -255,7 +253,14 @@ export function copyrightLine(): string {
     .replace('{author}', site.author);
 }
 
-/** 按导航路径查描述，用于 SEO */
+/**
+ * 按导航路径查描述，用于 SEO。
+ *
+ * 路径写法不统一：内容 frontmatter 常写 `/about`，导航配置写 `/about/`。
+ * 比较前统一去掉尾斜杠，避免因为一个斜杠查不到。
+ */
 export function navDescription(href: string): string | undefined {
-  return site.globalNav.find((item) => item.href === href)?.description;
+  const norm = (p: string) => p.replace(/\/+$/, '') || '/';
+  const target = norm(href);
+  return site.globalNav.find((item) => norm(item.href) === target)?.description;
 }

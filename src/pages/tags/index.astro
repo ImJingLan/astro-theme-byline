@@ -8,15 +8,15 @@ const posts = await getAllPosts();
 const tags = collectTags(posts);
 ---
 
-<BaseLayout title="标签" description="按标签浏览全部文章。">
+<BaseLayout title="Tags" description="Browse every post by tag.">
   <section class="shell pt-14 pb-12 sm:pt-20">
     <p class="eyebrow">Tags</p>
     <h1
       class="mt-3 font-display text-[36px] leading-[1.25] font-bold tracking-[0.01em] text-ink sm:text-[52px] sm:leading-[1.2]"
     >
-      标签
+      Tags
     </h1>
-    <p class="mt-5 text-[18px] leading-[1.7] text-graphite">{tags.length} 个标签。</p>
+    <p class="mt-5 text-[18px] leading-[1.7] text-graphite">{tags.length}  tags。</p>
   </section>
 
   <section class="shell pb-24">
@@ -36,7 +36,7 @@ const tags = collectTags(posts);
           ))}
         </ul>
       ) : (
-        <p class="text-[17px] text-graphite">还没有标签。在文章 frontmatter 里加 tags 即可。</p>
+        <p class="text-[17px] text-graphite">No tags yet. Add a tags list to a post’s frontmatter.</p>
       )
     }
   </section>

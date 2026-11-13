@@ -51,7 +51,7 @@ const primaryCategory = data.categories[0];
   <article>
     <header class:list={['shell pt-12 sm:pt-16', cover ? 'pb-10' : 'pb-6']}>
       <div class="mx-auto max-w-[700px]">
-      <nav class="mb-6 flex flex-wrap items-center gap-2 text-[13px] text-slate" aria-label="面包屑">
+      <nav class="mb-6 flex flex-wrap items-center gap-2 text-[13px] text-slate" aria-label="Breadcrumb">
         <a href="/" class="transition-colors hover:text-link">首页</a>
         {
           primaryCategory ? (
@@ -68,7 +68,7 @@ const primaryCategory = data.categories[0];
       <p class="text-[13px] font-semibold tracking-[0.02em] text-graphite">
         <time datetime={data.date.toISOString()}>{formatDate(data.date)}</time>
         <span class="mx-2 text-slate" aria-hidden="true">·</span>
-        <span>{minutes} 分钟阅读</span>
+        <span>{minutes} min read</span>
       </p>
 
       <h1
@@ -130,7 +130,7 @@ const primaryCategory = data.categories[0];
           </p>
 
           <div class="mt-4 flex flex-wrap items-center gap-2">
-            <span class="text-[13px] text-graphite">分享：</span>
+            <span class="text-[13px] text-graphite">Share:</span>
             <!--<a
               class="cta-pill !px-4 !py-2 !text-[13px]"
               href={`mailto:?subject=${encodeURIComponent(data.title)}&body=${encodeURIComponent(postHref(post))}`}
@@ -143,7 +143,7 @@ const primaryCategory = data.categories[0];
               data-copy-link
               data-url={postHref(post)}
             >
-              复制链接
+              Copy link
             </button>
             <a class="cta-pill !px-4 !py-2 !text-[13px]" href="/rss.xml">RSS</a>
           </div>
@@ -171,8 +171,8 @@ const primaryCategory = data.categories[0];
 
   <section class="shell py-14">
     <div class="flex items-center justify-between gap-4">
-      <a href="/archive/" class="cta-pill">返回归档</a>
-      <a href="/" class="cta-link">回到首页 →</a>
+      <a href="/archive/" class="cta-pill">Back to archive</a>
+      <a href="/" class="cta-link">Back home →</a>
     </div>
   </section>
 </BaseLayout>
@@ -192,9 +192,9 @@ const primaryCategory = data.categories[0];
         const original = button.textContent;
         try {
           await navigator.clipboard.writeText(url);
-          button.textContent = '已复制';
+          button.textContent = 'Copied';
         } catch {
-          button.textContent = '复制失败';
+          button.textContent = 'Copy failed';
         }
         setTimeout(() => {
           button.textContent = original;

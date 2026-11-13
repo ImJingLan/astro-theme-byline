@@ -1,0 +1,20 @@
+[
+  {
+    "title": "Example Blog One",
+    "link": "https://example.com",
+    "desc": "A placeholder entry. Replace with real sites.",
+    "avatar": ""
+  },
+  {
+    "title": "Example Blog Two",
+    "link": "https://example.org",
+    "desc": "Another placeholder, showing the two-column list.",
+    "avatar": ""
+  },
+  {
+    "title": "Example Blog Three",
+    "link": "https://example.net",
+    "desc": "Longer descriptions wrap to a second line without breaking the grid.",
+    "avatar": ""
+  }
+]

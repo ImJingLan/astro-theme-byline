@@ -22,7 +22,7 @@ const posts = sortPosts(
 
 <BaseLayout title={`标签：${name}`} description={`所有标记为 ${name} 的文章。`}>
   <section class="shell pt-14 pb-12 sm:pt-20">
-    <nav class="mb-6 flex items-center gap-2 text-[13px] text-slate" aria-label="面包屑">
+    <nav class="mb-6 flex items-center gap-2 text-[13px] text-slate" aria-label="Breadcrumb">
       <a href="/" class="transition-colors hover:text-link">首页</a>
       <span aria-hidden="true">/</span>
       <a href="/tags/" class="transition-colors hover:text-link">标签</a>
@@ -34,7 +34,7 @@ const posts = sortPosts(
     >
       #{name}
     </h1>
-    <p class="mt-5 text-[18px] leading-[1.7] text-graphite">共 {posts.length} 篇文章。</p>
+    <p class="mt-5 text-[18px] leading-[1.7] text-graphite">共 {posts.length}  posts。</p>
   </section>
 
   <section class="bg-fog py-14">

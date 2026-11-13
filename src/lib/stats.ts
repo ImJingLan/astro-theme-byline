@@ -35,7 +35,7 @@ export function formatWordCount(total: number): string {
 }
 
 /**
- * 站点运行时间，从最早一篇文章的日期算起。
+ * 站点运行时间，从最早一 posts的日期算起。
  * 用 UTC 固定时刻，观者时区不影响结果。
  */
 export const SITE_BIRTH_MS = Date.UTC(2022, 1, 10, 0, 0, 0);

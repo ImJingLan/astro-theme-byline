@@ -13,11 +13,11 @@ const posts = await getAllPosts();
 const categories = collectCategories(posts);
 const tags = collectTags(posts);
 
-// 最新文章：头条 1 篇 + 其余按配置数量铺开
+// Latest：头条 1 篇 + 其余按配置数量铺开
 const latest = posts.slice(0, Math.max(1, homeConfig.latestCount));
 const [lead, ...secondary] = latest;
 
-// 画廊与列表从最新文章之后接着取，避免重复
+// 画廊与列表从Latest之后接着取，避免重复
 const afterLatest = posts.slice(latest.length);
 const galleryPosts = afterLatest.slice(0, galleryConfig.count);
 const more = afterLatest.slice(0, homeConfig.moreCount);
@@ -51,12 +51,12 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
     </div>
   </section>
 
-  <!-- 最新文章 -->
+  <!-- Latest -->
   <section class="bg-fog pt-13 pb-20">
     <div class="shell">
       <div class="mb-6 flex items-end justify-between gap-6">
-        <h2 class="section-head">最新文章</h2>
-        <a href="/archive/" class="cta-pill hidden sm:inline-flex">全部归档</a>
+        <h2 class="section-head">Latest</h2>
+        <a href="/archive/" class="cta-pill hidden sm:inline-flex">All posts</a>
       </div>
 
       {
@@ -73,7 +73,7 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
           </ul>
         ) : (
           <p class="text-[17px] text-graphite">
-            还没有文章。把 Markdown 放进 src/content/posts 就会出现在这里。
+            No posts yet. Drop a Markdown file into src/content/posts and it will show up here.
           </p>
         )
       }
@@ -91,10 +91,10 @@ const latestDate = posts.length ? formatCardDate(posts[0].data.date) : '—';
     ) : null
   }
 
-  <!-- 更多文章 -->
+  <!-- More posts -->
   {
     more.length ? (
-      <MoreFromNewsroom posts={more} title="更多文章" archiveHref="/archive/" archiveLabel="查看全部归档" />
+      <MoreFromNewsroom posts={more} title="More posts" archiveHref="/archive/" archiveLabel="查看All posts" />
     ) : null
   }
 

@@ -4,10 +4,12 @@ dist
 .DS_Store
 *.log
 
-# 个人博客内容：不从本仓库提交
-src/content/posts/
-src/content/pages/
-src/content/_data/
+# 本地个人内容：克隆主题后写自己的文章时，把下面的注释打开，
+# 就能让仓库保持干净、只跟踪主题代码。
+#
+# src/content/posts/
+# src/content/pages/
+# src/content/_data/
 
 # 迁移前的原始 Hexo 目录（_posts/YYYY/MM/slug.md + 同名图片目录）
 src/content/_posts/

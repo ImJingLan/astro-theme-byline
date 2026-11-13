@@ -22,10 +22,10 @@ interface Props {
 const { postCount, tagCount, wordsLabel, latest, uptime } = Astro.props;
 
 const stats = [
-  ['文章', String(postCount)],
-  ['标签', String(tagCount)],
-  ['总字数', wordsLabel],
-  ['最近更新', latest],
+  ['Post', String(postCount)],
+  ['Tag', String(tagCount)],
+  ['Words', wordsLabel],
+  ['Last updated', latest],
 ] as const;
 ---
 

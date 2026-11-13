@@ -14,9 +14,9 @@
   type="button"
   id="theme-toggle"
   class="theme-toggle"
-  aria-label="切换主题"
+  aria-label="Switch theme"
   aria-live="polite"
-  title="切换主题"
+  title="Switch theme"
 >
   {/* 亮色：太阳 */}
   <svg class="theme-icon theme-icon--light" viewBox="0 0 20 20" aria-hidden="true">
@@ -54,7 +54,7 @@
     if (meta) meta.setAttribute('content', theme === 'dark' ? '#1c1c1e' : '#ffffff');
     document
       .getElementById('theme-toggle')
-      ?.setAttribute('aria-label', theme === 'dark' ? '切换到亮色主题' : '切换到暗色主题');
+      ?.setAttribute('aria-label', theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme');
   };
 
   const current = (): Theme => (root.dataset.theme === 'dark' ? 'dark' : 'light');
