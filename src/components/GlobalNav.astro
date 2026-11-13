@@ -52,7 +52,7 @@ const logo = site.logo?.trim() ?? '';
                 <a
                   href={item.href}
                   class:list={[
-                    'text-[14px] tracking-[0.01em] transition-colors',
+                    'nav-link text-[14px] tracking-[0.01em] transition-colors',
                     isActive(item.href)
                       ? 'font-semibold text-ink'
                       : 'font-normal text-graphite hover:text-ink',
@@ -184,13 +184,40 @@ const logo = site.logo?.trim() ?? '';
   };
 
   syncActive();
+
+  // 多个事件都触发一次，覆盖 swup 换页、后退前进、bfcache 恢复
   document.addEventListener('astro:page-load', syncActive);
+  document.addEventListener('swup:page:view', syncActive);
+  window.addEventListener('popstate', syncActive);
+  window.addEventListener('pageshow', syncActive);
 </script>
 
 <style>
   /* 导航栏高度，面板据此定位 */
   .site-nav {
     --nav-height: 57px;
+  }
+
+  /* 当前页：颜色加字重之外，再给一条下划线，和 Apple globalnav 一致 */
+  .nav-link {
+    position: relative;
+    padding-block: 4px;
+  }
+
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 1.5px;
+    border-radius: 2px;
+    background-color: currentColor;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+  }
+
+  .nav-link[aria-current='page']::after {
+    opacity: 1;
   }
 
   /* 展开按钮：两条线，展开后变成叉 */
