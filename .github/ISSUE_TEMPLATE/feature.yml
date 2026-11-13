@@ -1,0 +1,46 @@
+name: Feature request
+description: Suggest a setting, a layout, or a behaviour
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        This theme stays small on purpose. A request is more likely to land if
+        it can be expressed as a setting with a sensible default, rather than
+        as new code every site has to carry.
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: What problem does this solve
+      description: Describe the situation, not the solution.
+    validations:
+      required: true
+
+  - type: textarea
+    id: idea
+    attributes:
+      label: What you have in mind
+    validations:
+      required: true
+
+  - type: dropdown
+    id: kind
+    attributes:
+      label: Kind of change
+      options:
+        - A new setting with a default that changes nothing
+        - A visual tweak
+        - A new component or page
+        - Something else
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: constraints
+    attributes:
+      label: Does it fit these constraints
+      options:
+        - label: Needs no new runtime dependency
+        - label: Needs no third-party request
+        - label: Needs no commercial font or artwork

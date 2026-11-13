@@ -3,6 +3,7 @@
   "type": "module",
   "version": "1.0.0",
   "private": true,
+  "license": "MIT",
   "description": "A quiet editorial blog theme for Astro + Tailwind CSS, with a newsroom-style layout. Drop-in compatible with Hexo/Hugo posts.",
   "scripts": {
     "dev": "astro dev",

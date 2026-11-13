@@ -1,0 +1,54 @@
+name: Bug report
+description: Something renders wrong or breaks
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Before filing, please check that `bun run build` passes on a clean
+        clone. Many rendering problems come from stale content or a stale
+        `.astro` cache.
+
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+      description: The observed behaviour.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Set `lang: 'zh-CN'` in src/lib/site.ts
+        2. Run `bun run build`
+        3. Open /archive/
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Theme version or commit
+      placeholder: 1.0.0, or the commit hash
+
+  - type: input
+    id: env
+    attributes:
+      label: Environment
+      placeholder: Bun 1.4.4, Node 20.11, Windows 11
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Anything else
+      description: Screenshots, console output, or a link to a reproduction.

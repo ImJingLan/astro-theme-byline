@@ -150,5 +150,11 @@ Vercel, Cloudflare Pages, or a plain nginx directory.
 
 ## Licence
 
-Theme code: MIT. The demo posts and generated artwork are yours to replace.
-Inter and Inter Tight are used under the SIL Open Font License 1.1.
+MIT — see [LICENSE](LICENSE). Use it, fork it, ship it, sell what you build
+with it. Attribution is appreciated but not required.
+
+The demo posts and generated artwork are placeholders; replace them with your
+own. Inter and Inter Tight are bundled under the SIL Open Font License 1.1,
+which permits redistribution and modification but requires the font itself to
+stay under the OFL.
+
