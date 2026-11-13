@@ -2,8 +2,6 @@
  * Language: English
  * Author: Theme Author
  * BCP 47: en
- *
- * Only data — no types, no logic. To add a language, copy this file.
  */
 
 export default {

@@ -2,8 +2,6 @@
  * Language: 简体中文
  * Author: Theme Author
  * BCP 47: zh-CN
- *
- * 只有数据，没有类型和逻辑。加语言时复制本文件即可。
  */
 
 export default {
