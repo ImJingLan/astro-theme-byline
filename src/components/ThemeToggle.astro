@@ -4,6 +4,9 @@
  *
  * 只有亮 / 暗两态。首次访问时若没有存过偏好，
  * 用系统当前的主题作为初始值，之后完全由用户的选择决定。
+ *
+ * 切换时用 View Transitions 做一次圆形遮罩扩散：
+ * 新主题以按钮为圆心向外铺开，旧主题被覆盖。
  */
 ---
 
@@ -56,6 +59,56 @@
 
   const current = (): Theme => (root.dataset.theme === 'dark' ? 'dark' : 'light');
 
+  const reduceMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /**
+   * 以按钮为圆心把新主题铺开。
+   *
+   * 半径取到视口最远角，保证圆形能覆盖整屏；
+   * 圆心用按钮中心，视觉上像是从开关处扩散出来。
+   */
+  const circleFrom = (el: HTMLElement) => {
+    const rect = el.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    const radius = Math.hypot(Math.max(x, innerWidth - x), Math.max(y, innerHeight - y));
+    return { x, y, radius };
+  };
+
+  const switchTo = (next: Theme, btn: HTMLElement) => {
+    // 不支持 View Transitions 或用户要求减少动效时直接切换
+    if (!document.startViewTransition || reduceMotion()) {
+      localStorage.setItem(STORAGE_KEY, next);
+      apply(next);
+      return;
+    }
+
+    const { x, y, radius } = circleFrom(btn);
+
+    const transition = document.startViewTransition(() => {
+      localStorage.setItem(STORAGE_KEY, next);
+      apply(next);
+    });
+
+    // 等快照就绪再驱动动画，否则会被浏览器的默认淡入淡出顶掉
+    transition.ready
+      .then(() => {
+        root.animate(
+          {
+            clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`],
+          },
+          {
+            duration: 520,
+            easing: 'cubic-bezier(0.28, 0.11, 0.32, 1)',
+            pseudoElement: '::view-transition-new(root)',
+          }
+        );
+      })
+      .catch(() => {
+        // 过渡被中断（例如连续点击）时忽略，状态已经切好了
+      });
+  };
+
   /*
     swup 换页会换掉 <main> 里的 DOM，导航栏留在原处、按钮不变，
     所以监听器只需绑一次。仍按「重新查询」写，避免将来挪动按钮时静默失效。
@@ -67,8 +120,7 @@
 
     btn.addEventListener('click', () => {
       const next: Theme = current() === 'dark' ? 'light' : 'dark';
-      localStorage.setItem(STORAGE_KEY, next);
-      apply(next);
+      switchTo(next, btn);
     });
   };
 
@@ -79,6 +131,25 @@
 </script>
 
 <style>
+  /*
+    默认的整页交叉淡入会把遮罩动画盖掉，这里关掉两边的动画，
+    只留 ::view-transition-new 的 clip-path 扩散。
+  */
+  :global(::view-transition-old(root)),
+  :global(::view-transition-new(root)) {
+    animation: none;
+    mix-blend-mode: normal;
+  }
+
+  /* 新主题在上层，才能盖住旧主题 */
+  :global(::view-transition-new(root)) {
+    z-index: 2;
+  }
+
+  :global(::view-transition-old(root)) {
+    z-index: 1;
+  }
+
   .theme-toggle {
     display: grid;
     place-items: center;
@@ -96,6 +167,11 @@
   .theme-toggle:hover {
     color: var(--color-ink);
     background-color: var(--color-chip);
+  }
+
+  /* 点击时轻微缩放，给遮罩一个起点上的反馈 */
+  .theme-toggle:active {
+    scale: 0.92;
   }
 
   .theme-icon {
