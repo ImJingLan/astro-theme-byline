@@ -51,12 +51,7 @@ const logo = site.logo?.trim() ?? '';
               <li>
                 <a
                   href={item.href}
-                  class:list={[
-                    'nav-link text-[14px] tracking-[0.01em] transition-colors',
-                    isActive(item.href)
-                      ? 'font-semibold text-ink'
-                      : 'font-normal text-graphite hover:text-ink',
-                  ]}
+                  class="nav-link text-[14px] tracking-[0.01em]"
                   aria-current={isActive(item.href) ? 'page' : undefined}
                 >
                   {item.label}
@@ -198,10 +193,23 @@ const logo = site.logo?.trim() ?? '';
     --nav-height: 57px;
   }
 
-  /* 当前页：颜色加字重之外，再给一条下划线，和 Apple globalnav 一致 */
+  /* 当前页：字重、颜色、下划线都由 aria-current 驱动 */
   .nav-link {
     position: relative;
     padding-block: 4px;
+    font-weight: 400;
+    color: var(--color-graphite);
+    /* 只过渡颜色；可变字体的字重插值会触发逐帧重排 */
+    transition: color 0.2s ease;
+  }
+
+  .nav-link:hover {
+    color: var(--color-ink);
+  }
+
+  .nav-link[aria-current='page'] {
+    font-weight: 600;
+    color: var(--color-ink);
   }
 
   .nav-link::after {
@@ -212,12 +220,12 @@ const logo = site.logo?.trim() ?? '';
     height: 1.5px;
     border-radius: 2px;
     background-color: currentColor;
-    opacity: 0;
-    transition: opacity 0.2s ease;
+    transform: scaleX(0);
+    transform-origin: left center;
   }
 
   .nav-link[aria-current='page']::after {
-    opacity: 1;
+    transform: scaleX(1);
   }
 
   /* 展开按钮：两条线，展开后变成叉 */
