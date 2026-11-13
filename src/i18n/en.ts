@@ -129,4 +129,23 @@ export const en = {
   },
 } as const;
 
-export type Dictionary = typeof en;
+/**
+ * 字典的形状。
+ *
+ * `typeof en` 带 `as const`，每个值都是字面量类型（'Switch theme'），
+ * 直接当类型用会让别的语言无法赋不同的字符串。
+ *
+ * 这里把叶子上的字面量展宽成 string，保留键的结构和函数签名。
+ * - 字符串 → string
+ * - 函数 → 原样保留（postCount 之类带参数的）
+ * - 对象 → 递归
+ */
+type Widen<T> = T extends string
+  ? string
+  : T extends (...args: infer A) => infer R
+    ? (...args: A) => R
+    : T extends object
+      ? { [K in keyof T]: Widen<T[K]> }
+      : T;
+
+export type Dictionary = Widen<typeof en>;
