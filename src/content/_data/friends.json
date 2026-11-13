@@ -3,18 +3,18 @@
     "title": "Example Blog One",
     "link": "https://example.com",
     "desc": "A placeholder entry. Replace with real sites.",
-    "avatar": ""
+    "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200"
   },
   {
     "title": "Example Blog Two",
     "link": "https://example.org",
     "desc": "Another placeholder, showing the two-column list.",
-    "avatar": ""
+    "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200"
   },
   {
     "title": "Example Blog Three",
     "link": "https://example.net",
     "desc": "Longer descriptions wrap to a second line without breaking the grid.",
-    "avatar": ""
+    "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200"
   }
 ]
