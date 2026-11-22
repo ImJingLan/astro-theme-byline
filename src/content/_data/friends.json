@@ -1,20 +1,20 @@
 [
   {
-    "title": "Example Blog One",
-    "link": "https://example.com",
-    "desc": "A placeholder entry. Replace with real sites.",
-    "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200"
+    "title": "拾光小阁",
+    "link": "https://blog.bear556.top",
+    "desc": "万钟则不辨礼仪而受之，万种于我美滋滋",
+    "avatar": "https://imgbed.bear556.top/file/1777777243020_avatar.webp"
   },
   {
     "title": "Example Blog Two",
     "link": "https://example.org",
-    "desc": "Another placeholder, showing the two-column list.",
+    "desc": "No feed at this address, so the card shows no post list.",
     "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200"
   },
   {
     "title": "Example Blog Three",
     "link": "https://example.net",
-    "desc": "Longer descriptions wrap to a second line without breaking the grid.",
+    "desc": "Longer descriptions wrap without pushing the post list out of alignment.",
     "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200"
   }
 ]
