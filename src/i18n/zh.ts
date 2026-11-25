@@ -106,6 +106,13 @@ export default {
     page: '页面',
   },
 
+  // —— 时间轴 ——
+  timeline: {
+    eyebrow: '时间轴',
+    self: '本站',
+    empty: '还没有内容。',
+  },
+
   // —— 404 ——
   notFound: {
     title: '页面不存在',

@@ -106,6 +106,13 @@ export default {
     page: 'Page',
   },
 
+  // —— Timeline ——
+  timeline: {
+    eyebrow: 'Timeline',
+    self: 'This site',
+    empty: 'No entries yet.',
+  },
+
   // —— 404 ——
   notFound: {
     title: 'Page not found',

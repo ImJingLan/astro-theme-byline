@@ -111,6 +111,29 @@ export const friends = {
 };
 ```
 
+### Timeline
+
+`src/content/pages/timeline/index.md` turns the site's own posts and the
+friends' posts into one stream, newest first, grouped by month:
+
+```yaml
+timeline:
+  show: true
+  limit: 50
+  includeSelf: true
+  includeFriends: true
+  friendPosts: 3
+```
+
+Only friends with `mode: build` contribute. A `dynamic` site's posts are not
+fetched until the page is open in a browser, so at build time there is nothing
+to place on the timeline and no date to sort by. Posts whose feed carries no
+date are left out for the same reason.
+
+Each row shows the source: this site gets a blue marker and a "This site"
+badge, a friend gets its name and avatar. Links to friends open in a new tab
+and carry the same `?ref=` as the friend page.
+
 
 ### Interface language
 

@@ -23,6 +23,14 @@ export interface Friend {
 export interface FriendPost {
   title: string;
   link: string;
+  /** 发布时间；feed 没给就留空 */
+  date?: Date;
+  /** 所属站点，时间轴用来区分来源 */
+  site?: {
+    title: string;
+    link: string;
+    avatar: string;
+  };
 }
 
 export interface FriendWithPosts extends Friend {
@@ -173,6 +181,28 @@ function atomLink(block: string): string {
   return fallback;
 }
 
+/**
+ * 解析 feed 里的时间。
+ *
+ * Atom 用 ISO 8601，RSS 用 RFC 822，两种 Date 都能认。少数站点写
+ * "2026-03-10 16:17:46" 这种缺时区的格式，浏览器会按本地时区理解，
+ * 这里补成 UTC 以免不同机器构建出不同结果。
+ */
+function parseDate(raw: string | undefined): Date | undefined {
+  const text = raw?.trim();
+  if (!text) return undefined;
+
+  // 先处理缺时区的写法：Date 会按本地时区理解它，构建机不同就得出不同时刻
+  const naive = text.match(/^(\d{4}-\d{2}-\d{2})[ T](\d{2}:\d{2}(?::\d{2})?)$/);
+  if (naive) {
+    const fixed = new Date(`${naive[1]}T${naive[2]}Z`);
+    return Number.isNaN(fixed.getTime()) ? undefined : fixed;
+  }
+
+  const direct = new Date(text);
+  return Number.isNaN(direct.getTime()) ? undefined : direct;
+}
+
 /** 从 Atom 或 RSS 文本里抽最近条目 */
 export function parseFeed(xml: string, limit = 3): FriendPost[] {
   const posts: FriendPost[] = [];
@@ -180,7 +210,11 @@ export function parseFeed(xml: string, limit = 3): FriendPost[] {
   for (const m of xml.matchAll(/<entry\b[^>]*>([\s\S]*?)<\/entry>/gi)) {
     const title = pick(m[1], 'title');
     const link = atomLink(m[1]);
-    if (title && link) posts.push({ title, link });
+    if (!title || !link) continue;
+
+    // Atom 优先 published，没有再退回 updated
+    const date = parseDate(pick(m[1], 'published') || pick(m[1], 'updated'));
+    posts.push({ title, link, date });
     if (posts.length >= limit) return posts;
   }
 
@@ -189,7 +223,10 @@ export function parseFeed(xml: string, limit = 3): FriendPost[] {
   for (const m of xml.matchAll(/<item\b[^>]*>([\s\S]*?)<\/item>/gi)) {
     const title = pick(m[1], 'title');
     const link = pick(m[1], 'link') || m[1].match(/<link\b[^>]*href="([^"]+)"/i)?.[1] || '';
-    if (title && link) posts.push({ title, link });
+    if (!title || !link) continue;
+
+    const date = parseDate(pick(m[1], 'pubDate') || pick(m[1], 'date') || pick(m[1], 'dc:date'));
+    posts.push({ title, link, date });
     if (posts.length >= limit) return posts;
   }
 

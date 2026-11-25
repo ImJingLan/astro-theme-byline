@@ -1,0 +1,289 @@
+---
+/** 时间轴：本站与友链文章按时间合并成一条流 */
+import { t } from '../i18n';
+import { formatDate } from '../lib/format';
+import { withRef } from '../lib/links';
+import { postCover } from '../lib/covers';
+import {
+  getTimeline,
+  type TimelineEntry,
+} from '../lib/timeline';
+
+interface Props {
+  limit?: number;
+  includeSelf?: boolean;
+  includeFriends?: boolean;
+  friendPosts?: number;
+}
+
+const {
+  limit = 50,
+  includeSelf = true,
+  includeFriends = true,
+  friendPosts = 3,
+} = Astro.props;
+
+const entries = await getTimeline({ limit, includeSelf, includeFriends, friendPosts });
+
+/** 按年月分组，标题形如「2026 年 9 月」 */
+function groupByMonth(list: TimelineEntry[]) {
+  const groups: { key: string; year: number; month: number; items: TimelineEntry[] }[] = [];
+
+  for (const item of list.sort((a, b) => b.date.getTime() - a.date.getTime())) {
+    const year = item.date.getFullYear();
+    const month = item.date.getMonth() + 1;
+    const key = `${year}-${month}`;
+
+    const last = groups[groups.length - 1];
+    if (last && last.key === key) last.items.push(item);
+    else groups.push({ key, year, month, items: [item] });
+  }
+
+  return groups;
+}
+
+const groups = groupByMonth(entries);
+
+/** 本站文章取封面缩略图；友链用对方头像 */
+function thumbOf(item: TimelineEntry) {
+  if (item.kind === 'self' && item.post) {
+    const cover = postCover(item.post);
+    return cover?.src ?? '';
+  }
+  return item.site?.avatar ?? '';
+}
+---
+
+{
+  groups.length ? (
+    <div class="timeline">
+      {groups.map((group) => (
+        <section class="tl-group">
+          <h3 class="tl-heading">
+            {group.year} 年 {group.month} 月
+          </h3>
+
+          <ol class="tl-list">
+            {group.items.map((item) => (
+              <li class:list={['tl-item', `tl-item--${item.kind}`]}>
+                <span class="tl-dot" aria-hidden="true" />
+
+                <div class="tl-card">
+                  {thumbOf(item) ? (
+                    <a
+                      class="tl-thumb"
+                      href={withRef(item.link)}
+                      target={item.kind === 'friend' ? '_blank' : undefined}
+                      rel={item.kind === 'friend' ? 'noopener' : undefined}
+                      tabindex="-1"
+                      aria-hidden="true"
+                    >
+                      <img src={thumbOf(item)} alt="" loading="lazy" width="56" height="56" />
+                    </a>
+                  ) : (
+                    <span class="tl-thumb tl-thumb--empty" aria-hidden="true" />
+                  )}
+
+                  <div class="tl-body">
+                    <p class="tl-meta">
+                      {item.kind === 'self' ? (
+                        <span class="tl-badge tl-badge--self">{t.timeline.self}</span>
+                      ) : (
+                        <a
+                          class="tl-badge tl-badge--friend"
+                          href={withRef(item.site?.link ?? '')}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          {item.site?.title}
+                        </a>
+                      )}
+                      <time datetime={item.date.toISOString()}>{formatDate(item.date)}</time>
+                    </p>
+
+                    <a
+                      class="tl-title"
+                      href={withRef(item.link)}
+                      target={item.kind === 'friend' ? '_blank' : undefined}
+                      rel={item.kind === 'friend' ? 'noopener' : undefined}
+                    >
+                      {item.title}
+                    </a>
+                  </div>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </div>
+  ) : (
+    <p class="text-[15px] text-graphite">{t.timeline.empty}</p>
+  )
+}
+
+<style>
+  .timeline {
+    margin-top: 32px;
+  }
+
+  .tl-group + .tl-group {
+    margin-top: 40px;
+  }
+
+  .tl-heading {
+    margin: 0 0 16px;
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--color-slate);
+  }
+
+  /* 竖线画在列表左侧，条目用负边距压上去 */
+  .tl-list {
+    position: relative;
+    margin: 0;
+    padding: 0 0 0 28px;
+    list-style: none;
+  }
+
+  .tl-list::before {
+    content: '';
+    position: absolute;
+    left: 5px;
+    top: 6px;
+    bottom: 6px;
+    width: 1px;
+    background-color: var(--color-hairline);
+  }
+
+  .tl-item {
+    position: relative;
+  }
+
+  .tl-item + .tl-item {
+    margin-top: 14px;
+  }
+
+  /* 圆点压在竖线上 */
+  .tl-dot {
+    position: absolute;
+    left: -26px;
+    top: 18px;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background-color: var(--color-canvas);
+    border: 1.5px solid var(--color-hairline);
+  }
+
+  .tl-item--self .tl-dot {
+    border-color: var(--color-link);
+    background-color: var(--color-link);
+  }
+
+  .tl-card {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px;
+    border: 1px solid var(--color-hairline);
+    border-radius: 12px;
+    background-color: var(--color-canvas);
+    transition:
+      border-color 0.25s ease,
+      background-color 0.25s ease;
+  }
+
+  .tl-card:hover {
+    border-color: var(--color-link);
+    background-color: var(--color-fog);
+  }
+
+  .tl-thumb {
+    flex: none;
+    width: 56px;
+    height: 56px;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: var(--color-chip);
+  }
+
+  .tl-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+
+  .tl-thumb--empty {
+    display: block;
+  }
+
+  .tl-body {
+    min-width: 0;
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  .tl-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+    font-size: 12px;
+    line-height: 1.5;
+    color: var(--color-slate);
+  }
+
+  /* 来源标记：本站蓝、友链灰 */
+  .tl-badge {
+    flex: none;
+    padding: 1px 7px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 500;
+    text-decoration: none;
+    background-color: var(--color-chip);
+    color: var(--color-graphite);
+    transition: background-color 0.2s ease;
+  }
+
+  .tl-badge--self {
+    background-color: rgb(0 102 204 / 0.1);
+    color: var(--color-link);
+  }
+
+  .tl-badge--friend:hover {
+    background-color: var(--color-chip-hover);
+    color: var(--color-ink);
+  }
+
+  .tl-title {
+    font-size: 15px;
+    line-height: 1.45;
+    font-weight: 500;
+    color: var(--color-ink);
+    text-decoration: none;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    transition: color 0.2s ease;
+  }
+
+  .tl-card:hover .tl-title {
+    color: var(--color-link);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tl-card,
+    .tl-title,
+    .tl-badge {
+      transition-duration: 1ms;
+    }
+  }
+</style>

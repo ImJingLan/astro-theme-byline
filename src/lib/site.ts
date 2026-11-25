@@ -37,6 +37,7 @@ export const site = {
     { label: 'Archive', href: '/archive/', description: 'Every post, newest first, grouped by month.' },
     { label: 'Tags', href: '/tags/', description: 'Browse posts by topic.' },
     { label: 'Friends', href: '/friends/', description: 'Other blogs worth reading.' },
+    { label: 'Timeline', href: '/timeline/', description: 'Posts from this site and from friends, newest first.' },
     { label: 'About', href: '/about/', description: 'About this site and the theme behind it.' },
   ],
 } as const;
