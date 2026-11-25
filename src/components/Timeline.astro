@@ -36,7 +36,9 @@ const chunks = chunkGroups(groupByMonth(entries), pageSize);
 // 首屏凑够 pageSize 条，可能吃掉好几块；剩下的把名字交给脚本
 const { inline, rest } = splitChunks(chunks, pageSize);
 const groups = chunksToGroups(inline);
-const restKeys = rest.map((chunk) => chunk.key);
+
+// 每块带条目数，脚本才能一次点击凑够一屏
+const restKeys = rest.map((chunk) => `${chunk.key}:${chunk.items.length}`).join(',');
 ---
 
 {
@@ -44,7 +46,8 @@ const restKeys = rest.map((chunk) => chunk.key);
     <div
       class="timeline"
       data-timeline
-      data-chunks={JSON.stringify(restKeys)}
+      data-chunks={restKeys}
+      data-page-size={pageSize}
       data-self-label={t.timeline.self}
     >
       <div data-timeline-groups>

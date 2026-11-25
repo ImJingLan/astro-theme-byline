@@ -23,8 +23,27 @@ interface PayloadChunk {
   items: PayloadItem[];
 }
 
-/** 已取到第几块；首屏那第 0 块已经渲染过 */
+interface ChunkPlan {
+  key: string;
+  count: number;
+}
+
+/** 已取到第几块；首屏那几块已经渲染过 */
 let loaded = 0;
+
+/** data-chunks 形如 2024-11:1,2024-9:3 */
+function parseChunks(raw: string): ChunkPlan[] {
+  return raw
+    .split(',')
+    .map((part) => {
+      const at = part.lastIndexOf(':');
+      if (at < 0) return null;
+      const key = part.slice(0, at).trim();
+      const count = Number(part.slice(at + 1));
+      return key ? { key, count: Number.isFinite(count) && count > 0 ? count : 1 } : null;
+    })
+    .filter((item): item is ChunkPlan => item !== null);
+}
 
 function buildItem(
   item: PayloadItem,
@@ -132,31 +151,42 @@ async function loadMore(): Promise<void> {
 
   if (!button || !containers || !groupTpl || !itemTpl) return;
 
-  let keys: string[] = [];
-  try {
-    keys = JSON.parse(root.dataset.chunks ?? '[]');
-  } catch {
-    return;
-  }
+  const plan = parseChunks(root.dataset.chunks ?? '');
+  if (loaded >= plan.length) return;
 
-  if (loaded >= keys.length) return;
+  const pageSize = Math.max(1, Number(root.dataset.pageSize ?? '10'));
 
   const label = button.textContent;
   button.disabled = true;
   button.textContent = button.dataset.loadingLabel ?? label;
 
-  try {
-    const key = keys[loaded];
-    const res = await fetch(`/timeline-data/${key}.json`);
-    if (!res.ok) throw new Error(String(res.status));
+  // 一块可能只有一两条，一次点击连取几块凑够一屏
+  const start = loaded;
+  const picked: string[] = [];
+  let count = 0;
 
-    const chunk = (await res.json()) as PayloadChunk;
-    if (!chunk || !Array.isArray(chunk.items)) throw new Error('bad payload');
-
-    appendChunk(chunk, containers, groupTpl, itemTpl, root.dataset.selfLabel ?? '');
+  while (loaded < plan.length && count < pageSize) {
+    picked.push(plan[loaded].key);
+    count += plan[loaded].count;
     loaded += 1;
+  }
 
-    if (loaded >= keys.length) {
+  try {
+    const chunks = await Promise.all(
+      picked.map(async (key) => {
+        const res = await fetch(`/timeline-data/${key}.json`);
+        if (!res.ok) throw new Error(String(res.status));
+        const data = (await res.json()) as PayloadChunk;
+        if (!data || !Array.isArray(data.items)) throw new Error('bad payload');
+        return data;
+      })
+    );
+
+    for (const chunk of chunks) {
+      appendChunk(chunk, containers, groupTpl, itemTpl, root.dataset.selfLabel ?? '');
+    }
+
+    if (loaded >= plan.length) {
       button.remove();
       const end = button.dataset.endLabel ?? '';
       if (note && end) {
@@ -168,6 +198,8 @@ async function loadMore(): Promise<void> {
       button.textContent = label;
     }
   } catch {
+    // 失败就把游标退回去，下次点击重试同一批
+    loaded = start;
     button.disabled = false;
     button.textContent = label;
     if (note) {

@@ -136,9 +136,14 @@ badge, a friend gets its name and avatar. Links to friends open in a new tab
 and carry the same `?ref=` as the friend page.
 
 The first `pageSize` entries are written into the HTML. The rest are cut into
-chunks of the same size and written as `/timeline-data/<year>-<month>.json`,
-fetched one at a time when "Load more" is pressed. A month with more than
-`pageSize` entries continues in `<year>-<month>.2.json`.
+chunks of the same size and written as `/timeline-data/<year>-<month>.json`.
+A month with more than `pageSize` entries continues in `<year>-<month>.2.json`.
+
+One press of "Load more" fetches as many chunks as it takes to reach
+`pageSize` further entries, in parallel, because a chunk holds at most a
+month's worth and many hold one or two. Each chunk's size travels with the
+page in `data-chunks` (`2024-11:1,2024-9:3`) so the script knows where to
+stop without a round trip. It can overshoot by up to one chunk.
 
 Chunk names come from the month, not from a running number, so publishing a
 post rewrites only the chunk for that month: on the demo, adding one to June
