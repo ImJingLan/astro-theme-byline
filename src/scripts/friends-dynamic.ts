@@ -117,7 +117,8 @@ async function loadFriend(card: HTMLElement, cfg: FriendConfig): Promise<void> {
   if (!feed) return;
 
   const list = card.querySelector<HTMLElement>('[data-friend-posts]');
-  if (!list) return;
+  const tpl = card.querySelector<HTMLTemplateElement>('[data-friend-template]');
+  if (!list || !tpl) return;
 
   const attempts = Math.max(1, cfg.retries + 1);
 
@@ -128,38 +129,24 @@ async function loadFriend(card: HTMLElement, cfg: FriendConfig): Promise<void> {
     const posts = parseFeed(xml, limit);
     if (posts.length === 0) return;
 
+    // 从服务端渲染的模板克隆，节点带着 scoped 属性，样式与 build 模式一致
     list.replaceChildren(
       ...posts.map((post) => {
-        const li = document.createElement('li');
-        const a = document.createElement('a');
+        const li = tpl.content.firstElementChild?.cloneNode(true) as HTMLElement | undefined;
+        if (!li) return null;
+
+        const a = li.querySelector('a');
+        const span = li.querySelector('span');
+        if (!a || !span) return null;
+
         a.href = /^https?:/i.test(post.link)
           ? post.link
           : base.replace(/\/+$/, '') + (post.link.startsWith('/') ? '' : '/') + post.link;
-        a.target = '_blank';
-        a.rel = 'noopener';
         a.title = post.title;
-
-        const icon = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-        icon.setAttribute('viewBox', '0 0 24 24');
-        icon.setAttribute('fill', 'none');
-        icon.setAttribute('stroke', 'currentColor');
-        icon.setAttribute('stroke-width', '2');
-        icon.setAttribute('stroke-linecap', 'round');
-        icon.setAttribute('stroke-linejoin', 'round');
-        icon.setAttribute('aria-hidden', 'true');
-        // 不写宽高的话 SVG 默认 300x150，会把卡片撑得极高
-        icon.setAttribute('width', '12');
-        icon.setAttribute('height', '12');
-        icon.innerHTML =
-          '<path d="M3 4m0 2a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-14a2 2 0 0 1-2-2z"/><path d="M7 8h10M7 12h10M7 16h10"/>';
-
-        const span = document.createElement('span');
         span.textContent = post.title;
 
-        a.append(icon, span);
-        li.append(a);
         return li;
-      })
+      }).filter((x): x is HTMLElement => x !== null)
     );
 
     card.dataset.loaded = 'true';

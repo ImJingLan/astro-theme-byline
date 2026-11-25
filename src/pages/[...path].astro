@@ -134,36 +134,63 @@ const isRoot = !data.path || data.path === '/';
                       </p>
                     ) : null}
 
-                    {/* build 模式在构建期就写好；dynamic 留空由脚本填；none 不渲染 */}
+                    {/*
+                      三种模式共用同一套结构。dynamic 的条目由脚本从 <template>
+                      clone 出来，这样节点带着服务端的 scoped 属性，样式不会跑偏。
+                    */}
                     {friend.mode === 'none' ? null : (
-                      <ul class="friend-posts" data-friend-posts>
-                        {friend.mode === 'build'
-                          ? friend.posts.map((post) => (
-                              <li>
-                                <a
-                                  href={withRef(post.link)}
-                                  target="_blank"
-                                  rel="noopener"
-                                  title={post.title}
-                                >
-                                  <svg
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    stroke-width="2"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                    aria-hidden="true"
+                      <>
+                        <ul class="friend-posts" data-friend-posts>
+                          {friend.mode === 'build'
+                            ? friend.posts.map((post) => (
+                                <li>
+                                  <a
+                                    href={withRef(post.link)}
+                                    target="_blank"
+                                    rel="noopener"
+                                    title={post.title}
                                   >
-                                    <path d="M3 4m0 2a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-14a2 2 0 0 1-2-2z" />
-                                    <path d="M7 8h10M7 12h10M7 16h10" />
-                                  </svg>
-                                  <span>{post.title}</span>
-                                </a>
-                              </li>
-                            ))
-                          : null}
-                      </ul>
+                                    <svg
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      stroke-width="2"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"
+                                      aria-hidden="true"
+                                    >
+                                      <path d="M3 4m0 2a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-14a2 2 0 0 1-2-2z" />
+                                      <path d="M7 8h10M7 12h10M7 16h10" />
+                                    </svg>
+                                    <span>{post.title}</span>
+                                  </a>
+                                </li>
+                              ))
+                            : null}
+                        </ul>
+
+                        {friend.mode === 'dynamic' ? (
+                          <template data-friend-template>
+                            <li>
+                              <a target="_blank" rel="noopener">
+                                <svg
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="2"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  aria-hidden="true"
+                                >
+                                  <path d="M3 4m0 2a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-14a2 2 0 0 1-2-2z" />
+                                  <path d="M7 8h10M7 12h10M7 16h10" />
+                                </svg>
+                                <span />
+                              </a>
+                            </li>
+                          </template>
+                        ) : null}
+                      </>
                     )}
                   </div>
                 </li>
@@ -350,8 +377,7 @@ const isRoot = !data.path || data.path === '/';
     color: var(--color-link);
   }
 
-  /* 脚本插入的图标不带 scoped 属性，用 :global 才命中 */
-  :global(.friend-posts svg) {
+  .friend-posts svg {
     flex: none;
     width: 12px;
     height: 12px;
