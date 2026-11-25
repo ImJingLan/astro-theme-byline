@@ -123,6 +123,7 @@ timeline:
   includeSelf: true
   includeFriends: true
   friendPosts: 3
+  pageSize: 10
 ```
 
 Only friends with `mode: build` contribute. A `dynamic` site's posts are not
@@ -133,6 +134,16 @@ date are left out for the same reason.
 Each row shows the source: this site gets a blue marker and a "This site"
 badge, a friend gets its name and avatar. Links to friends open in a new tab
 and carry the same `?ref=` as the friend page.
+
+The first `pageSize` entries are written into the HTML. The rest go to
+`/timeline-data/2.json`, `/timeline-data/3.json` and so on, fetched when
+"Load more" is pressed. Pages are cut on month boundaries, so a month never
+appears under two headings.
+
+A row costs about 1.1 KB of markup, and the templates and button add roughly
+1 KB once. Deferring entries therefore pays off as soon as more than one is
+moved off the first page — on the demo, 16 entries at `pageSize: 10` come to
+75.9 KB against 81.7 KB for rendering them all.
 
 
 ### Interface language

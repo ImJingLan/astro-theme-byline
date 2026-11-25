@@ -111,6 +111,9 @@ export default {
     eyebrow: '时间轴',
     self: '本站',
     empty: '还没有内容。',
+    loadMore: '加载更多',
+    loading: '加载中…',
+    loadFailed: '加载失败，请重试。',
   },
 
   // —— 404 ——

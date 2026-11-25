@@ -1,11 +1,14 @@
 ---
-/** 时间轴：本站与友链文章按时间合并成一条流 */
+/** 时间轴：首屏静态渲染，其余分页按需取 */
 import { t } from '../i18n';
 import { formatDate } from '../lib/format';
 import { withRef } from '../lib/links';
-import { postCover } from '../lib/covers';
 import {
   getTimeline,
+  groupByMonth,
+  paginateGroups,
+  monthLabel,
+  thumbFor,
   type TimelineEntry,
 } from '../lib/timeline';
 
@@ -14,6 +17,8 @@ interface Props {
   includeSelf?: boolean;
   includeFriends?: boolean;
   friendPosts?: number;
+  /** 首屏至少渲染几条；分组不切开，实际可能略多 */
+  pageSize?: number;
 }
 
 const {
@@ -21,106 +26,145 @@ const {
   includeSelf = true,
   includeFriends = true,
   friendPosts = 3,
+  pageSize = 10,
 } = Astro.props;
 
 const entries = await getTimeline({ limit, includeSelf, includeFriends, friendPosts });
-
-/** 按年月分组，标题形如「2026 年 9 月」 */
-function groupByMonth(list: TimelineEntry[]) {
-  const groups: { key: string; year: number; month: number; items: TimelineEntry[] }[] = [];
-
-  for (const item of list.sort((a, b) => b.date.getTime() - a.date.getTime())) {
-    const year = item.date.getFullYear();
-    const month = item.date.getMonth() + 1;
-    const key = `${year}-${month}`;
-
-    const last = groups[groups.length - 1];
-    if (last && last.key === key) last.items.push(item);
-    else groups.push({ key, year, month, items: [item] });
-  }
-
-  return groups;
-}
-
-const groups = groupByMonth(entries);
-
-/** 本站文章取封面缩略图；友链用对方头像 */
-function thumbOf(item: TimelineEntry) {
-  if (item.kind === 'self' && item.post) {
-    const cover = postCover(item.post);
-    return cover?.src ?? '';
-  }
-  return item.site?.avatar ?? '';
-}
+const pages = paginateGroups(groupByMonth(entries), pageSize);
+const first = pages[0] ?? [];
+const totalPages = pages.length;
 ---
 
 {
-  groups.length ? (
-    <div class="timeline">
-      {groups.map((group) => (
-        <section class="tl-group">
-          <h3 class="tl-heading">
-            {group.year} 年 {group.month} 月
-          </h3>
+  entries.length ? (
+    <div
+      class="timeline"
+      data-timeline
+      data-total-pages={totalPages}
+      data-self-label={t.timeline.self}
+    >
+      <div data-timeline-groups>
+        {first.map((group) => (
+          <section class="tl-group" data-month-key={group.key}>
+            <h3 class="tl-heading">{monthLabel(group.year, group.month)}</h3>
 
-          <ol class="tl-list">
-            {group.items.map((item) => (
-              <li class:list={['tl-item', `tl-item--${item.kind}`]}>
-                <span class="tl-dot" aria-hidden="true" />
+            <ol class="tl-list">
+              {group.items.map((item) => (
+                <li
+                  class:list={['tl-item', `tl-item--${item.kind}`]}
+                  data-timeline-month={group.key}
+                >
+                  <span class="tl-dot" aria-hidden="true" />
 
-                <div class="tl-card">
-                  {thumbOf(item) ? (
-                    <a
-                      class="tl-thumb"
-                      href={withRef(item.link)}
-                      target={item.kind === 'friend' ? '_blank' : undefined}
-                      rel={item.kind === 'friend' ? 'noopener' : undefined}
-                      tabindex="-1"
-                      aria-hidden="true"
-                    >
-                      <img src={thumbOf(item)} alt="" loading="lazy" width="56" height="56" />
-                    </a>
-                  ) : (
-                    <span class="tl-thumb tl-thumb--empty" aria-hidden="true" />
-                  )}
+                  <div class="tl-card">
+                    {thumbFor(item) ? (
+                      <a
+                        class="tl-thumb"
+                        href={withRef(item.link)}
+                        target={item.kind === 'friend' ? '_blank' : undefined}
+                        rel={item.kind === 'friend' ? 'noopener' : undefined}
+                        tabindex="-1"
+                        aria-hidden="true"
+                      >
+                        <img
+                          src={thumbFor(item)}
+                          alt=""
+                          loading="lazy"
+                          width="56"
+                          height="56"
+                        />
+                      </a>
+                    ) : (
+                      <span class="tl-thumb tl-thumb--empty" aria-hidden="true" />
+                    )}
 
-                  <div class="tl-body">
-                    <p class="tl-meta">
-                      {item.kind === 'self' ? (
-                        <span class="tl-badge tl-badge--self">{t.timeline.self}</span>
-                      ) : (
-                        <a
-                          class="tl-badge tl-badge--friend"
-                          href={withRef(item.site?.link ?? '')}
-                          target="_blank"
-                          rel="noopener"
-                        >
-                          {item.site?.title}
-                        </a>
-                      )}
-                      <time datetime={item.date.toISOString()}>{formatDate(item.date)}</time>
-                    </p>
+                    <div class="tl-body">
+                      <p class="tl-meta">
+                        {item.kind === 'self' ? (
+                          <span class="tl-badge tl-badge--self">{t.timeline.self}</span>
+                        ) : (
+                          <a
+                            class="tl-badge tl-badge--friend"
+                            href={withRef(item.site?.link ?? '')}
+                            target="_blank"
+                            rel="noopener"
+                          >
+                            {item.site?.title}
+                          </a>
+                        )}
+                        <time datetime={item.date.toISOString()}>{formatDate(item.date)}</time>
+                      </p>
 
-                    <a
-                      class="tl-title"
-                      href={withRef(item.link)}
-                      target={item.kind === 'friend' ? '_blank' : undefined}
-                      rel={item.kind === 'friend' ? 'noopener' : undefined}
-                    >
-                      {item.title}
-                    </a>
+                      <a
+                        class="tl-title"
+                        href={withRef(item.link)}
+                        target={item.kind === 'friend' ? '_blank' : undefined}
+                        rel={item.kind === 'friend' ? 'noopener' : undefined}
+                      >
+                        {item.title}
+                      </a>
+                    </div>
                   </div>
-                </div>
-              </li>
-            ))}
-          </ol>
+                </li>
+              ))}
+            </ol>
+          </section>
+        ))}
+      </div>
+
+      {totalPages > 1 ? (
+        <div class="tl-more">
+          <button
+            type="button"
+            class="tl-more-btn"
+            data-timeline-more
+            data-loading-label={t.timeline.loading}
+            data-failed-label={t.timeline.loadFailed}
+            data-end-label=""
+          >
+            {t.timeline.loadMore}
+          </button>
+          <p class="tl-more-note" data-timeline-note hidden></p>
+        </div>
+      ) : null}
+
+      {/*
+        后续分页由脚本克隆这里的节点生成，样式才会跟首屏一致
+        （scoped CSS 编译成带 data-astro-cid 的选择器）。
+      */}
+      <template data-timeline-group-tpl>
+        <section class="tl-group">
+          <h3 class="tl-heading" />
+          <ol class="tl-list" />
         </section>
-      ))}
+      </template>
+
+      <template data-timeline-item-tpl>
+        <li class="tl-item">
+          <span class="tl-dot" aria-hidden="true" />
+          <div class="tl-card">
+            <a class="tl-thumb" tabindex="-1" aria-hidden="true">
+              <img src="" alt="" loading="lazy" width="56" height="56" />
+            </a>
+            <div class="tl-body">
+              <p class="tl-meta">
+                <span class="tl-badge" />
+                <time datetime="" />
+              </p>
+              <a class="tl-title" />
+            </div>
+          </div>
+        </li>
+      </template>
     </div>
   ) : (
     <p class="text-[15px] text-graphite">{t.timeline.empty}</p>
   )
 }
+
+<script>
+  import '../scripts/timeline-more';
+</script>
 
 <style>
   .timeline {
@@ -279,10 +323,48 @@ function thumbOf(item: TimelineEntry) {
     color: var(--color-link);
   }
 
+  .tl-more {
+    margin-top: 24px;
+    padding-left: 28px;
+    text-align: center;
+  }
+
+  .tl-more-btn {
+    padding: 9px 22px;
+    border: 1px solid var(--color-hairline);
+    border-radius: 999px;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--color-ink);
+    background-color: var(--color-canvas);
+    cursor: pointer;
+    transition:
+      border-color 0.2s ease,
+      background-color 0.2s ease;
+  }
+
+  .tl-more-btn:hover:not(:disabled) {
+    border-color: var(--color-link);
+    color: var(--color-link);
+    background-color: var(--color-fog);
+  }
+
+  .tl-more-btn:disabled {
+    cursor: default;
+    color: var(--color-slate);
+  }
+
+  .tl-more-note {
+    margin: 10px 0 0;
+    font-size: 12px;
+    color: var(--color-slate);
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .tl-card,
     .tl-title,
-    .tl-badge {
+    .tl-badge,
+    .tl-more-btn {
       transition-duration: 1ms;
     }
   }

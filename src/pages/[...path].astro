@@ -208,6 +208,7 @@ const isRoot = !data.path || data.path === '/';
             includeSelf={data.timeline?.includeSelf ?? true}
             includeFriends={data.timeline?.includeFriends ?? true}
             friendPosts={data.timeline?.friendPosts ?? 3}
+            pageSize={data.timeline?.pageSize ?? 10}
           />
         ) : null
       }

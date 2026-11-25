@@ -52,6 +52,9 @@ const FEED_GUESSES = ['/atom.xml', '/rss.xml', '/feed.xml', '/feed', '/index.xml
 
 const FETCH_TIMEOUT = 8000;
 
+/** 构建期同一地址只拉一次：页面和分页 JSON 会各算一遍时间轴 */
+const feedCache = new Map<string, string | null>();
+
 let cache: Friend[] | null = null;
 
 /** 读取友链；文件不存在返回空数组 */
@@ -95,6 +98,8 @@ export async function getFriends(): Promise<Friend[]> {
 
 /** 带超时的抓取，失败返回 null */
 async function tryFetch(url: string): Promise<string | null> {
+  if (feedCache.has(url)) return feedCache.get(url) ?? null;
+
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
 
@@ -108,14 +113,23 @@ async function tryFetch(url: string): Promise<string | null> {
       redirect: 'follow',
     });
 
-    if (!res.ok) return null;
+    if (!res.ok) {
+      feedCache.set(url, null);
+      return null;
+    }
 
     // 有的站点对任何路径都回 HTML，这类排除
     const type = res.headers.get('content-type') ?? '';
-    if (/text\/html/i.test(type)) return null;
+    if (/text\/html/i.test(type)) {
+      feedCache.set(url, null);
+      return null;
+    }
 
-    return await res.text();
+    const body = await res.text();
+    feedCache.set(url, body);
+    return body;
   } catch {
+    feedCache.set(url, null);
     return null;
   } finally {
     clearTimeout(timer);

@@ -84,6 +84,8 @@ const pages = defineCollection({
           includeFriends: z.boolean().optional().default(true),
           /** 友链每站取几条 */
           friendPosts: z.number().int().min(1).max(10).optional().default(3),
+          /** 首屏渲染几条，其余按需加载 */
+          pageSize: z.number().int().min(1).max(50).optional().default(10),
         })
         .nullish(),
       draft: z.boolean().default(false),
