@@ -71,6 +71,47 @@ Images referenced with a relative path (`![](diagram.webp)`) are resolved
 against the post folder, hashed, converted to WebP, and given explicit
 dimensions so the layout does not shift while they load.
 
+### Friend links
+
+`src/content/_data/friends.json` holds the list. Each entry decides how its
+recent posts are fetched:
+
+```json
+{
+  "title": "Example Blog",
+  "link": "https://example.com",
+  "desc": "One line about the site.",
+  "avatar": "https://example.com/avatar.webp",
+  "feed": "https://example.com/atom.xml",
+  "mode": "build"
+}
+```
+
+| `mode` | When posts are read | Trade-off |
+| --- | --- | --- |
+| `build` (default) | During the build, written into the HTML | Fresh only as often as the site is rebuilt; no runtime cost |
+| `dynamic` | In the browser after the page loads, then every `friends.refreshMinutes` | Always current, but the feed host must send `Access-Control-Allow-Origin` |
+| `none` | Never — the card shows no post list | — |
+
+`dynamic` needs CORS. A browser cannot read a cross-origin feed that does not
+opt in, and most blogs do not. When it fails the list simply stays empty; the
+rest of the page is unaffected. Check a feed with:
+
+```bash
+curl -sI -H "Origin: https://your-site.com" https://example.com/atom.xml | grep -i access-control
+```
+
+The interval, retry count and timeout live in `src/lib/site.ts`:
+
+```ts
+export const friends = {
+  refreshMinutes: 30,   // 0 = fetch once per page load
+  retries: 1,
+  timeoutMs: 8000,
+};
+```
+
+
 ### Interface language
 
 The interface ships in English and Chinese. A site is one language at a time;

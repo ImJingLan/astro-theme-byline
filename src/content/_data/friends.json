@@ -2,19 +2,24 @@
   {
     "title": "Example Blog One",
     "link": "https://example.com",
-    "desc": "万钟则不辨礼仪而受之，万种于我美滋滋",
-    "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200"
+    "desc": "mode: build — posts are written into the HTML at build time.",
+    "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200",
+    "feed": "https://example.com/atom.xml",
+    "mode": "build"
   },
   {
-    "title": "Example Blog Two",
-    "link": "https://example.org",
-    "desc": "No feed at this address, so the card shows no post list.",
-    "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200"
+    "title": "Dynamic Example",
+    "link": "https://example.com",
+    "desc": "mode: dynamic — the browser fetches this feed after the page loads.",
+    "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200",
+    "feed": "https://example.com/atom.xml",
+    "mode": "dynamic"
   },
   {
-    "title": "Example Blog Three",
+    "title": "No Posts Example",
     "link": "https://example.net",
-    "desc": "Longer descriptions wrap without pushing the post list out of alignment.",
-    "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200"
+    "desc": "mode: none — the card shows no post list at all.",
+    "avatar": "https://gravatar.com/avatar/00000000000000000000000000000000?d=mp&s=200",
+    "mode": "none"
   }
 ]
