@@ -120,32 +120,79 @@ export function groupByMonth(entries: TimelineEntry[]): TimelineGroup[] {
 }
 
 /**
- * 把分组切成若干页。
+ * 按需加载用的分块。
  *
- * 每页尽量凑够 pageSize 条，但不切开同一个月：分组标题只写一次，
- * 跨页切断会让同一月份出现两个标题。
+ * 块名由年月决定，不是流水号：新增一篇只改动它所在月份那一块，
+ * 更早月份的文件名和内容都不变，部署时不会被重传。
+ * 同一个月超过 perChunk 条时再切成 <年>-<月>.2、.3。
  */
-export function paginateGroups(groups: TimelineGroup[], pageSize: number): TimelineGroup[][] {
-  if (pageSize <= 0) return [groups];
+export interface TimelineChunk {
+  /** 文件名与 URL 的一段，如 2026-9 或 2026-9.2 */
+  key: string;
+  /** 所属月份，跨块时用来合并标题 */
+  month: string;
+  year: number;
+  monthNum: number;
+  items: TimelineEntry[];
+}
 
-  const pages: TimelineGroup[][] = [];
-  let current: TimelineGroup[] = [];
-  let count = 0;
+export function chunkGroups(groups: TimelineGroup[], perChunk = 10): TimelineChunk[] {
+  const size = Math.max(1, perChunk);
+  const chunks: TimelineChunk[] = [];
 
   for (const group of groups) {
-    current.push(group);
-    count += group.items.length;
-
-    if (count >= pageSize) {
-      pages.push(current);
-      current = [];
-      count = 0;
+    for (let i = 0; i * size < group.items.length; i++) {
+      chunks.push({
+        key: i === 0 ? group.key : `${group.key}.${i + 1}`,
+        month: group.key,
+        year: group.year,
+        monthNum: group.month,
+        items: group.items.slice(i * size, (i + 1) * size),
+      });
     }
   }
 
-  if (current.length) pages.push(current);
+  return chunks;
+}
 
-  return pages.length ? pages : [[]];
+/**
+ * 首屏要凑够 minItems 条，所以可能吃掉好几块；
+ * 剩下的块才交给浏览器按需取。
+ */
+export function splitChunks(
+  chunks: TimelineChunk[],
+  minItems: number
+): { inline: TimelineChunk[]; rest: TimelineChunk[] } {
+  const inline: TimelineChunk[] = [];
+  let count = 0;
+
+  for (const chunk of chunks) {
+    if (count >= minItems) break;
+    inline.push(chunk);
+    count += chunk.items.length;
+  }
+
+  return { inline, rest: chunks.slice(inline.length) };
+}
+
+/** 把块还原成分组，同一月份被切开的多块合并回一个标题 */
+export function chunksToGroups(chunks: TimelineChunk[]): TimelineGroup[] {
+  const groups: TimelineGroup[] = [];
+
+  for (const chunk of chunks) {
+    const last = groups[groups.length - 1];
+    if (last && last.key === chunk.month) last.items.push(...chunk.items);
+    else {
+      groups.push({
+        key: chunk.month,
+        year: chunk.year,
+        month: chunk.monthNum,
+        items: [...chunk.items],
+      });
+    }
+  }
+
+  return groups;
 }
 
 /**
@@ -176,18 +223,20 @@ export interface TimelinePayloadItem {
   siteLink?: string;
 }
 
-export interface TimelinePayloadGroup {
+export interface TimelinePayload {
   key: string;
+  month: string;
   heading: string;
   items: TimelinePayloadItem[];
 }
 
-/** 把分组转成可 JSON 化的结构 */
-export function toPayload(groups: TimelineGroup[]): TimelinePayloadGroup[] {
-  return groups.map((group) => ({
-    key: group.key,
-    heading: monthLabel(group.year, group.month),
-    items: group.items.map((item) => ({
+/** 把一块转成可 JSON 化的结构 */
+export function chunkToPayload(chunk: TimelineChunk): TimelinePayload {
+  return {
+    key: chunk.key,
+    month: chunk.month,
+    heading: monthLabel(chunk.year, chunk.monthNum),
+    items: chunk.items.map((item) => ({
       kind: item.kind,
       title: item.title,
       link: withRef(item.link),
@@ -197,5 +246,5 @@ export function toPayload(groups: TimelineGroup[]): TimelinePayloadGroup[] {
       siteTitle: item.site?.title,
       siteLink: item.site ? withRef(item.site.link) : undefined,
     })),
-  }));
+  };
 }

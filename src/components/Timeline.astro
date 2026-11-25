@@ -1,15 +1,16 @@
 ---
-/** 时间轴：首屏静态渲染，其余分页按需取 */
+/** 时间轴：首屏静态渲染，其余按月分块按需取 */
 import { t } from '../i18n';
 import { formatDate } from '../lib/format';
 import { withRef } from '../lib/links';
 import {
   getTimeline,
   groupByMonth,
-  paginateGroups,
+  chunkGroups,
+  splitChunks,
+  chunksToGroups,
   monthLabel,
   thumbFor,
-  type TimelineEntry,
 } from '../lib/timeline';
 
 interface Props {
@@ -17,7 +18,7 @@ interface Props {
   includeSelf?: boolean;
   includeFriends?: boolean;
   friendPosts?: number;
-  /** 首屏至少渲染几条；分组不切开，实际可能略多 */
+  /** 每块多少条；块不切开月份，所以首屏可能略多 */
   pageSize?: number;
 }
 
@@ -30,89 +31,86 @@ const {
 } = Astro.props;
 
 const entries = await getTimeline({ limit, includeSelf, includeFriends, friendPosts });
-const pages = paginateGroups(groupByMonth(entries), pageSize);
-const first = pages[0] ?? [];
-const totalPages = pages.length;
+const chunks = chunkGroups(groupByMonth(entries), pageSize);
+
+// 首屏凑够 pageSize 条，可能吃掉好几块；剩下的把名字交给脚本
+const { inline, rest } = splitChunks(chunks, pageSize);
+const groups = chunksToGroups(inline);
+const restKeys = rest.map((chunk) => chunk.key);
 ---
 
 {
-  entries.length ? (
+  groups.length ? (
     <div
       class="timeline"
       data-timeline
-      data-total-pages={totalPages}
+      data-chunks={JSON.stringify(restKeys)}
       data-self-label={t.timeline.self}
     >
       <div data-timeline-groups>
-        {first.map((group) => (
+        {groups.map((group) => (
           <section class="tl-group" data-month-key={group.key}>
             <h3 class="tl-heading">{monthLabel(group.year, group.month)}</h3>
 
             <ol class="tl-list">
               {group.items.map((item) => (
-                <li
-                  class:list={['tl-item', `tl-item--${item.kind}`]}
-                  data-timeline-month={group.key}
-                >
-                  <span class="tl-dot" aria-hidden="true" />
+              <li
+                class:list={['tl-item', `tl-item--${item.kind}`]}
+                data-timeline-month={group.key}
+              >
+                <span class="tl-dot" aria-hidden="true" />
 
-                  <div class="tl-card">
-                    {thumbFor(item) ? (
-                      <a
-                        class="tl-thumb"
-                        href={withRef(item.link)}
-                        target={item.kind === 'friend' ? '_blank' : undefined}
-                        rel={item.kind === 'friend' ? 'noopener' : undefined}
-                        tabindex="-1"
-                        aria-hidden="true"
-                      >
-                        <img
-                          src={thumbFor(item)}
-                          alt=""
-                          loading="lazy"
-                          width="56"
-                          height="56"
-                        />
-                      </a>
-                    ) : (
-                      <span class="tl-thumb tl-thumb--empty" aria-hidden="true" />
-                    )}
+                <div class="tl-card">
+                  {thumbFor(item) ? (
+                    <a
+                      class="tl-thumb"
+                      href={withRef(item.link)}
+                      target={item.kind === 'friend' ? '_blank' : undefined}
+                      rel={item.kind === 'friend' ? 'noopener' : undefined}
+                      tabindex="-1"
+                      aria-hidden="true"
+                    >
+                      <img src={thumbFor(item)} alt="" loading="lazy" width="56" height="56" />
+                    </a>
+                  ) : (
+                    <span class="tl-thumb tl-thumb--empty" aria-hidden="true" />
+                  )}
 
-                    <div class="tl-body">
-                      <p class="tl-meta">
-                        {item.kind === 'self' ? (
-                          <span class="tl-badge tl-badge--self">{t.timeline.self}</span>
-                        ) : (
-                          <a
-                            class="tl-badge tl-badge--friend"
-                            href={withRef(item.site?.link ?? '')}
-                            target="_blank"
-                            rel="noopener"
-                          >
-                            {item.site?.title}
-                          </a>
-                        )}
-                        <time datetime={item.date.toISOString()}>{formatDate(item.date)}</time>
-                      </p>
+                  <div class="tl-body">
+                    <p class="tl-meta">
+                      {item.kind === 'self' ? (
+                        <span class="tl-badge tl-badge--self">{t.timeline.self}</span>
+                      ) : (
+                        <a
+                          class="tl-badge tl-badge--friend"
+                          href={withRef(item.site?.link ?? '')}
+                          target="_blank"
+                          rel="noopener"
+                        >
+                          {item.site?.title}
+                        </a>
+                      )}
+                      <time datetime={item.date.toISOString()}>{formatDate(item.date)}</time>
+                    </p>
 
-                      <a
-                        class="tl-title"
-                        href={withRef(item.link)}
-                        target={item.kind === 'friend' ? '_blank' : undefined}
-                        rel={item.kind === 'friend' ? 'noopener' : undefined}
-                      >
-                        {item.title}
-                      </a>
-                    </div>
+                    <a
+                      class="tl-title"
+                      href={withRef(item.link)}
+                      target={item.kind === 'friend' ? '_blank' : undefined}
+                      rel={item.kind === 'friend' ? 'noopener' : undefined}
+                    >
+                      {item.title}
+                    </a>
                   </div>
-                </li>
+                </div>
+              </li>
               ))}
             </ol>
           </section>
         ))}
       </div>
 
-      {totalPages > 1 ? (
+      {restKeys.length ? (
         <div class="tl-more">
           <button
             type="button"
@@ -120,7 +118,6 @@ const totalPages = pages.length;
             data-timeline-more
             data-loading-label={t.timeline.loading}
             data-failed-label={t.timeline.loadFailed}
-            data-end-label=""
           >
             {t.timeline.loadMore}
           </button>
@@ -129,7 +126,7 @@ const totalPages = pages.length;
       ) : null}
 
       {/*
-        后续分页由脚本克隆这里的节点生成，样式才会跟首屏一致
+        后续分块由脚本克隆这里的节点生成，样式才会跟首屏一致
         （scoped CSS 编译成带 data-astro-cid 的选择器）。
       */}
       <template data-timeline-group-tpl>

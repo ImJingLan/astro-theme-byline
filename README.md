@@ -135,10 +135,23 @@ Each row shows the source: this site gets a blue marker and a "This site"
 badge, a friend gets its name and avatar. Links to friends open in a new tab
 and carry the same `?ref=` as the friend page.
 
-The first `pageSize` entries are written into the HTML. The rest go to
-`/timeline-data/2.json`, `/timeline-data/3.json` and so on, fetched when
-"Load more" is pressed. Pages are cut on month boundaries, so a month never
-appears under two headings.
+The first `pageSize` entries are written into the HTML. The rest are cut into
+chunks of the same size and written as `/timeline-data/<year>-<month>.json`,
+fetched one at a time when "Load more" is pressed. A month with more than
+`pageSize` entries continues in `<year>-<month>.2.json`.
+
+Chunk names come from the month, not from a running number, so publishing a
+post rewrites only the chunk for that month: on the demo, adding one to June
+2024 left the other four files byte-for-byte identical. A numbered scheme
+would have shifted every later page.
+
+That only helps if the deploy compares content. Astro rewrites the whole of
+`dist` on every build, so every file gets a fresh mtime, and rsync's default
+size-and-time check would upload all of it. Pass `-c` to compare checksums:
+
+```yaml
+ARGS: "-rltgoDzvOc --delete"
+```
 
 A row costs about 1.1 KB of markup, and the templates and button add roughly
 1 KB once. Deferring entries therefore pays off as soon as more than one is

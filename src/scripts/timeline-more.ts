@@ -1,5 +1,5 @@
 /**
- * 时间轴分页：点「加载更多」取下一页 JSON，用模板克隆节点插进列表。
+ * 时间轴分块加载：点「加载更多」取下一块 JSON，用模板克隆节点插进列表。
  *
  * 用 <template> 而不是 createElement，是因为 scoped CSS 编译成了
  * 带 data-astro-cid 的选择器，脚本新建的节点拿不到那个属性，样式会丢。
@@ -16,14 +16,15 @@ interface PayloadItem {
   siteLink?: string;
 }
 
-interface PayloadGroup {
+interface PayloadChunk {
   key: string;
+  month: string;
   heading: string;
   items: PayloadItem[];
 }
 
-/** 已加载到第几页；首屏是第 1 页 */
-let loaded = 1;
+/** 已取到第几块；首屏那第 0 块已经渲染过 */
+let loaded = 0;
 
 function buildItem(
   item: PayloadItem,
@@ -55,7 +56,6 @@ function buildItem(
   }
 
   if (item.kind === 'friend' && item.siteTitle) {
-    badge.className = 'tl-badge tl-badge--friend';
     const siteLink = document.createElement('a');
     siteLink.className = 'tl-badge tl-badge--friend';
     siteLink.href = item.siteLink ?? '';
@@ -83,15 +83,15 @@ function buildItem(
   return li;
 }
 
-function appendGroup(
-  group: PayloadGroup,
+function appendChunk(
+  chunk: PayloadChunk,
   containers: HTMLElement,
   groupTpl: HTMLTemplateElement,
   itemTpl: HTMLTemplateElement,
   selfLabel: string
 ): void {
-  // 同一月份跨页时接到已有分组后面，不再写一次标题
-  let section = containers.querySelector<HTMLElement>(`[data-month-key="${group.key}"]`);
+  // 同一月份被切成多块时接到已有分组后面，不再写一次标题
+  let section = containers.querySelector<HTMLElement>(`[data-month-key="${chunk.month}"]`);
   let list: HTMLElement | null = null;
 
   if (section) {
@@ -100,9 +100,9 @@ function appendGroup(
     const node = groupTpl.content.firstElementChild?.cloneNode(true) as HTMLElement | undefined;
     if (!node) return;
 
-    node.dataset.monthKey = group.key;
+    node.dataset.monthKey = chunk.month;
     const heading = node.querySelector('.tl-heading');
-    if (heading) heading.textContent = group.heading;
+    if (heading) heading.textContent = chunk.heading;
 
     containers.append(node);
     section = node;
@@ -111,10 +111,10 @@ function appendGroup(
 
   if (!list) return;
 
-  for (const item of group.items) {
+  for (const item of chunk.items) {
     const li = buildItem(item, itemTpl, selfLabel);
     if (li) {
-      li.dataset.timelineMonth = group.key;
+      li.dataset.timelineMonth = chunk.month;
       list.append(li);
     }
   }
@@ -132,29 +132,32 @@ async function loadMore(): Promise<void> {
 
   if (!button || !containers || !groupTpl || !itemTpl) return;
 
-  const total = Number(root.dataset.totalPages ?? '1');
-  if (loaded >= total) return;
+  let keys: string[] = [];
+  try {
+    keys = JSON.parse(root.dataset.chunks ?? '[]');
+  } catch {
+    return;
+  }
 
-  const next = loaded + 1;
+  if (loaded >= keys.length) return;
+
   const label = button.textContent;
   button.disabled = true;
   button.textContent = button.dataset.loadingLabel ?? label;
 
   try {
-    const res = await fetch(`/timeline-data/${next}.json`);
+    const key = keys[loaded];
+    const res = await fetch(`/timeline-data/${key}.json`);
     if (!res.ok) throw new Error(String(res.status));
 
-    const groups = (await res.json()) as PayloadGroup[];
-    if (!Array.isArray(groups) || groups.length === 0) throw new Error('empty');
+    const chunk = (await res.json()) as PayloadChunk;
+    if (!chunk || !Array.isArray(chunk.items)) throw new Error('bad payload');
 
-    const selfLabel = root.dataset.selfLabel ?? '';
-    for (const group of groups) appendGroup(group, containers, groupTpl, itemTpl, selfLabel);
+    appendChunk(chunk, containers, groupTpl, itemTpl, root.dataset.selfLabel ?? '');
+    loaded += 1;
 
-    loaded = next;
-
-    if (loaded >= total) {
+    if (loaded >= keys.length) {
       button.remove();
-      // 没有结束语就不留空段落
       const end = button.dataset.endLabel ?? '';
       if (note && end) {
         note.hidden = false;
@@ -180,10 +183,8 @@ function start(): void {
   const root = document.querySelector<HTMLElement>('[data-timeline]');
   if (!root) return;
 
-  // swup 换页后同一个根节点会被替换，重新绑定
-  if (bound) {
-    loaded = 1;
-  }
+  // swup 换页后根节点会被替换，重新绑定
+  if (bound) loaded = 0;
   bound = true;
 
   root.querySelector('[data-timeline-more]')?.addEventListener('click', () => {
